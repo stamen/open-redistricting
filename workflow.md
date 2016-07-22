@@ -4,42 +4,108 @@
 
 ### 1. Set up a GitHub account.
 
-If you already have a GitHub account you'd like to use for sharing your district maps, use that account and skip this step. Otherwise, you can create a new GitHub account, following these steps.
+If you already have a GitHub account you'd like to use for sharing your district maps, use that account and skip to step #2. Otherwise, you can create a new GitHub account, following these steps.
 
 1. Ensure you have a valid email account that has not yet been used to set up a GitHub account.
 2. Visit [GitHub.com](https://github.com/) and create a new account.
 3. Choose a free account -- we're working in the open here, and GitHub requires you to pay only for private repositories.
 4. After verifying your email address, you can start a new project; this takes us to Step 2 below.
 
-### 2. Initialize a git repository for your project.
+### 2. Download the GitHub desktop client.
 
-// TODO: GitHub desktop client (advanced users can use command line / GitHub website)
+Advanced users with technical proficiency can skip this and remain on the command line if they choose. For those who prefer to use a less technical interface than the command line, download the GitHub Desktop client from [here](https://desktop.github.com/). The rest of this document will detail use of GitHub Desktop and [GitHub.com](https://github.com/) rather than command line `git`.
 
-### 3. Create (and validate) your geojson file(s).
+### 3. Initialize a git repository for your project.
+
+1. Visit [GitHub.com](https://github.com/) and log in.
+2. If you have not yet created any repositories with this account, click the "Start a project" button; if you already have repos on GitHub then click the "New repository" button.
+3. Call it whatever you like, and give it a suitable description. Leave it public -- again, we're working in the open.
+4. Check the box to initialize the repo with a **README** file.
+5. Leave the defaults for **.gitignore** and **license**.
+6. Click the "Create Repository" button.
+7. You're now viewing your repo. You can add more information about your redistricting effort to `README.md` by clicking the `README.md` link on this page, and then the edit button (at upper-right, a pencil icon). Be sure to click "Commit changes" at the bottom of the page when you're done.
+8. Go back to your repo's home page (e.g. `https://github.com/<username>/<reponame>/`) and click the green "Clone or download" button, and choose "Open in Desktop". GitHub Desktop (which we downloaded and installed in Step 2 above) will open, and our repo's files will be saved in the location you specify.
+
+We now have a working repository in place. We'll use this to store proposals in a public place, where constituents and other interested parties can comment on proposals and suggest modifications. This public input can then be folded into subsequent iterations, leading ideally to a more democratic end result.
+
+### 4. Create (and validate) your district map as a geojson file(s).
 
 Create your district map with the tool of your choice, and export it as a `.geojson` file.
 
-If you've made any changes by hand, you might want to validate the `.geojson` file with a tool like [MapBox's GeoJSON Hint](https://www.mapbox.com/geojsonhint/) or [GeoJSONLint](http://geojsonlint.com/).
+_TODO: examples of using ESRI/other industry-standard tools to output geojson_
 
-### 4. Commit your geojson file(s).
+Note: if you've made any changes by hand, you might want to validate the `.geojson` file with a tool like [MapBox's GeoJSON Hint](https://www.mapbox.com/geojsonhint/) or [GeoJSONLint](http://geojsonlint.com/). Invalid GeoJSON will prevent the next steps from working correctly.
 
+### 5. Commit your geojson file(s).
 
+1. Copy your `.geojson` file into the folder to which you saved your repository files in step 3.8.
+2. Switch back over to GitHub client, and select View > Uncommitted Changes to see your new file.
+3. In the Summary field, add a descriptive commit message. For example, you might write _"Initial commit of district map"_. Then, click the "Commit to master" button. This commits your change locally, but we still have to synchronize that commit with the server.
+4. Click the "Sync" or "Publish" button at upper-right; GitHub Desktop has just "pushed" your local changes up to the server (GitHub.com), where anyone following along can now view and comment on them.
+
+### 6. Visit your progress at its public home.
+
+#### Viewing your committed district map
+Now that you've "synced" or "pushed" your changes, they are visible to the public online. Switch back over to your browser and visit your repo homepage (e.g. `https://github.com/<username>/<reponame>/`). (You may need to refresh your browser.)
+
+You will see the `.geojson` file(s) you added; click their names to view them online. The button at upper-right with a page icon (shows _"Display the rich diff"_ on hover) will, when clicked, display your `.geojson` file as an inline map.
+
+![GitHub map view](https://cloud.githubusercontent.com/assets/1127259/17072663/ddc024aa-501e-11e6-8378-552070c41a79.png "GitHub map view")
+
+We're live! The public can now view your district map in its current form.
 
 
 ## Adding revisions
 
-// TODO
+### 1. Make a new branch.
 
-https://github.com/stamen/usopendata/commit/ddc176316332c9e12040bdfa41bfc41eed84a0cb?short_path=489fb86#diff-489fb8640f66d9e79b406de913032727
+On GitHub and its underlying version control engine, [Git](https://git-scm.com/), you can make substantial changes to your project on a separate _branch_, collect feedback and iterate, and then _merge_ back into your main branch, called `master`.
+
+Let's create a new branch to keep track of the changes we're about to make.
+
+1. In GitHub Desktop, click the "Add a branch" button in the top toolbar or select File > New Branch. Name your branch something descriptive but succinct. Dashes are the preferred word separator. If you are, for example, proposing changes to District 11 in 2020's redistricting, you might name your branch `district-11-update-2020`.
+	- **_Note:_** You can branch off of branches, but we only have the `master` branch right now. So the "From" dropdown offers only "master", and this is the choice we want.
+2. Edit your map with the tool of your choice, and export it as a `.geojson` file.
+3. Copy the `.geojson` file into the folder to which you saved your repository files in **Setup** step 3.8. Don't change the name; just overwrite the file that you added previously.
+	- **_Note:_** Even though you're overwriting the file, we can easily _revert_ to the previous version -- nothing is lost! This is the magic of systems like GitHub and its underlying version control engine Git. If you need to do this, right-click the filename in GitHub Desktop and select "Discard Changes...", or select Repository > Discard Changes to Selected Files....
+4. Back in GitHub Desktop, let's commit our change and push it to GitHub. As before, write a descriptive commit message, then click the Commit button below (note this time it reads "Commit to _&lt;your-branch-name&gt;_" instead of "Commit to master", since we're currently working on a branch). Then click the "Publish" button at upper-right to push your commit to the server.
+
+### View your changes and interact with your district map.
+
+1. Switch back over to your browser and go again to your repo homepage. You'll see a prominent banner on the page with the name of the branch you just pushed; click the green "Compare & pull request" button to see your fine work.
+2. You are now on the **Open a pull request** page. You can see the file to which you committed changes listed below the pull request UI (we'll come back to this); click the button with a page icon (shows _"Display the rich diff"_ on hover) to view your changes rendered on a map.
+3. Toggle between the "Revision Slider" and "Highlight" tabs below the map for two different ways of viewing the changes.
 
 ![GitHub geodiff: Highlight View](https://cloud.githubusercontent.com/assets/1127259/17067888/c851ad8a-5002-11e6-8c07-5a68af64b29d.png "GitHub geodiff: Highlight View")
 
 ![GitHub geodiff: Revision Slider](https://cloud.githubusercontent.com/assets/1127259/17067889/c8677386-5002-11e6-8d28-f53ac66352ac.png "GitHub geodiff: Revision Slider")
 
+#### Viewing differences between an arbitrary pair of map changes
+// TODO: From your repo homepage, you can click the "N commits" tab toward the top of the page to view a list of commits (changes) pushed to the server. The most recent commit is at the top. 
+
+[Sample geodiff URL](https://github.com/stamen/usopendata/commit/ddc176316332c9e12040bdfa41bfc41eed84a0cb?short_path=489fb86#diff-489fb8640f66d9e79b406de913032727
+)
+
+
+### Notify constituents and collect feedback
+// TODO as comments on PR
+
+
+### Iterate based on feedback
+// TODO push more commits to the branch, rinse and repeat
+
+### Finalize your changes
+
+Once you have collected sufficient feedback and have iterated your proposal to the point you feel it is ready for reintegration into the overall district map, you can merge your branch back into the `master` branch.
+
+- **_Note:_** this step is optional. Depending on your workflow, you may opt to use this repo as a place to maintain multiple proposals, and feedback on each, as separate branches; the `.geojson` files in each branch can be used as necessary without ever merging them back into the `master` branch.
+
+
 
 
 ## Useful tools
 
+- [GitHub Desktop client](https://desktop.github.com/)
 - [MapBox's GeoJSON Hint](https://www.mapbox.com/geojsonhint/): GeoJSON validator
 - [GeoJSON.io](http://geojson.io/): GeoJSON web viewer
 - TODO: add tools for generating district maps
