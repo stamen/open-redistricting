@@ -4,11 +4,16 @@
 
 ### 1. Set up a GitHub account.
 
-// TODO
+If you already have a GitHub account you'd like to use for sharing your district maps, use that account and skip this step. Otherwise, you can create a new GitHub account, following these steps.
+
+1. Ensure you have a valid email account that has not yet been used to set up a GitHub account.
+2. Visit [GitHub.com](https://github.com/) and create a new account.
+3. Choose a free account -- we're working in the open here, and GitHub requires you to pay only for private repositories.
+4. After verifying your email address, you can start a new project; this takes us to Step 2 below.
 
 ### 2. Initialize a git repository for your project.
 
-// TODO
+// TODO: GitHub desktop client (advanced users can use command line / GitHub website)
 
 ### 3. Create (and validate) your geojson file(s).
 
@@ -18,14 +23,20 @@ If you've made any changes by hand, you might want to validate the `.geojson` fi
 
 ### 4. Commit your geojson file(s).
 
-// TODO
+
 
 
 ## Adding revisions
 
 // TODO
 
-https://github.com/ericsoco/usod-test-01/compare/b9f5dbd1043880f95c7bae221fa832f29ce7183a...master?name=master&short_path=e02f534#diff-e02f5347ee7a8a12e83a4298a8ae86a7
+https://github.com/stamen/usopendata/commit/ddc176316332c9e12040bdfa41bfc41eed84a0cb?short_path=489fb86#diff-489fb8640f66d9e79b406de913032727
+
+![GitHub geodiff: Highlight View](https://cloud.githubusercontent.com/assets/1127259/17067888/c851ad8a-5002-11e6-8c07-5a68af64b29d.png "GitHub geodiff: Highlight View")
+
+![GitHub geodiff: Revision Slider](https://cloud.githubusercontent.com/assets/1127259/17067889/c8677386-5002-11e6-8d28-f53ac66352ac.png "GitHub geodiff: Revision Slider")
+
+
 
 ## Useful tools
 
