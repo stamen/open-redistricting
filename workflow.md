@@ -11,7 +11,7 @@ If you already have a GitHub account you'd like to use for sharing your district
 3. Choose a free account -- we're working in the open here, and GitHub requires you to pay only for private repositories.
 4. After verifying your email address, you can start a new project; this takes us to Step 2 below.
 
-### 2. Download the GitHub desktop client.
+### 2. Download the GitHub Desktop client.
 
 Advanced users with technical proficiency can skip this and remain on the command line if they choose. For those who prefer to use a less technical interface than the command line, download the GitHub Desktop client from [here](https://desktop.github.com/). The rest of this document will detail use of GitHub Desktop and [GitHub.com](https://github.com/) rather than command line `git`.
 
@@ -75,24 +75,37 @@ Let's create a new branch to keep track of the changes we're about to make.
 1. Switch back over to your browser and go again to your repo homepage. You'll see a prominent banner on the page with the name of the branch you just pushed; click the green "Compare & pull request" button to see your fine work.
 2. You are now on the **Open a pull request** page. You can see the file to which you committed changes listed below the pull request UI (we'll come back to this); click the button with a page icon (shows _"Display the rich diff"_ on hover) to view your changes rendered on a map.
 3. Toggle between the "Revision Slider" and "Highlight" tabs below the map for two different ways of viewing the changes.
+4. When you are ready to submit your proposed changes, enter a descriptive comment in the "Leave a comment" field and click the green "Create pull request" button. Your proposal is now ready for public feedback.
 
 ![GitHub geodiff: Highlight View](https://cloud.githubusercontent.com/assets/1127259/17067888/c851ad8a-5002-11e6-8c07-5a68af64b29d.png "GitHub geodiff: Highlight View")
 
 ![GitHub geodiff: Revision Slider](https://cloud.githubusercontent.com/assets/1127259/17067889/c8677386-5002-11e6-8d28-f53ac66352ac.png "GitHub geodiff: Revision Slider")
 
-#### Viewing differences between an arbitrary pair of map changes
-// TODO: From your repo homepage, you can click the "N commits" tab toward the top of the page to view a list of commits (changes) pushed to the server. The most recent commit is at the top. 
+#### Pro Tip: Viewing differences between an arbitrary pair of map changes
+You may never need this feature if you always follow the above flow. However, if at any point in the future you want to compare the state of the map from one point in time (an arbitrary commit) to another, you can do so with the following steps:
 
-[Sample geodiff URL](https://github.com/stamen/usopendata/commit/ddc176316332c9e12040bdfa41bfc41eed84a0cb?short_path=489fb86#diff-489fb8640f66d9e79b406de913032727
-)
-
+1. Visit your repo homepage and click the "N commits" tab toward the top of the page to view a list of commits (changes) pushed to the server. Commits are ordered with the most recent at the top.
+2. Get the `SHA` (a unique identifier) for the two commits you wish to compare by clicking the button with a clipboard icon to the right of the commit (shows "Copy the full SHA" on hover). Paste them somewhere for use in the next step.
+3. Go back to your repo homepage and click the "New pull request" button" toward the top.
+4. On the Compare page, there are two dropdowns for selecting the two commits you want to compare. The older commit goes on the left side (open the dropdown, paste the `SHA`, and select the matching commit from the dropdown below). The page will refresh with a preliminary comparison (between the older commit and the current state of the repo). Repeat with the right dropdown and the newer commit `SHA`.
+5. You'll end up on a page that shows a comparison ("diff") between the two commits, with a URL like `https://github.com/<username>/<reponame>/compare/<olderSHA>...<newerSHA>`. [Here's an example](https://github.com/stamen/usopendata/compare/75a473679827728d856234ecd6c4510bd679042d...ddc176316332c9e12040bdfa41bfc41eed84a0cb).
+6. Finally, click the button with a page icon (shows _"Display the rich diff"_ on hover), just like we did above, to view changes on a map.
 
 ### Notify constituents and collect feedback
-// TODO as comments on PR
 
+Now that you have publicly submitted your proposed changes, it's time to solicit feedback from constituents and other parties. All proposals are available as "Pull requests" from the tab at the top of any page in your repo. Visitors to your proposal can leave comments directly on that page. Note that visitors must have a GitHub account in order to comment.
+
+Unfortunately, GitHub does not offer a single page on which visitors can both comment and see the changes on a map. Comments are left on the "Pull request" home page (e.g. `https://github.com/<username>/<reponame>/pull/<pullRequestId>`), and the map view can be accessed by clicking "Files changed" and then the rich diff button (with a page icon) to the right of the page.
+
+Any member of the public can also submit their own proposed changes by forking your repository and submitting their own pull requests, but that process is outside the scope of this document.
 
 ### Iterate based on feedback
-// TODO push more commits to the branch, rinse and repeat
+
+Pull requests are not static. They can accumulate comments, and can also accumulate (and combine) revisions. If you need to make changes to your proposal, perhaps based on public feedback, you can simply commit changes to the branch created for the pull request.
+
+1. In the GitHub Desktop client, ensure you are on the branch for the pull request (proposal) you wish to iterate. Use the dropdown at the top of the window to select the branch, or select Repository > Show Branches.
+2. Make changes to your map, export as a `.geojson` file, and copy it into your repo folder as in **Adding revisions, 1. Make a new branch**. Then, commit the change and sync/push it to the server as before.
+3. You can quickly jump to the updated Pull request page by clicking the pull request button at upper-left of the GitHub Desktop client window. Now you'll see your revision listed on the "Pull request" page, and the map will also update to reflect the new iteration.
 
 ### Finalize your changes
 
