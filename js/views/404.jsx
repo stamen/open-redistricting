@@ -1,7 +1,7 @@
-import { Component } from 'react';
+import React from 'react';
 import { Link } from 'react-router';
 
-export default class FourOhFour extends Component {
+export default class FourOhFour extends React.Component {
 
 	constructor (props) {
 

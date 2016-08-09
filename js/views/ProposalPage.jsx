@@ -1,14 +1,10 @@
 // import node modules
-import { Component } from 'react';
+import React from 'react';
 import { withRouter } from 'react-router';
-
-// views
-// import Header from '../views/Header.jsx';
 
 // import sassVars from '../../scss/variables.json';
 
-
-class Proposal extends Component {
+class ProposalPage extends React.Component {
 
 	constructor (props) {
 
@@ -40,7 +36,7 @@ class Proposal extends Component {
 		const storeState = this.props.store.getState();
 
 		return (
-			<div className='project'>
+			<div className='proposal-page'>
 			</div>
 		);
 
@@ -48,4 +44,4 @@ class Proposal extends Component {
 
 }
 
-export default withRouter(Project);
+export default withRouter(ProposalPage);

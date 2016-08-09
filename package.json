@@ -31,7 +31,14 @@
     "watchify": "^3.7.0"
   },
   "dependencies": {
-    "babel-polyfill": "^6.13.0"
+    "babel-polyfill": "^6.13.0",
+    "isomorphic-fetch": "^2.2.1",
+    "moment": "^2.14.1",
+    "react": "^15.3.0",
+    "react-dom": "^15.3.0",
+    "react-router": "^2.6.1",
+    "react-router-redux": "^4.0.5",
+    "redux": "^3.5.2"
   },
   "browserify": {
     "transform": [

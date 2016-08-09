@@ -1,5 +1,5 @@
 import 'babel-polyfill';
-import React from 'react';
+import React from 'react';	// needed to parse JSX below
 import { render } from 'react-dom';
 import { createStore, combineReducers } from 'redux';
 import { Router, Route, IndexRoute, useRouterHistory } from 'react-router';
@@ -7,12 +7,15 @@ import { createHistory } from 'history';
 import { routerReducer, syncHistoryWithStore } from 'react-router-redux';
 
 import App from './views/App.jsx';
-import Project from './views/Project.jsx';
-import Proposal from './views/Proposal.jsx';
+import HomePage from './views/HomePage.jsx';
+import ProjectPage from './views/ProjectPage.jsx';
+import ProposalPage from './views/ProposalPage.jsx';
 import RouteNotFound from './views/404.jsx';
 
-import reducers, { initialState } from './reducers';
-import actionCreator from './actions';
+import reducers, { initialState } from './models/reducers';
+import actionCreator from './models/actions';
+import transport from './models/transport';
+import middleware from './models/middleware';
 
 // Create the single store for this application session
 const store = createStore(
@@ -21,6 +24,7 @@ const store = createStore(
 		routing: routerReducer
 	}),
 	initialState
+	// applyMiddleware(...middleware)
 );
 
 // Create the single action creator for this application session
@@ -47,9 +51,9 @@ const createReduxComponent = (Component, props) => {
 render((
 	<Router history={ history } createElement={ createReduxComponent }>
 		<Route path='/' component={ App }>
-			<IndexRoute component={ Home } />
-			<Route path={ 'project(/:projectId)' } component={ Project } />
-			<Route path={ 'proposal(/:proposalId)' } component={ Proposal } />
+			<IndexRoute component={ HomePage } />
+			<Route path={ 'project(/:projectId)' } component={ ProjectPage } />
+			<Route path={ 'proposal(/:proposalId)' } component={ ProposalPage } />
 		</Route>
 		<Route path='*' component={ RouteNotFound } />
 	</Router>

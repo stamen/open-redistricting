@@ -1,14 +1,11 @@
 // import node modules
-import { Component } from 'react';
+import React from 'react';
 import { withRouter } from 'react-router';
-
-// views
-// import Header from '../views/Header.jsx';
 
 // import sassVars from '../../scss/variables.json';
 
 
-class Project extends Component {
+class HomePage extends React.Component {
 
 	constructor (props) {
 
@@ -18,8 +15,8 @@ class Project extends Component {
 
 	componentWillMount () {
 
-		console.log(">>>>> TODO: requestProject("+ this.props.params.projectId +")");
-		// this.props.actions.requestProject(this.props.params.projectId);
+		console.log(">>>>> TODO: requestProjectList()");
+		// this.props.actions.requestProjectList();
 
 	}
 
@@ -40,7 +37,7 @@ class Project extends Component {
 		const storeState = this.props.store.getState();
 
 		return (
-			<div className='project'>
+			<div className='home-page'>
 			</div>
 		);
 
@@ -48,4 +45,4 @@ class Project extends Component {
 
 }
 
-export default withRouter(Project);
+export default withRouter(HomePage);

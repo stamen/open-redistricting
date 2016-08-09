@@ -6,10 +6,11 @@ body {
 
 #app {
 	position: relative;
-	width: 100vw;
-	height: 100vh;
-	overflow: hidden;
 }
 
-@import 'example-vanilla';
-@import 'example-d3';
+@import 'home-page';
+@import 'project-page';
+@import 'proposal-page';
+@import 'header';
+@import 'project';
+@import 'proposal';

@@ -1,10 +1,9 @@
 // import node modules
-import { Component } from 'react';
+import React from 'react';
 import { withRouter } from 'react-router';
 import { debounce } from 'lodash';
 
-// views
-// import Header from '../views/Header.jsx';
+import Header from '../components/Header.jsx';
 
 // config
 // import sassVars from '../../scss/variables.json';
@@ -12,7 +11,7 @@ import { debounce } from 'lodash';
 
 
 // main app container
-class App extends Component {
+class App extends React.Component {
 
 	constructor (props) {
 
@@ -88,7 +87,7 @@ class App extends Component {
 
 		return (
 			<div className='app-container'>
-				{/* <Header { ...this.props } /> */}
+				<Header { ...this.props } />
 				{ this.props.children }
 			</div>
 		);
