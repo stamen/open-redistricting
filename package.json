@@ -1,0 +1,41 @@
+{
+  "name": "open-redistricting",
+  "version": "0.0.1",
+  "description": "Moving the redistricting process into the open. A US Open Data + Stamen joint.",
+  "scripts": {
+    "start": "npm run sass && npm run watch & npm run serve",
+    "dist": "npm run js && npm run sass && npm run static",
+    "watch": "npm run js:watch & npm run sass:watch & npm run static:watch",
+    "serve": "serve dist",
+    "gh-deploy": "npm run dist && git-directory-deploy --directory dist/",
+    "js": "browserify js/main.jsx -o dist/bundle.js",
+    "js:watch": "watchify js/main.jsx -o dist/bundle.js -dv",
+    "sass": "node-sass --include-path scss scss/main.scss dist/main.css",
+    "sass:watch": "node-sass -w --include-path scss scss/main.scss dist/main.css",
+    "static": "cp -R static/ dist/",
+    "static:watch": "nodemon -w static -e html,json,csv,gif,jpg,png,svg -x \"npm run static\""
+  },
+  "author": "ericsoco",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-plugin-transform-object-assign": "^6.8.0",
+    "babel-plugin-transform-react-jsx": "^6.8.0",
+    "babel-preset-es2015": "^6.13.2",
+    "babel-preset-stage-0": "^6.5.0",
+    "babelify": "^7.3.0",
+    "browserify": "^13.1.0",
+    "git-directory-deploy": "^1.5.0",
+    "node-sass": "^3.8.0",
+    "nodemon": "^1.10.0",
+    "serve": "^1.4.0",
+    "watchify": "^3.7.0"
+  },
+  "dependencies": {
+    "babel-polyfill": "^6.13.0"
+  },
+  "browserify": {
+    "transform": [
+      "babelify"
+    ]
+  }
+}
