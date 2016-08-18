@@ -3,7 +3,7 @@ export default {
 	// TODO: move to appConfig.json
 	config: {
 		githubAPIClientId: 'c2f002feaae356a50b34',
-		redirectURL: 'http://localhost:8080/auth-flow/oauth',
+		redirectURL: 'http://localhost:3000/',
 		gatekeeperAccessTokenURL: 'https://open-redistricting-auth.herokuapp.com/authenticate/',
 		tokenName: 'github-auth'
 	},
@@ -29,17 +29,20 @@ export default {
 
 	// TODO: refactor to use Promises
 	fetchAccessToken (code, onSuccess, onError) {
+
 		if (!code) {
-			code = window.location.href.match(/code=([^&]*)/);
-			if (!code || code.length < 1) {
+			code = this.extractOAuthCode();
+			if (!code) {
 				onError && onError();
+				return;
 			}
-			code = code[1];
 		}
 
 		fetch(this.config.gatekeeperAccessTokenURL + code)
 		.then(rsp => {
 			return rsp.json().then(j => {
+				debugger;
+				console.log(">>>>> GOT ACCESS TOKEN:", j.token);
 				this.setToken(j.token);
 				onSuccess && onSuccess(this.getToken());
 			});
@@ -67,8 +70,35 @@ export default {
 	},
 
 	logout (cb) {
+
 		this.clearToken();
-		if (cb) cb()
-	}
+		if (cb) cb();
+
+	},
+	
+	extractOAuthCode () {
+
+		let code = window.location.search.match(/code=([^&]*)/);
+		if (!code || code.length <= 1) {
+			return null;
+		}
+		return code[1];
+
+	},
+
+	extractOAuthState () {
+
+		let state = window.location.search.match(/state=([^&]*)/);
+		if (!state || state.length <= 1) {
+			// technically, this is an incorrect use of OAuth2 state,
+			// which is supposed to be used for additional security.
+			// But it's also handy for maintaining state across redirects;
+			// we use it here to redirect the user to the
+			// page that initially requested the auth.
+			return null;
+		}
+		return decodeURIComponent(state[1]);
+
+    }
 
 };

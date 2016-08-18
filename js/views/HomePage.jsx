@@ -15,8 +15,7 @@ class HomePage extends React.Component {
 
 	componentWillMount () {
 
-		console.log(">>>>> TODO: requestProjectList()");
-		// this.props.actions.requestProjectList();
+		this.props.actions.requestProjectList();
 
 	}
 

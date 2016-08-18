@@ -3,6 +3,7 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import { debounce } from 'lodash';
 
+import auth from '../models/auth';
 import Header from '../components/Header.jsx';
 
 // config
@@ -39,7 +40,32 @@ class App extends React.Component {
 
 	componentWillMount () {
 
-		// this.props.actions.requestProjects();
+		console.log(">>>>> query:", window.location.search);
+		debugger;
+		let code = auth.extractOAuthCode();
+		if (code) {
+			let state = auth.extractOAuthState();
+			// If we have an OAuth code in the query param,
+			// redirect to the /auth route to fetch an access token.
+			// Pass the state too, if it's present.
+			
+			// Note that we must remove the query string before continuing with hash-based routing
+			// to avoid polluting the URL with both a before- and after-hash query string.
+			console.log(">>>>> clearing query and redirecting to:", this.props.location.pathname);
+			window.history.replaceState(null, '', this.props.location.pathname);
+
+			//
+			// TODO: remove trailing `#/` from state, which gets added by react-router before we get here
+			// 
+
+			this.props.history.replace({
+				pathname: '/auth',
+				query: {
+					code,
+					state
+				}
+			})
+		}
 
 	}
 

@@ -1,6 +1,7 @@
 import moment from 'moment';
 
 // import appConfig from '../../static/config/appConfig.json';
+import auth from './auth';
 
 export const PROJECT_LIST_REQUESTED = 'PROJECT_LIST_REQUESTED';
 export const PROJECT_LIST_RESPONDED = 'PROJECT_LIST_RESPONDED';
@@ -22,6 +23,9 @@ export default function (store, transport) {
 		 * A "project" is a GitHub repository within the "open-redistricting" GitHub Organization.
 		 */
 		requestProjectList () {
+
+			console.log('requestProjectList access token:', auth.getToken());
+			return;
 
 			store.dispatch({
 				type: PROJECT_LIST_REQUESTED

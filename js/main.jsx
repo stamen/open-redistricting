@@ -7,6 +7,7 @@ import { routerReducer, syncHistoryWithStore } from 'react-router-redux';
 import { createHashHistory } from 'history';
 
 import App from './views/App.jsx';
+import Auth from './views/Auth.jsx';
 import HomePage from './views/HomePage.jsx';
 import ProjectPage from './views/ProjectPage.jsx';
 import ProposalPage from './views/ProposalPage.jsx';
@@ -53,6 +54,7 @@ render((
 			<IndexRoute component={ HomePage } />
 			<Route path={ 'project(/:projectId)' } component={ ProjectPage } />
 			<Route path={ 'proposal(/:proposalId)' } component={ ProposalPage } />
+			<Route path={ 'auth' } component={ Auth } />
 		</Route>
 		<Route path='*' component={ RouteNotFound } />
 	</Router>
