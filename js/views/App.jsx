@@ -29,6 +29,8 @@ class App extends React.Component {
 
 	onAppStateChange () {
 
+		console.log(">>>>> onAppStateChange");
+
 		this.forceUpdate();
 
 	}
@@ -101,8 +103,12 @@ class App extends React.Component {
 	// ============================================================ //
 
 	render () {
-
+		console.log(">>>>> App.render()");
 		const storeState = this.props.store.getState();
+
+		React.Children.forEach(this.props.children, child => {
+			console.log(child.type.displayName);
+		});
 
 		return (
 			<div className='app-container'>

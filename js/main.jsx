@@ -1,7 +1,7 @@
 import 'babel-polyfill';
 import React from 'react';	// needed to parse JSX below
 import { render } from 'react-dom';
-import { createStore, combineReducers } from 'redux';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { Router, Route, IndexRoute, useRouterHistory } from 'react-router';
 import { routerReducer, syncHistoryWithStore } from 'react-router-redux';
 import { createHashHistory } from 'history';
@@ -29,12 +29,14 @@ const store = createStore(
 		...reducers,
 		routing: routerReducer
 	}),
-	initialState
-	// applyMiddleware(...middleware)
+	initialState,
+	applyMiddleware(...middleware)
 );
 
-// Create the single action creator for this application session
-const actions = actionCreator(store);
+// Create the single action creator and transport layer for this application session
+const actions = actionCreator(store, transport({
+	expiration: 60000
+}));
 
 // set up hash history without querystring cruft (e.g. ?_k=xi50sh)
 // from: https://github.com/reactjs/react-router/blob/master/upgrade-guides/v2.0.0.md#using-custom-histories

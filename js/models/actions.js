@@ -12,7 +12,7 @@ export const PROPOSAL_LIST_RESPONDED = 'PROPOSAL_LIST_RESPONDED';
 export const PROPOSAL_REQUESTED = 'PROPOSAL_REQUESTED';
 export const PROPOSAL_RESPONDED = 'PROPOSAL_RESPONDED';
 
-const GITHUB_ORG_NAME = 'open-redistricting';
+const GITHUB_ORG_NAME = 'open-redist';
 
 export default function (store, transport) {
 
@@ -23,9 +23,6 @@ export default function (store, transport) {
 		 * A "project" is a GitHub repository within the "open-redistricting" GitHub Organization.
 		 */
 		requestProjectList () {
-
-			console.log('requestProjectList access token:', auth.getToken());
-			return;
 
 			store.dispatch({
 				type: PROJECT_LIST_REQUESTED

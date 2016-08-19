@@ -33,14 +33,56 @@ export default {
 
 	},
 
+	projectList (state = {}, action) {
+		switch (action.type) {
+
+			case actions.PROJECT_LIST_REQUESTED:
+			case actions.PROJECT_LIST_RESPONDED:
+				return {
+					...state,
+					loading: action.type === actions.PROJECT_LIST_REQUESTED,
+					error: action.error,
+					data: action.payload
+				};
+
+			default:
+				return {
+					...state
+				};
+
+		}
+	},
+
+
 	projects (state = {}, action) {
 		switch (action.type) {
 
-			case actions.PROJECTS_REQUESTED:
-			case actions.PROJECTS_RESPONDED:
+			case actions.PROJECT_REQUESTED:
+			case actions.PROJECT_RESPONDED:
+				// TODO: cache project by id
 				return {
 					...state,
-					loading: action.type === actions.PROJECTS_REQUESTED,
+					loading: action.type === actions.PROJECT_REQUESTED,
+					error: action.error,
+					data: action.payload
+				};
+
+			default:
+				return {
+					...state
+				};
+
+		}
+	},
+
+	proposalList (state = {}, action) {
+		switch (action.type) {
+
+			case actions.PROPOSAL_LIST_REQUESTED:
+			case actions.PROPOSAL_LIST_RESPONDED:
+				return {
+					...state,
+					loading: action.type === actions.PROPOSAL_LIST_REQUESTED,
 					error: action.error,
 					data: action.payload
 				};
@@ -56,11 +98,12 @@ export default {
 	proposals (state = {}, action) {
 		switch (action.type) {
 
-			case actions.PROPOSALS_REQUESTED:
-			case actions.PROPOSALS_RESPONDED:
+			case actions.PROPOSAL_REQUESTED:
+			case actions.PROPOSAL_RESPONDED:
+				// TODO: cache proposal by id
 				return {
 					...state,
-					loading: action.type === actions.PROPOSALS_REQUESTED,
+					loading: action.type === actions.PROPOSAL_REQUESTED,
 					error: action.error,
 					data: action.payload
 				};
@@ -71,7 +114,7 @@ export default {
 				};
 
 		}
-	},
+	}
 
 };
 
