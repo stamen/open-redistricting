@@ -159,7 +159,19 @@ var _middleware = require('./models/middleware');
 
 var _middleware2 = _interopRequireDefault(_middleware);
 
+var _auth = require('./models/auth');
+
+var _auth2 = _interopRequireDefault(_auth);
+
+var _appConfig = require('../static/appConfig.json');
+
+var _appConfig2 = _interopRequireDefault(_appConfig);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// Use the config corresponding to the runtime environment
+console.log(">>>>> NODE_ENV:", "production");
+_auth2.default.init(_appConfig2.default.auth["production" === 'production' ? 'prod' : 'dev']);
 
 // Create the single store for this application session
 var store = (0, _redux.createStore)((0, _redux.combineReducers)(_extends({}, _reducers2.default, {
@@ -202,7 +214,7 @@ var createReduxComponent = function createReduxComponent(Component, props) {
 	_react2.default.createElement(_reactRouter.Route, { path: '*', component: _2.default })
 ), document.getElementById('app'));
 
-},{"./models/actions":3,"./models/middleware":5,"./models/reducers":6,"./models/transport":7,"./views/404.jsx":8,"./views/App.jsx":9,"./views/Auth.jsx":10,"./views/HomePage.jsx":11,"./views/ProjectPage.jsx":12,"./views/ProposalPage.jsx":13,"babel-polyfill":14,"history":353,"react":560,"react-dom":372,"react-router":407,"react-router-redux":374,"redux":566}],3:[function(require,module,exports){
+},{"../static/appConfig.json":574,"./models/actions":3,"./models/auth":4,"./models/middleware":5,"./models/reducers":6,"./models/transport":7,"./views/404.jsx":8,"./views/App.jsx":9,"./views/Auth.jsx":10,"./views/HomePage.jsx":11,"./views/ProjectPage.jsx":12,"./views/ProposalPage.jsx":13,"babel-polyfill":14,"history":353,"react":560,"react-dom":372,"react-router":407,"react-router-redux":374,"redux":566}],3:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -399,15 +411,25 @@ var GITHUB_ORG_NAME = 'open-redistricting';
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 exports.default = {
 
-	// TODO: move to appConfig.json
+	// these sample values should either be overridden inline
+	// or passed into init().
 	config: {
-		githubAPIClientId: 'c2f002feaae356a50b34',
-		redirectURL: 'http://localhost:3000/',
-		gatekeeperAccessTokenURL: 'https://open-redistricting-auth.herokuapp.com/authenticate/',
+		githubAPIClientId: 'xxx',
+		redirectURL: 'http://example.com/',
+		gatekeeperAccessTokenURL: 'https://example-gatekeeper.herokuapp.com/authenticate/',
 		tokenName: 'github-auth'
 	},
+
+	init: function init(config) {
+
+		this.config = _extends({}, config);
+	},
+
 
 	/**
   * Kick off the OAuth dance.
@@ -56940,5 +56962,23 @@ arguments[4][358][0].apply(exports,arguments)
   }
   self.fetch.polyfill = true
 })(typeof self !== 'undefined' ? self : this);
+
+},{}],574:[function(require,module,exports){
+module.exports={
+	auth: {
+		dev: {
+			githubAPIClientId: "c2f002feaae356a50b34",
+			redirectURL: "http://localhost:3000/",
+			gatekeeperAccessTokenURL: "https://open-redistricting-auth-dev.herokuapp.com/authenticate/",
+			tokenName: "github-auth"
+		},
+		prod: {
+			githubAPIClientId: "d420ee636334d634b4b1",
+			redirectURL: "https://stamen.github.io/usopendata/",
+			gatekeeperAccessTokenURL: "https://open-redistricting-auth-prod.herokuapp.com/authenticate/",
+			tokenName: "github-auth"
+		}
+	}
+}
 
 },{}]},{},[2]);
