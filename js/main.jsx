@@ -21,7 +21,6 @@ import auth from './models/auth';
 import appConfig from '../static/appConfig.json';
 
 // Use the config corresponding to the runtime environment
-console.log(">>>>> NODE_ENV:", process.env.NODE_ENV);
 auth.init(appConfig.auth[process.env.NODE_ENV === 'production' ? 'prod' : 'dev']);
 
 // Create the single store for this application session
