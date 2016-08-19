@@ -18,7 +18,6 @@ class Auth extends React.Component {
 		let { code, state } = this.props.location.query,
 			pathname = '/';
 
-		debugger;
 		if (state) {
 			// technically, this is an incorrect use of OAuth2 state,
 			// which is supposed to be used for additional security.

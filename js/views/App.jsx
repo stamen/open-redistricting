@@ -40,8 +40,6 @@ class App extends React.Component {
 
 	componentWillMount () {
 
-		console.log(">>>>> query:", window.location.search);
-		debugger;
 		let code = auth.extractOAuthCode();
 		if (code) {
 			let state = auth.extractOAuthState();
@@ -51,12 +49,7 @@ class App extends React.Component {
 			
 			// Note that we must remove the query string before continuing with hash-based routing
 			// to avoid polluting the URL with both a before- and after-hash query string.
-			console.log(">>>>> clearing query and redirecting to:", this.props.location.pathname);
 			window.history.replaceState(null, '', this.props.location.pathname);
-
-			//
-			// TODO: remove trailing `#/` from state, which gets added by react-router before we get here
-			// 
 
 			this.props.history.replace({
 				pathname: '/auth',

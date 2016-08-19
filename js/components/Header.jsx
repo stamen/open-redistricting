@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { Link } from 'react-router'
+import { Link, withRouter } from 'react-router'
 
 import auth from '../models/auth';
 
@@ -9,16 +9,25 @@ class Header extends React.Component {
 		//
 	}
 
+	constructor (props) {
+
+		super(props);
+
+		this.login = this.login.bind(this);
+		this.logout = this.logout.bind(this);
+
+	}
+
 	login () {
 
-		auth.authorize(true);
+		auth.authorize(this.props.location.pathname);
 
 	}
 
 	logout () {
 
 		auth.logout(() => {
-			this.props.history.push({
+			this.props.router.push({
 				pathname: '/'
 			});
 		});
@@ -43,4 +52,4 @@ class Header extends React.Component {
 
 }
 
-export default Header;
+export default withRouter(Header);

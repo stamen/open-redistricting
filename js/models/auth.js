@@ -41,7 +41,6 @@ export default {
 		fetch(this.config.gatekeeperAccessTokenURL + code)
 		.then(rsp => {
 			return rsp.json().then(j => {
-				debugger;
 				console.log(">>>>> GOT ACCESS TOKEN:", j.token);
 				this.setToken(j.token);
 				onSuccess && onSuccess(this.getToken());
