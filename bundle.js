@@ -1078,6 +1078,7 @@ var Auth = function (_React$Component) {
 			}
 
 			_auth2.default.fetchAccessToken(code, function () {
+				debugger;
 				// on success
 				_this2.props.history.push({
 					pathname: pathname
