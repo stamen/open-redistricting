@@ -1,11 +1,18 @@
 export default {
 
-	// TODO: move to appConfig.json
+	// these sample values should either be overridden inline
+	// or passed into init().
 	config: {
-		githubAPIClientId: 'c2f002feaae356a50b34',
-		redirectURL: 'http://localhost:3000/',
-		gatekeeperAccessTokenURL: 'https://open-redistricting-auth.herokuapp.com/authenticate/',
+		githubAPIClientId: 'xxx',
+		redirectURL: 'http://example.com/',
+		gatekeeperAccessTokenURL: 'https://example-gatekeeper.herokuapp.com/authenticate/',
 		tokenName: 'github-auth'
+	},
+
+	init (config) {
+
+		this.config = { ...config };
+
 	},
 
 	/**
@@ -41,7 +48,6 @@ export default {
 		fetch(this.config.gatekeeperAccessTokenURL + code)
 		.then(rsp => {
 			return rsp.json().then(j => {
-				console.log(">>>>> GOT ACCESS TOKEN:", j.token);
 				this.setToken(j.token);
 				onSuccess && onSuccess(this.getToken());
 			});
