@@ -954,7 +954,7 @@ var App = function (_React$Component) {
 
 				// Note that we must remove the query string before continuing with hash-based routing
 				// to avoid polluting the URL with both a before- and after-hash query string.
-				window.history.replaceState(null, '', this.props.location.pathname);
+				window.history.replaceState(null, '', window.location.pathname);
 
 				this.props.history.replace({
 					pathname: '/auth',
