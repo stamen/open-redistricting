@@ -29,8 +29,6 @@ class App extends React.Component {
 
 	onAppStateChange () {
 
-		console.log(">>>>> onAppStateChange");
-
 		this.forceUpdate();
 
 	}
@@ -103,17 +101,18 @@ class App extends React.Component {
 	// ============================================================ //
 
 	render () {
-		console.log(">>>>> App.render()");
+		
 		const storeState = this.props.store.getState();
 
-		React.Children.forEach(this.props.children, child => {
-			console.log(child.type.displayName);
-		});
+		// Clone child to ensure it gets rendered,
+		// even with identical props/state (since we're 
+		// managing state in Redux store, not in React component)
+		let childrenWithProps = React.Children.map(this.props.children, child => React.cloneElement(child, {}));
 
 		return (
 			<div className='app-container'>
 				<Header { ...this.props } />
-				{ this.props.children }
+				{ childrenWithProps }
 			</div>
 		);
 

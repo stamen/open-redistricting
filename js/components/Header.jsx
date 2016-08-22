@@ -36,8 +36,6 @@ class Header extends React.Component {
 
 	render () {
 
-		console.log(">>>>> Header.render()");
-
 		let out = (
 			<div id='header'>
 				<h1><Link to='/'>Open Redistricting</Link></h1>
