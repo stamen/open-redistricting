@@ -1,0 +1,23 @@
+$thumb-width: 16rem;
+$thumb-height: 9rem;
+
+.project-thumb {
+	margin: 1rem 2rem;
+
+	.map {
+		width: $thumb-width;
+		height: $thumb-height;
+
+		background-color: $text-link-color;
+	}
+
+	figcaption {
+		max-width: $thumb-width;
+		margin-top: 0.5rem;
+		font-size: 1rem;
+
+		color: $text-link-color;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+}

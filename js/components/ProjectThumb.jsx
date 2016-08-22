@@ -1,8 +1,18 @@
 import React, { PropTypes } from 'react';
+import { Link } from 'react-router';
 
 const ProjectThumb = ({ id, name }) => {
+
+	let link = `/projects/${ id }`;
 	
-	return <div className='project-thumb'>{ name }</div>;
+	return (
+		<Link to={ link }>
+			<figure className='project-thumb'>
+				<div className='map'></div>
+				<figcaption>{ name }</figcaption>
+			</figure>
+		</Link>
+	);
 
 };
 
