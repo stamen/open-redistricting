@@ -1,15 +1,7 @@
 body { 
 	margin: 0;
 	background-color: $background-color;
-}
-
-#app {
-	position: relative;
-	margin: 1rem auto;
-	max-width: 60rem;
-
-	color: $text-color;
-	background-color: $app-background-color;
+	box-sizing: border-box;
 }
 
 *,
@@ -48,4 +40,17 @@ a:hover,
 a:active {
 	color: $text-link-color;
 	text-decoration: none;
+}
+
+#app {
+	position: relative;
+	margin: 1rem auto;
+	max-width: 60rem;
+
+	color: $text-color;
+	background-color: $app-background-color;
+}
+
+.page {
+	padding: 0 $page-horiz-padding;
 }

@@ -23,8 +23,9 @@ class HomePage extends React.Component {
 			projectList = storeState.projectList && storeState.projectList.data || [];
 
 		return (
-			<div className='home-page'>
-				<ul className='recent-projects'>
+			<div className='home-page page'>
+				<h2 className='section-title'>All Projects</h2>
+				<ul className='section recent-projects'>
 					{ projectList.map(project => {
 						return <li key={ project.id }><ProjectThumb { ...project }/></li>;
 					}) }
