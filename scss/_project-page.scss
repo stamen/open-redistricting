@@ -1,3 +1,16 @@
 .project-page {
-	//
+	ul {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		flex-wrap: wrap;
+
+		width: calc(100% + #{2 * $horiz-spacing});
+		margin: 0 -$horiz-spacing;
+		padding: 0;
+	}
+
+	li {
+		list-style-type: none;
+	}
 }

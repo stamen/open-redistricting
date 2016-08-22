@@ -3,7 +3,7 @@ import { LOCATION_CHANGE } from 'react-router-redux';
 import * as actions from './actions';
 // import appConfig from '../static/appConfig.json';
 
-export default {
+let reduced = {
 
 	urlState (state = [], action) {
 
@@ -42,7 +42,7 @@ export default {
 					...state,
 					loading: action.type === actions.PROJECT_LIST_REQUESTED,
 					error: action.error,
-					data: action.payload
+					data: (action.payload || null)
 				};
 
 			default:
@@ -55,16 +55,41 @@ export default {
 
 
 	projects (state = {}, action) {
+		let existing;
 		switch (action.type) {
 
-			case actions.PROJECT_REQUESTED:
-			case actions.PROJECT_RESPONDED:
-				// TODO: cache project by id
+			case actions.PROJECT_METADATA_REQUESTED:
+			case actions.PROJECT_METADATA_RESPONDED:
+				existing = state[action.meta.id] || {};
 				return {
 					...state,
-					loading: action.type === actions.PROJECT_REQUESTED,
-					error: action.error,
-					data: action.payload
+					[action.meta.id]: {
+						...existing,
+						loading: action.type === actions.PROJECT_METADATA_REQUESTED,
+						error: action.error,
+						data: {
+							...existing.data,
+							...(action.payload || null)
+						}
+					}
+				};
+
+			case actions.PROJECT_PROPOSALS_REQUESTED:
+			case actions.PROJECT_PROPOSALS_RESPONDED:
+				existing = state[action.meta.id] || {};
+				return {
+					...state,
+					[action.meta.id]: {
+						...existing,
+						proposals: {
+							loading: action.type === actions.PROJECT_PROPOSALS_REQUESTED,
+							error: action.error,
+							data: [
+								...(existing.proposals || []),
+								...(action.payload || [])
+							]
+						}
+					}
 				};
 
 			default:
@@ -73,27 +98,7 @@ export default {
 				};
 
 		}
-	},
-
-	proposalList (state = {}, action) {
-		switch (action.type) {
-
-			case actions.PROPOSAL_LIST_REQUESTED:
-			case actions.PROPOSAL_LIST_RESPONDED:
-				return {
-					...state,
-					loading: action.type === actions.PROPOSAL_LIST_REQUESTED,
-					error: action.error,
-					data: action.payload
-				};
-
-			default:
-				return {
-					...state
-				};
-
-		}
-	},
+	}/*,
 
 	proposals (state = {}, action) {
 		switch (action.type) {
@@ -114,9 +119,11 @@ export default {
 				};
 
 		}
-	}
+	}*/
 
 };
+
+export default reduced;
 
 // Default values passed into reducers on store initialization (in `main.jsx`).
 // These values will override the defaults specified in each reducer's argument list.
@@ -125,3 +132,7 @@ export const initialState = {
 	// appConfig...
 
 };
+
+export function deriveProjectId (owner, projectId) {
+	return `${ owner }-${ projectId }`;
+}

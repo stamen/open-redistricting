@@ -59,8 +59,8 @@ render((
 	<Router history={ appHistory } createElement={ createReduxComponent }>
 		<Route path='/' component={ App }>
 			<IndexRoute component={ HomePage } />
-			<Route path={ 'project(/:projectId)' } component={ ProjectPage } />
-			<Route path={ 'proposal(/:proposalId)' } component={ ProposalPage } />
+			<Route path={ '/:owner/:projectId' } component={ ProjectPage } />
+			<Route path={ '/:owner/:projectId/:proposalId' } component={ ProposalPage } />
 			<Route path={ 'auth' } component={ Auth } />
 		</Route>
 		<Route path='*' component={ RouteNotFound } />

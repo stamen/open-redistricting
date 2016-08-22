@@ -15,7 +15,7 @@ class ProposalPage extends React.Component {
 	componentWillMount () {
 
 		console.log(">>>>> TODO: requestProposal("+ this.props.params.proposalId +")");
-		// this.props.actions.requestProposal(this.props.params.proposalId);
+		// this.props.actions.requestProject(this.props.params.owner, this.props.params.projectId, this.props.params.proposalId);
 
 	}
 
@@ -37,6 +37,7 @@ class ProposalPage extends React.Component {
 
 		return (
 			<div className='proposal-page'>
+				TODO: Proposal page for proposal #{ this.props.params.proposalId }
 			</div>
 		);
 

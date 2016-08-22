@@ -1,18 +1,17 @@
 import moment from 'moment';
 
-// import appConfig from '../../static/config/appConfig.json';
+import { githubOrgName } from '../../static/appConfig.json';
 import auth from './auth';
+import { deriveProjectId } from './reducers';
 
 export const PROJECT_LIST_REQUESTED = 'PROJECT_LIST_REQUESTED';
 export const PROJECT_LIST_RESPONDED = 'PROJECT_LIST_RESPONDED';
-export const PROJECT_REQUESTED = 'PROJECT_REQUESTED';
-export const PROJECT_RESPONDED = 'PROJECT_RESPONDED';
-export const PROPOSAL_LIST_REQUESTED = 'PROPOSAL_LIST_REQUESTED';
-export const PROPOSAL_LIST_RESPONDED = 'PROPOSAL_LIST_RESPONDED';
+export const PROJECT_METADATA_REQUESTED = 'PROJECT_METADATA_REQUESTED';
+export const PROJECT_METADATA_RESPONDED = 'PROJECT_METADATA_RESPONDED';
+export const PROJECT_PROPOSALS_REQUESTED = 'PROJECT_PROPOSALS_REQUESTED';
+export const PROJECT_PROPOSALS_RESPONDED = 'PROJECT_PROPOSALS_RESPONDED';
 export const PROPOSAL_REQUESTED = 'PROPOSAL_REQUESTED';
 export const PROPOSAL_RESPONDED = 'PROPOSAL_RESPONDED';
-
-const GITHUB_ORG_NAME = 'open-redist';
 
 export default function (store, transport) {
 
@@ -20,7 +19,7 @@ export default function (store, transport) {
 
 		/**
 		 * Request all Open Redistricting projects.
-		 * A "project" is a GitHub repository within the "open-redistricting" GitHub Organization.
+		 * A "project" is a GitHub repository within the "open-redist" GitHub Organization.
 		 */
 		requestProjectList () {
 
@@ -28,7 +27,7 @@ export default function (store, transport) {
 				type: PROJECT_LIST_REQUESTED
 			});
 
-			let url = `http://api.github.com/orgs/${ GITHUB_ORG_NAME }/repos`;
+			let url = `https://api.github.com/orgs/${ githubOrgName }/repos`;
 
 			transport.request(url, this.parseProjectList)
 			.then(
@@ -68,29 +67,42 @@ export default function (store, transport) {
 		},
 
 		/**
-		 * Request details for one Open Redistricting project.
+		 * Request metadata for one Open Redistricting project (repository).
 		 */
-		requestProject (owner, projectId) {
+		requestProjectMetadata (owner, projectId) {
 
+			let id = deriveProjectId(owner, projectId);
 			store.dispatch({
-				type: PROJECT_REQUESTED
+				type: PROJECT_METADATA_REQUESTED,
+				meta: { id }
 			});
 
-			let url = `http://api.github.com/repos/${ owner }/${ projectId }`;
+			let url = `https://api.github.com/repos/${ owner }/${ projectId }`;
 
-			transport.request(url, this.parseProject)
+			/*
+			// not an authed call after all...
+			// but if it was, here's how we'd do it:
+			// TODO: abstract into transport layer
+			let headers = new Headers();
+			headers.append('Authorization', `token ${ auth.getToken() }`);
+			transport.request(url, this.parseProject, { headers })
+			*/
+
+			transport.request(url, this.parseProjectMetadata)
 			.then(
 				response => {
-					console.log(">>>>> received project:", response);
+					console.log(">>>>> received project metadata:", response);
 					store.dispatch({
-						type: PROJECT_RESPONDED,
+						type: PROJECT_METADATA_RESPONDED,
+						meta: { id },
 						payload: response
 					});
 				},
 				error => {
 					// Fail loudly on error
 					store.dispatch({
-						type: PROJECT_RESPONDED,
+						type: PROJECT_METADATA_RESPONDED,
+						meta: { id },
 						error: error
 					});
 				}
@@ -103,7 +115,7 @@ export default function (store, transport) {
 
 		},
 
-		parseProject (response) {
+		parseProjectMetadata (response) {
 
 			// extract only the subset of data needed for this application
 			return response.json()
@@ -117,25 +129,35 @@ export default function (store, transport) {
 
 		/**
 		 * Request all proposals for an Open Redistricting project.
-		 * A "proposal" is a pull request (open or closed) on a GitHub "open-redistricting" repository.
+		 * A "proposal" is a pull request (defaults to return only open requests)
+		 * on a GitHub "open-redist" repository.
+		 * TODO: sort with `sort:updated` (https://developer.github.com/v3/pulls/#list-pull-requests)
 		 */
-		requestProposalList (owner, projectId) {
+		requestProjectProposals (owner, projectId) {
 
-			let url = `http://api.github.com/repos/${ owner }/${ projectId }/pulls`;
+			let id = deriveProjectId(owner, projectId);
+			store.dispatch({
+				type: PROJECT_PROPOSALS_REQUESTED,
+				meta: { id }
+			});
 
-			transport.request(url, this.parseProposalList)
+			let url = `https://api.github.com/repos/${ owner }/${ projectId }/pulls`;
+
+			transport.request(url, this.parseProjectProposals)
 			.then(
 				response => {
-					console.log(">>>>> received proposal list:", response);
+					console.log(">>>>> received project proposals:", response);
 					store.dispatch({
-						type: PROPOSAL_LIST_RESPONDED,
+						type: PROJECT_PROPOSALS_RESPONDED,
+						meta: { id },
 						payload: response
 					});
 				},
 				error => {
 					// Fail loudly on error
 					store.dispatch({
-						type: PROPOSAL_LIST_RESPONDED,
+						type: PROJECT_PROPOSALS_RESPONDED,
+						meta: { id },
 						error: error
 					});
 				}
@@ -148,7 +170,7 @@ export default function (store, transport) {
 
 		},
 
-		parseProposalList (response) {
+		parseProjectProposals (response) {
 
 			// extract only the subset of data needed for this application
 			return response.json()
@@ -165,7 +187,14 @@ export default function (store, transport) {
 		 */
 		requestProposal (owner, projectId, proposalId) {
 
-			let url = `http://api.github.com/repos/${ owner }/${ projectId }/pulls/${ proposalId }`;
+			// TODO: implement
+			let id = deriveProposalId(owner, projectId, proposalId);
+			store.dispatch({
+				type: PROPOSAL_REQUESTED,
+				meta: { id }
+			});
+
+			let url = `https://api.github.com/repos/${ owner }/${ projectId }/pulls/${ proposalId }`;
 
 			transport.request(url, this.parseProposal)
 			.then(
@@ -173,6 +202,7 @@ export default function (store, transport) {
 					console.log(">>>>> received proposal:", response);
 					store.dispatch({
 						type: PROPOSAL_RESPONDED,
+						meta: { id },
 						payload: response
 					});
 				},
@@ -180,6 +210,7 @@ export default function (store, transport) {
 					// Fail loudly on error
 					store.dispatch({
 						type: PROPOSAL_RESPONDED,
+						meta: { id },
 						error: error
 					});
 				}

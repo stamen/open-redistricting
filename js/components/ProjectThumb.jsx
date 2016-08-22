@@ -1,9 +1,9 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 
-const ProjectThumb = ({ id, name }) => {
+const ProjectThumb = ({ name, owner }) => {
 
-	let link = `/projects/${ id }`;
+	let link = `/${ owner.login }/${ name }`;
 	
 	return (
 		<Link to={ link }>
@@ -17,8 +17,10 @@ const ProjectThumb = ({ id, name }) => {
 };
 
 ProjectThumb.propTypes = {
-	id: PropTypes.number.isRequired,
-	name: PropTypes.string.isRequired
+	name: PropTypes.string.isRequired,
+	owner: PropTypes.shape({
+		login: PropTypes.string
+	}).isRequired
 };
 
 export default ProjectThumb;

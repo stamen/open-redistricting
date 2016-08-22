@@ -34,6 +34,7 @@
   "dependencies": {
     "babel-polyfill": "^6.13.0",
     "isomorphic-fetch": "^2.2.1",
+    "lodash.get": "^4.4.2",
     "moment": "^2.14.1",
     "react": "^15.3.0",
     "react-dom": "^15.3.0",
