@@ -200,7 +200,7 @@ export default function (store, transport) {
 			transport.request(url, this.parseProposal)
 			.then(
 				response => {
-					console.log(">>>>> received proposal:", response);
+					// console.log(">>>>> received proposal:", response);
 					store.dispatch({
 						type: PROPOSAL_RESPONDED,
 						meta: { projectKey, proposalId },
@@ -240,6 +240,15 @@ export default function (store, transport) {
 
 			console.log(">>>>> TODO: fetch proposal revisions from:", proposal.commits_url);
 			// TODO: fetch commits (revisions) and add to project > proposal > in reducers;
+			// 		 need to refactor / split up the increasingly massive projects reducers
+			// 		 while doing this.
+
+		},
+
+		requestProposalComments (proposal) {
+
+			console.log(">>>>> TODO: fetch proposal comments from:", proposal.comments_url);
+			// TODO: fetch comments and add to project > proposal > in reducers;
 			// 		 need to refactor / split up the increasingly massive projects reducers
 			// 		 while doing this.
 

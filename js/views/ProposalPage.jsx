@@ -42,11 +42,19 @@ class ProposalPage extends React.Component {
 
 	componentDidUpdate () {
 
+		// TODO: fetching these additional data is not the view's responsibility;
+		// rather, should be the provenance of actions.js, in the requestProposal promise chain
+		// (though should come in async to the main chunk of proposal data).
 		const { proposal } = this.getStoreState(),
 			proposalLoaded = proposal && Object.keys(proposal).length;
 
 		if (proposalLoaded && !proposal.revisions) {
 			this.props.actions.requestProposalRevisions(proposal);
+		}
+
+		// TODO: comments comes through as a number, we want to replace that in our data structure with an array of comment objects...
+		if (proposalLoaded && !isNaN(proposal.comments)) {
+			this.props.actions.requestProposalComments(proposal);
 		}
 
 	}
@@ -61,8 +69,11 @@ class ProposalPage extends React.Component {
 
 		let body = sanitizeHtml((get(proposal, 'body') || '').replace(/\n/g, '<br>'));
 
-		console.log(">>>>> project:", projectInfo);
-		console.log(">>>>> proposal:", proposal);
+		if (projectInfo && Object.keys(projectInfo).length &&
+			proposal && Object.keys(proposal).length) {
+			console.log(">>>>> project:", projectInfo);
+			console.log(">>>>> proposal:", proposal);
+		}
 
 		return (
 			<div className='page proposal-page'>
