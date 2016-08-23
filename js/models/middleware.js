@@ -23,5 +23,5 @@ const crashReporter = store => next => action => {
 
 export default [
 	// logger,
-	crashReporter
+	// crashReporter
 ];

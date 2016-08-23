@@ -32,7 +32,7 @@ export default function (store, transport) {
 			transport.request(url, this.parseProjectList)
 			.then(
 				response => {
-					console.log(">>>>> received project list:", response);
+					// console.log(">>>>> received project list:", response);
 					store.dispatch({
 						type: PROJECT_LIST_RESPONDED,
 						payload: response
@@ -71,10 +71,10 @@ export default function (store, transport) {
 		 */
 		requestProjectMetadata (owner, projectId) {
 
-			let id = deriveProjectId(owner, projectId);
+			let projectKey = deriveProjectId(owner, projectId);
 			store.dispatch({
 				type: PROJECT_METADATA_REQUESTED,
-				meta: { id }
+				meta: { projectKey }
 			});
 
 			let url = `https://api.github.com/repos/${ owner }/${ projectId }`;
@@ -91,10 +91,10 @@ export default function (store, transport) {
 			transport.request(url, this.parseProjectMetadata)
 			.then(
 				response => {
-					console.log(">>>>> received project metadata:", response);
+					// console.log(">>>>> received project metadata:", response);
 					store.dispatch({
 						type: PROJECT_METADATA_RESPONDED,
-						meta: { id },
+						meta: { projectKey },
 						payload: response
 					});
 				},
@@ -102,7 +102,7 @@ export default function (store, transport) {
 					// Fail loudly on error
 					store.dispatch({
 						type: PROJECT_METADATA_RESPONDED,
-						meta: { id },
+						meta: { projectKey },
 						error: error
 					});
 				}
@@ -129,16 +129,14 @@ export default function (store, transport) {
 
 		/**
 		 * Request all proposals for an Open Redistricting project.
-		 * A "proposal" is a pull request (defaults to return only open requests)
-		 * on a GitHub "open-redist" repository.
-		 * TODO: sort with `sort:updated` (https://developer.github.com/v3/pulls/#list-pull-requests)
+		 * A "proposal" is a pull request (defaults to return only open requests) on a GitHub "open-redist" repository.
 		 */
 		requestProjectProposals (owner, projectId) {
 
-			let id = deriveProjectId(owner, projectId);
+			let projectKey = deriveProjectId(owner, projectId);
 			store.dispatch({
 				type: PROJECT_PROPOSALS_REQUESTED,
-				meta: { id }
+				meta: { projectKey }
 			});
 
 			let url = `https://api.github.com/repos/${ owner }/${ projectId }/pulls`;
@@ -146,10 +144,10 @@ export default function (store, transport) {
 			transport.request(url, this.parseProjectProposals)
 			.then(
 				response => {
-					console.log(">>>>> received project proposals:", response);
+					// console.log(">>>>> received project proposals:", response);
 					store.dispatch({
 						type: PROJECT_PROPOSALS_RESPONDED,
-						meta: { id },
+						meta: { projectKey },
 						payload: response
 					});
 				},
@@ -157,7 +155,7 @@ export default function (store, transport) {
 					// Fail loudly on error
 					store.dispatch({
 						type: PROJECT_PROPOSALS_RESPONDED,
-						meta: { id },
+						meta: { projectKey },
 						error: error
 					});
 				}
@@ -176,7 +174,10 @@ export default function (store, transport) {
 			return response.json()
 			.then(json => {
 
-				return json;
+				return json.reduce((acc, proposal) => {
+					acc[proposal.number] = proposal;
+					return acc;
+				}, {});
 
 			});
 
@@ -184,14 +185,14 @@ export default function (store, transport) {
 
 		/**
 		 * Request details for one proposal for an Open Redistricting project.
+		 * A "proposal" is a pull request on a GitHub "open-redist" repository.
 		 */
 		requestProposal (owner, projectId, proposalId) {
 
-			// TODO: implement
-			let id = deriveProposalId(owner, projectId, proposalId);
+			let projectKey = deriveProjectId(owner, projectId);
 			store.dispatch({
 				type: PROPOSAL_REQUESTED,
-				meta: { id }
+				meta: { projectKey, proposalId }
 			});
 
 			let url = `https://api.github.com/repos/${ owner }/${ projectId }/pulls/${ proposalId }`;
@@ -202,7 +203,7 @@ export default function (store, transport) {
 					console.log(">>>>> received proposal:", response);
 					store.dispatch({
 						type: PROPOSAL_RESPONDED,
-						meta: { id },
+						meta: { projectKey, proposalId },
 						payload: response
 					});
 				},
@@ -210,7 +211,7 @@ export default function (store, transport) {
 					// Fail loudly on error
 					store.dispatch({
 						type: PROPOSAL_RESPONDED,
-						meta: { id },
+						meta: { projectKey, proposalId },
 						error: error
 					});
 				}

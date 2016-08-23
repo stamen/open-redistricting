@@ -1,3 +1,98 @@
+$top-margin: 3rem;
+$map-height: 25rem;
+$cell-spacing: 1rem;
+
 .proposal-page {
-	//
+	position: relative;
+
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: space-between;
+	align-items: flex-start;
+
+	.main {
+		flex: 0 1 50rem;
+		margin-top: $top-margin;
+	}
+
+	.sidebar {
+		flex: 1 0 16rem;
+		height: $map-height;
+
+		margin: $top-margin 0 0 $cell-spacing;
+		padding: $cell-spacing;
+
+		background-color: $background-color;
+		border: 1px solid $cell-border-color;
+	}
+
+	.map {
+		width: 100%;
+		height: $map-height;
+
+		background-color: $text-link-color;
+		border: 1px solid $cell-border-color;
+	}
+
+	.info {
+		position: relative;
+		width: 100%;
+
+		margin: $cell-spacing 0;
+		padding: $cell-spacing;
+
+		background-color: $background-color;
+		border: 1px solid $cell-border-color;
+
+		h2.title {
+			margin: 0 0 0.5rem 0;
+			font-size: 1.25rem;
+		}
+
+		a {
+			margin: $cell-spacing 0;
+			font-size: 1rem;
+		}
+
+		.body {
+			max-height: 6rem;
+			text-overflow: clip;
+			overflow-y: auto;
+		}
+
+		.created-date {
+			position: absolute;
+			top: $cell-spacing;
+			right: $cell-spacing;
+
+			color: $text-secondary-color;
+		}
+
+		.footer {
+			height: 3.25rem;
+			padding-top: $cell-spacing;
+
+			border-top: 1px solid $cell-border-color;
+		}
+	}
+
+	.comments {
+		width: 100%;
+		height: 6rem;
+
+		padding: $cell-spacing;
+
+		background-color: $background-color;
+		border: 1px solid $cell-border-color;
+	}
+
+	.comment-input {
+		margin: 2rem $cell-spacing;
+		padding: $cell-spacing;
+		background-color: $app-background-color;
+	}
+
+	.comment {
+
+	}
 }

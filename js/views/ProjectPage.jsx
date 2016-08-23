@@ -2,6 +2,7 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 import get from 'lodash.get';
+import moment from 'moment';
 
 import { deriveProjectId } from '../models/reducers';
 import ProposalThumb from '../components/ProposalThumb.jsx';
@@ -17,9 +18,7 @@ class ProjectPage extends React.Component {
 
 	componentWillMount () {
 
-		// TODO: not sure we need this
 		this.props.actions.requestProjectMetadata(this.props.params.owner, this.props.params.projectId);
-
 		this.props.actions.requestProjectProposals(this.props.params.owner, this.props.params.projectId);
 
 	}
@@ -40,8 +39,12 @@ class ProjectPage extends React.Component {
 	render () {
 
 		const storeState = this.props.store.getState(),
-			project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)],
-			proposals = get(project, 'proposals.data') || [];
+			project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)];
+		let proposals = get(project, 'proposals.data') || {};
+
+		proposals = Object.keys(proposals)
+			.map(k => proposals[k])
+			.sort((a, b) => moment(a.updated_at) - moment(b.updated_at));	// most recently-updated first
 
 		let body;
 		if (!project || project.loading) {
@@ -69,7 +72,7 @@ class ProjectPage extends React.Component {
 			} else {
 
 				body = <div>No proposals created yet.</div>;
-				
+
 			}
 		}
 

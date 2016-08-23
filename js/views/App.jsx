@@ -6,11 +6,6 @@ import { debounce } from 'lodash';
 import auth from '../models/auth';
 import Header from '../components/Header.jsx';
 
-// config
-// import sassVars from '../../scss/variables.json';
-// import appConfig from '../../static/config/appConfig.json';
-
-
 // main app container
 class App extends React.Component {
 
