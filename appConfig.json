@@ -1,4 +1,5 @@
 {
+	githubOrgName: 'open-redist',
 	auth: {
 		dev: {
 			githubAPIClientId: "c2f002feaae356a50b34",

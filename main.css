@@ -11,14 +11,8 @@ text, p {
 
 body {
   margin: 0;
-  background-color: #ffffff; }
-
-#app {
-  position: relative;
-  margin: 1rem auto;
-  max-width: 60rem;
-  color: #333333;
-  background-color: #fafafa; }
+  background-color: #ffffff;
+  box-sizing: border-box; }
 
 *,
 *:before,
@@ -52,6 +46,98 @@ a:active {
   color: #2dade0;
   text-decoration: none; }
 
+#app {
+  position: relative;
+  margin: 1rem auto;
+  max-width: 80rem;
+  color: #333333;
+  background-color: #fafafa; }
+
+.page {
+  padding: 0 6rem; }
+
+.home-page ul {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  width: calc(100% + 2rem);
+  margin: -1rem;
+  padding: 0; }
+
+.home-page li {
+  list-style-type: none; }
+
+.project-page ul {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  width: calc(100% + 2rem);
+  margin: -1rem;
+  padding: 0; }
+
+.project-page li {
+  list-style-type: none; }
+
+.proposal-page {
+  position: relative;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: flex-start; }
+  .proposal-page .main {
+    flex: 0 1 50rem;
+    margin-top: 3rem; }
+  .proposal-page .sidebar {
+    flex: 1 0 16rem;
+    height: 25rem;
+    margin: 3rem 0 0 1rem;
+    padding: 1rem;
+    background-color: #ffffff;
+    border: 1px solid #f6f6f6; }
+  .proposal-page .map {
+    width: 100%;
+    height: 25rem;
+    background-color: #2dade0;
+    border: 1px solid #f6f6f6; }
+  .proposal-page .info {
+    position: relative;
+    width: 100%;
+    margin: 1rem 0;
+    padding: 1rem;
+    background-color: #ffffff;
+    border: 1px solid #f6f6f6; }
+    .proposal-page .info h2.title {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.25rem; }
+    .proposal-page .info a {
+      margin: 1rem 0;
+      font-size: 1rem; }
+    .proposal-page .info .body {
+      max-height: 6rem;
+      text-overflow: clip;
+      overflow-y: auto; }
+    .proposal-page .info .created-date {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      color: #cccccc; }
+    .proposal-page .info .footer {
+      height: 3.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid #f6f6f6; }
+  .proposal-page .comments {
+    width: 100%;
+    height: 6rem;
+    padding: 1rem;
+    background-color: #ffffff;
+    border: 1px solid #f6f6f6; }
+  .proposal-page .comment-input {
+    margin: 2rem 1rem;
+    padding: 1rem;
+    background-color: #fafafa; }
+
 #header {
   position: relative;
   display: flex;
@@ -60,9 +146,38 @@ a:active {
   align-items: baseline;
   width: 100%;
   margin-top: 3rem;
+  padding: 0 6rem;
   background-color: #ffffff; }
   #header h1 {
     margin: 0;
     color: #333333; }
   #header .login-options {
     cursor: pointer; }
+
+.project-thumb {
+  margin: 1rem 1rem; }
+  .project-thumb .map {
+    width: 20rem;
+    height: 11.25rem;
+    background-color: #2dade0; }
+  .project-thumb figcaption {
+    max-width: 20rem;
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    color: #2dade0;
+    white-space: nowrap;
+    text-overflow: ellipsis; }
+
+.proposal-thumb {
+  margin: 1rem 1rem; }
+  .proposal-thumb .map {
+    width: 20rem;
+    height: 11.25rem;
+    background-color: #2dade0; }
+  .proposal-thumb figcaption {
+    max-width: 20rem;
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    color: #2dade0;
+    white-space: nowrap;
+    text-overflow: ellipsis; }
