@@ -234,6 +234,15 @@ export default function (store, transport) {
 
 			});
 
+		},
+
+		requestProposalRevisions (proposal) {
+
+			console.log(">>>>> TODO: fetch proposal revisions from:", proposal.commits_url);
+			// TODO: fetch commits (revisions) and add to project > proposal > in reducers;
+			// 		 need to refactor / split up the increasingly massive projects reducers
+			// 		 while doing this.
+
 		}
 
 	};
