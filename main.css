@@ -115,7 +115,7 @@ a:active {
       margin: 1rem 0;
       font-size: 1rem; }
     .proposal-page .info .body {
-      max-height: 6rem;
+      max-height: 8rem;
       text-overflow: clip;
       overflow-y: auto; }
     .proposal-page .info .created-date {
