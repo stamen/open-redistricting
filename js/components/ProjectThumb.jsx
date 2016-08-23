@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 
-const ProjectThumb = ({ name, owner }) => {
+const ProjectThumb = ({ name, description, owner }) => {
 
 	let link = `/${ owner.login }/${ name }`;
 	
@@ -9,7 +9,7 @@ const ProjectThumb = ({ name, owner }) => {
 		<Link to={ link }>
 			<figure className='project-thumb'>
 				<div className='map'></div>
-				<figcaption>{ name }</figcaption>
+				<figcaption>{ description }</figcaption>
 			</figure>
 		</Link>
 	);
@@ -18,6 +18,7 @@ const ProjectThumb = ({ name, owner }) => {
 
 ProjectThumb.propTypes = {
 	name: PropTypes.string.isRequired,
+	description: PropTypes.string.isRequired,
 	owner: PropTypes.shape({
 		login: PropTypes.string
 	}).isRequired
