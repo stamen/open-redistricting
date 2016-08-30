@@ -6,6 +6,7 @@ import moment from 'moment';
 import sanitizeHtml from 'sanitize-html';
 
 import { deriveProjectId } from '../models/reducers';
+import DiffMap from '../components/DiffMap.jsx';
 
 class ProposalPage extends React.Component {
 
@@ -78,8 +79,14 @@ class ProposalPage extends React.Component {
 		return (
 			<div className='page proposal-page'>
 				<div className='main'>
+					<DiffMap
+						path1='https://raw.githubusercontent.com/open-redist/test-virginia/master/virginia_2008-2012.geojson'
+						path2='https://raw.githubusercontent.com/open-redist/test-virginia/6233f1f34b32b5b7cffa03eebc33711eef662610/virginia_2008-2012.geojson'
+					/>
+					{/*
 					<div className='map'>
 					</div>
+					*/}
 					<div className='info'>
 						<h2 className='title'>{ proposal.title }</h2>
 						<Link to='#'>{ get(projectInfo, 'name') || '' }</Link>
