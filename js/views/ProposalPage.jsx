@@ -82,6 +82,7 @@ class ProposalPage extends React.Component {
 					<DiffMap
 						path1='https://raw.githubusercontent.com/open-redist/test-virginia/master/virginia_2008-2012.geojson'
 						path2='https://raw.githubusercontent.com/open-redist/test-virginia/6233f1f34b32b5b7cffa03eebc33711eef662610/virginia_2008-2012.geojson'
+						fetchJSON={ this.props.actions.fetchJSON }
 					/>
 					{/*
 					<div className='map'>

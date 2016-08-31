@@ -252,6 +252,12 @@ export default function (store, transport) {
 			// 		 need to refactor / split up the increasingly massive projects reducers
 			// 		 while doing this.
 
+		},
+
+		fetchJSON (path) {
+
+			return transport.request(path);
+
 		}
 
 	};
