@@ -74,6 +74,22 @@ let reduced = {
 					}
 				};
 
+			case actions.PROJECT_CONTENTS_REQUESTED:
+			case actions.PROJECT_CONTENTS_RESPONDED:
+				existing = state[action.meta.projectKey] || {};
+				return {
+					...state,
+					[action.meta.projectKey]: {
+						...existing,
+						loading: action.type === actions.PROJECT_CONTENTS_REQUESTED,
+						error: action.error,
+						contents: {
+							...existing.contents,
+							...action.payload
+						}
+					}
+				};
+
 			case actions.PROJECT_PROPOSALS_REQUESTED:
 			case actions.PROJECT_PROPOSALS_RESPONDED:
 				existing = state[action.meta.projectKey] || {};

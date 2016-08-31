@@ -8,6 +8,8 @@ export const PROJECT_LIST_REQUESTED = 'PROJECT_LIST_REQUESTED';
 export const PROJECT_LIST_RESPONDED = 'PROJECT_LIST_RESPONDED';
 export const PROJECT_METADATA_REQUESTED = 'PROJECT_METADATA_REQUESTED';
 export const PROJECT_METADATA_RESPONDED = 'PROJECT_METADATA_RESPONDED';
+export const PROJECT_CONTENTS_REQUESTED = 'PROJECT_CONTENTS_REQUESTED';
+export const PROJECT_CONTENTS_RESPONDED = 'PROJECT_CONTENTS_RESPONDED';
 export const PROJECT_PROPOSALS_REQUESTED = 'PROJECT_PROPOSALS_REQUESTED';
 export const PROJECT_PROPOSALS_RESPONDED = 'PROJECT_PROPOSALS_RESPONDED';
 export const PROPOSAL_REQUESTED = 'PROPOSAL_REQUESTED';
@@ -122,6 +124,61 @@ export default function (store, transport) {
 			.then(json => {
 
 				return json;
+
+			});
+
+		},
+
+		/**
+		 * Request file list for an Open Redistricting project.
+		 */
+		requestProjectContents (owner, projectId) {
+
+			let projectKey = deriveProjectId(owner, projectId);
+			store.dispatch({
+				type: PROJECT_CONTENTS_REQUESTED,
+				meta: { projectKey }
+			});
+
+			let url = `https://api.github.com/repos/${ owner }/${ projectId }/contents`;
+
+			transport.request(url, this.parseProjectContents)
+			.then(
+				response => {
+					// console.log(">>>>> received project contents:", response);
+					store.dispatch({
+						type: PROJECT_CONTENTS_RESPONDED,
+						meta: { projectKey },
+						payload: response
+					});
+				},
+				error => {
+					// Fail loudly on error
+					store.dispatch({
+						type: PROJECT_CONTENTS_RESPONDED,
+						meta: { projectKey },
+						error: error
+					});
+				}
+			)
+			.catch(error => {
+				// fail loudly if the application errors in response to the
+				// reducer state change triggered by the successful store.dispatch
+				throw error;
+			});
+
+		},
+
+		parseProjectContents (response) {
+
+			// extract only the subset of data needed for this application
+			return response.json()
+			.then(json => {
+
+				return {
+					all: json,
+					map: json.find(d => d.name.slice(-7) === 'geojson')
+				};
 
 			});
 

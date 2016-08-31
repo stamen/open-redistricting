@@ -46,8 +46,12 @@ class ProposalPage extends React.Component {
 		// TODO: fetching these additional data is not the view's responsibility;
 		// rather, should be the provenance of actions.js, in the requestProposal promise chain
 		// (though should come in async to the main chunk of proposal data).
-		const { proposal } = this.getStoreState(),
+		const {
+				projectInfo,
+				proposal
+			} = this.getStoreState(),
 			proposalLoaded = proposal && Object.keys(proposal).length;
+			// projectContentsLoaded = !!projectInfo.contents;
 
 		if (proposalLoaded && !proposal.revisions) {
 			this.props.actions.requestProposalRevisions(proposal);
@@ -56,6 +60,13 @@ class ProposalPage extends React.Component {
 		// TODO: comments comes through as a number, we want to replace that in our data structure with an array of comment objects...
 		if (proposalLoaded && !isNaN(proposal.comments)) {
 			this.props.actions.requestProposalComments(proposal);
+		}
+
+		// TODO: this flag is a hack; remove the request from here
+		// and move to actions per above comment
+		if (!this.projectContentLoadRequested) {
+			this.projectContentLoadRequested = true;
+			this.props.actions.requestProjectContents(this.props.params.owner, this.props.params.projectId);
 		}
 
 	}
@@ -76,18 +87,26 @@ class ProposalPage extends React.Component {
 			console.log(">>>>> proposal:", proposal);
 		}
 
+		let diffPaths;
+		if (proposal && proposal.base && proposal.head &&
+			project && project.contents) {
+			diffPaths = [
+				`https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ proposal.base.sha }/${ project.contents.map.name }`,
+				`https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ proposal.head.sha }/${ project.contents.map.name }`
+			];
+		}
+
 		return (
 			<div className='page proposal-page'>
 				<div className='main'>
-					<DiffMap
-						path1='https://raw.githubusercontent.com/open-redist/test-virginia/master/virginia_2008-2012.geojson'
-						path2='https://raw.githubusercontent.com/open-redist/test-virginia/6233f1f34b32b5b7cffa03eebc33711eef662610/virginia_2008-2012.geojson'
-						fetchJSON={ this.props.actions.fetchJSON }
-					/>
-					{/*
-					<div className='map'>
-					</div>
-					*/}
+					{ diffPaths ?
+						<DiffMap
+							path1={ diffPaths[0] }
+							path2={ diffPaths[1] }
+							fetchJSON={ this.props.actions.fetchJSON }
+						/>
+						: null
+					}
 					<div className='info'>
 						<h2 className='title'>{ proposal.title }</h2>
 						<Link to='#'>{ get(projectInfo, 'name') || '' }</Link>
