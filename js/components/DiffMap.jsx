@@ -1,7 +1,15 @@
 import React, { PropTypes } from 'react';
+import {
+	Map,
+	GeoJson,
+	TileLayer
+} from 'react-leaflet';
+import leaflet from 'leaflet';
 
 // JSTS doesn't bundle properly....why not?
 // import jsts from 'jsts';
+
+import appConfig from '../../static/appConfig.json';
 
 class DiffMap extends React.Component {
 
@@ -9,6 +17,7 @@ class DiffMap extends React.Component {
 
 		super(props);
 		this.state = {};
+		this.onMapLayerAdd = this.onMapLayerAdd.bind(this);
 
 	}
 
@@ -75,20 +84,30 @@ class DiffMap extends React.Component {
 
 	render () {
 
-		let body;
+		let body = '';
+
 		if (this.state.diff) {
-			console.log(">>>>> TODO: render diff:", this.state.diff);
+
+			let mapConfig = {
+				zoom: 8,
+				center: [0, 0],
+			};
+
 			body = (
-				<div className='diff'>
-					TODO: render diff
-				</div>
+				<Map { ...mapConfig } ref='leafletMap' className='map-container' onLayeradd={ this.onMapLayerAdd }>
+					{ this.renderTileLayers() }
+					<GeoJson data={ this.state.diff } />
+				</Map>
 			);
+
 		} else if (this.state.diffError) {
+
 			body = (
 				<div className='diff-error'>
 					{ this.state.diffError }
 				</div>
 			);
+
 		}
 
 		return (
@@ -96,6 +115,34 @@ class DiffMap extends React.Component {
 				{ body }
 			</div>
 		);
+
+	}
+
+	renderTileLayers () {
+
+		let layers = [];
+
+		if (appConfig.map.tileLayers) {
+			layers = layers.concat(appConfig.map.tileLayers.map((item, i) => {
+				return (
+					<TileLayer
+						key={ 'tile-layer-' + i }
+						url={ item.url }
+					/>
+				);
+			}));
+		}
+
+		return layers;
+
+	}
+
+	onMapLayerAdd (event) {
+
+		if (event.layer.feature) {
+			// fit map bounds to GeoJSON layer once it loads
+			this.refs.leafletMap.leafletElement.fitBounds(event.layer.getBounds());
+		}
 
 	}
 
