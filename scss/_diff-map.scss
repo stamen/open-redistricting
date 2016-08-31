@@ -9,4 +9,20 @@
 		width: 100%;
 		height: 100%;
 	}
+
+	.diff {
+		stroke: rgb(255, 0, 0);
+		stroke-width: 2;
+		stroke-opacity: 0.5;
+		fill: rgb(255, 0, 0);
+		fill-opacity: 0.5;
+	}
+
+	.intersection {
+		stroke: rgb(67, 143, 211);
+		stroke-width: 2;
+		stroke-opacity: 0.5;
+		fill: rgb(255, 153, 51);
+		fill-opacity: 0.2;
+	}
 }

@@ -65,11 +65,19 @@ class DiffMap extends React.Component {
 				}
 
 				let diff = {
-					type: 'Feature',
-					properties: {},
-					geometry: new jsts.io.GeoJSONWriter().write(p1.symDifference(p2))
-				};
-				this.setState({ diff });
+						type: 'Feature',
+						properties: {},
+						geometry: new jsts.io.GeoJSONWriter().write(p1.symDifference(p2))
+					},
+					intersection = {
+						type: 'Feature',
+						properties: {},
+						geometry: new jsts.io.GeoJSONWriter().write(p1.intersection(p2))
+					};
+				this.setState({
+					diff,
+					intersection
+				});
 			},
 
 			error => {
@@ -96,7 +104,8 @@ class DiffMap extends React.Component {
 			body = (
 				<Map { ...mapConfig } ref='leafletMap' className='map-container' onLayeradd={ this.onMapLayerAdd }>
 					{ this.renderTileLayers() }
-					<GeoJson data={ this.state.diff } />
+					<GeoJson className='diff' data={ this.state.diff } />
+					<GeoJson className='intersection' data={ this.state.intersection } />
 				</Map>
 			);
 

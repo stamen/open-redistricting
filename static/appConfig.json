@@ -17,7 +17,7 @@
 	map: {
 		tileLayers: [
 			{
-				"url": "http://sm.mapstack.stamen.com/($809380[@p],(terrain-background,$a79880[hsl-color])[overlay@80],toner-lines[multiply@40],(mapbox-water,$000[@20],$04344d[hsl-color]),(positron-labels,$fff[@20])[multiply])/{z}/{x}/{y}.png"
+				"url": "http://sm.mapstack.stamen.com/toner-lite/{z}/{x}/{y}.png"
 			}
 		]
 	}
