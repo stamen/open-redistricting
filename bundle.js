@@ -506,7 +506,7 @@ var createReduxComponent = function createReduxComponent(Component, props) {
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-exports.PROPOSAL_RESPONDED = exports.PROPOSAL_REQUESTED = exports.PROJECT_PROPOSALS_RESPONDED = exports.PROJECT_PROPOSALS_REQUESTED = exports.PROJECT_CONTENTS_RESPONDED = exports.PROJECT_CONTENTS_REQUESTED = exports.PROJECT_METADATA_RESPONDED = exports.PROJECT_METADATA_REQUESTED = exports.PROJECT_LIST_RESPONDED = exports.PROJECT_LIST_REQUESTED = undefined;
+exports.PROPOSAL_RESPONDED = exports.PROPOSAL_REQUESTED = exports.PROJECT_RESPONDED = exports.PROJECT_REQUESTED = exports.PROJECT_LIST_RESPONDED = exports.PROJECT_LIST_REQUESTED = undefined;
 
 exports.default = function (store, transport) {
 
@@ -524,7 +524,7 @@ exports.default = function (store, transport) {
 
 			var url = 'https://api.github.com/orgs/' + _appConfig.githubOrgName + '/repos';
 
-			transport.request(url, this.parseProjectList).then(function (response) {
+			transport.request(url, this.parseProjectList, this.buildAuthHeader()).then(function (response) {
 				// console.log(">>>>> received project list:", response);
 				store.dispatch({
 					type: PROJECT_LIST_RESPONDED,
@@ -553,38 +553,34 @@ exports.default = function (store, transport) {
 
 
 		/**
-   * Request metadata for one Open Redistricting project (repository).
+   * Request the following for one Open Redistricting project (repository):
+   * - metadata
+   * - file list
+   * - proposal list (A "proposal" is a pull request (defaults to return only open requests) on a GitHub "open-redist" repository)
    */
-		requestProjectMetadata: function requestProjectMetadata(owner, projectId) {
+		requestProject: function requestProject(owner, projectId) {
 
 			var projectKey = (0, _reducers.deriveProjectId)(owner, projectId);
 			store.dispatch({
-				type: PROJECT_METADATA_REQUESTED,
+				type: PROJECT_REQUESTED,
 				meta: { projectKey: projectKey }
 			});
 
-			var url = 'https://api.github.com/repos/' + owner + '/' + projectId;
-
-			/*
-   // not an authed call after all...
-   // but if it was, here's how we'd do it:
-   // TODO: abstract into transport layer
-   let headers = new Headers();
-   headers.append('Authorization', `token ${ auth.getToken() }`);
-   transport.request(url, this.parseProject, { headers })
-   */
-
-			transport.request(url, this.parseProjectMetadata).then(function (response) {
+			Promise.all([transport.request('https://api.github.com/repos/' + owner + '/' + projectId, this.parseProjectMetadata, this.buildAuthHeader()), transport.request('https://api.github.com/repos/' + owner + '/' + projectId + '/contents', this.parseProjectContents, this.buildAuthHeader()), transport.request('https://api.github.com/repos/' + owner + '/' + projectId + '/pulls', this.parseProjectProposals, this.buildAuthHeader())]).then(function (responses) {
 				// console.log(">>>>> received project metadata:", response);
 				store.dispatch({
-					type: PROJECT_METADATA_RESPONDED,
+					type: PROJECT_RESPONDED,
 					meta: { projectKey: projectKey },
-					payload: response
+					payload: {
+						metadata: responses[0],
+						contents: responses[1],
+						proposals: responses[2]
+					}
 				});
 			}, function (error) {
 				// Fail loudly on error
 				store.dispatch({
-					type: PROJECT_METADATA_RESPONDED,
+					type: PROJECT_RESPONDED,
 					meta: { projectKey: projectKey },
 					error: error
 				});
@@ -596,52 +592,14 @@ exports.default = function (store, transport) {
 		},
 		parseProjectMetadata: function parseProjectMetadata(response) {
 
-			// extract only the subset of data needed for this application
 			return response.json().then(function (json) {
-
 				return json;
-			});
-		},
-
-
-		/**
-   * Request file list for an Open Redistricting project.
-   */
-		requestProjectContents: function requestProjectContents(owner, projectId) {
-
-			var projectKey = (0, _reducers.deriveProjectId)(owner, projectId);
-			store.dispatch({
-				type: PROJECT_CONTENTS_REQUESTED,
-				meta: { projectKey: projectKey }
-			});
-
-			var url = 'https://api.github.com/repos/' + owner + '/' + projectId + '/contents';
-
-			transport.request(url, this.parseProjectContents).then(function (response) {
-				// console.log(">>>>> received project contents:", response);
-				store.dispatch({
-					type: PROJECT_CONTENTS_RESPONDED,
-					meta: { projectKey: projectKey },
-					payload: response
-				});
-			}, function (error) {
-				// Fail loudly on error
-				store.dispatch({
-					type: PROJECT_CONTENTS_RESPONDED,
-					meta: { projectKey: projectKey },
-					error: error
-				});
-			}).catch(function (error) {
-				// fail loudly if the application errors in response to the
-				// reducer state change triggered by the successful store.dispatch
-				throw error;
 			});
 		},
 		parseProjectContents: function parseProjectContents(response) {
 
 			// extract only the subset of data needed for this application
 			return response.json().then(function (json) {
-
 				return {
 					all: json,
 					map: json.find(function (d) {
@@ -650,47 +608,10 @@ exports.default = function (store, transport) {
 				};
 			});
 		},
-
-
-		/**
-   * Request all proposals for an Open Redistricting project.
-   * A "proposal" is a pull request (defaults to return only open requests) on a GitHub "open-redist" repository.
-   */
-		requestProjectProposals: function requestProjectProposals(owner, projectId) {
-
-			var projectKey = (0, _reducers.deriveProjectId)(owner, projectId);
-			store.dispatch({
-				type: PROJECT_PROPOSALS_REQUESTED,
-				meta: { projectKey: projectKey }
-			});
-
-			var url = 'https://api.github.com/repos/' + owner + '/' + projectId + '/pulls';
-
-			transport.request(url, this.parseProjectProposals).then(function (response) {
-				// console.log(">>>>> received project proposals:", response);
-				store.dispatch({
-					type: PROJECT_PROPOSALS_RESPONDED,
-					meta: { projectKey: projectKey },
-					payload: response
-				});
-			}, function (error) {
-				// Fail loudly on error
-				store.dispatch({
-					type: PROJECT_PROPOSALS_RESPONDED,
-					meta: { projectKey: projectKey },
-					error: error
-				});
-			}).catch(function (error) {
-				// fail loudly if the application errors in response to the
-				// reducer state change triggered by the successful store.dispatch
-				throw error;
-			});
-		},
 		parseProjectProposals: function parseProjectProposals(response) {
 
 			// extract only the subset of data needed for this application
 			return response.json().then(function (json) {
-
 				return json.reduce(function (acc, proposal) {
 					acc[proposal.number] = proposal;
 					return acc;
@@ -705,26 +626,26 @@ exports.default = function (store, transport) {
    */
 		requestProposal: function requestProposal(owner, projectId, proposalId) {
 
-			var projectKey = (0, _reducers.deriveProjectId)(owner, projectId);
+			var proposalKey = (0, _reducers.deriveProposalId)(owner, projectId, proposalId);
 			store.dispatch({
 				type: PROPOSAL_REQUESTED,
-				meta: { projectKey: projectKey, proposalId: proposalId }
+				meta: { proposalKey: proposalKey }
 			});
 
 			var url = 'https://api.github.com/repos/' + owner + '/' + projectId + '/pulls/' + proposalId;
 
-			transport.request(url, this.parseProposal).then(function (response) {
+			transport.request(url, this.parseProposal, this.buildAuthHeader()).then(function (response) {
 				// console.log(">>>>> received proposal:", response);
 				store.dispatch({
 					type: PROPOSAL_RESPONDED,
-					meta: { projectKey: projectKey, proposalId: proposalId },
+					meta: { proposalKey: proposalKey },
 					payload: response
 				});
 			}, function (error) {
 				// Fail loudly on error
 				store.dispatch({
 					type: PROPOSAL_RESPONDED,
-					meta: { projectKey: projectKey, proposalId: proposalId },
+					meta: { proposalKey: proposalKey },
 					error: error
 				});
 			}).catch(function (error) {
@@ -758,6 +679,26 @@ exports.default = function (store, transport) {
 		fetchJSON: function fetchJSON(path) {
 
 			return transport.request(path);
+		},
+
+
+		/**
+   * Authentication is not necessary for many GitHub API methods,
+   * but go ahead and auth calls if logged in because
+   * GitHub grants higher rate limits for authed calls.
+   */
+		buildAuthHeader: function buildAuthHeader() {
+
+			var token = _auth2.default.getToken();
+			if (token) {
+
+				var headers = new Headers();
+				headers.append('Authorization', 'token ' + token);
+				return { headers: headers };
+			} else {
+
+				return null;
+			}
 		}
 	};
 };
@@ -778,12 +719,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var PROJECT_LIST_REQUESTED = exports.PROJECT_LIST_REQUESTED = 'PROJECT_LIST_REQUESTED';
 var PROJECT_LIST_RESPONDED = exports.PROJECT_LIST_RESPONDED = 'PROJECT_LIST_RESPONDED';
-var PROJECT_METADATA_REQUESTED = exports.PROJECT_METADATA_REQUESTED = 'PROJECT_METADATA_REQUESTED';
-var PROJECT_METADATA_RESPONDED = exports.PROJECT_METADATA_RESPONDED = 'PROJECT_METADATA_RESPONDED';
-var PROJECT_CONTENTS_REQUESTED = exports.PROJECT_CONTENTS_REQUESTED = 'PROJECT_CONTENTS_REQUESTED';
-var PROJECT_CONTENTS_RESPONDED = exports.PROJECT_CONTENTS_RESPONDED = 'PROJECT_CONTENTS_RESPONDED';
-var PROJECT_PROPOSALS_REQUESTED = exports.PROJECT_PROPOSALS_REQUESTED = 'PROJECT_PROPOSALS_REQUESTED';
-var PROJECT_PROPOSALS_RESPONDED = exports.PROJECT_PROPOSALS_RESPONDED = 'PROJECT_PROPOSALS_RESPONDED';
+var PROJECT_REQUESTED = exports.PROJECT_REQUESTED = 'PROJECT_REQUESTED';
+var PROJECT_RESPONDED = exports.PROJECT_RESPONDED = 'PROJECT_RESPONDED';
 var PROPOSAL_REQUESTED = exports.PROPOSAL_REQUESTED = 'PROPOSAL_REQUESTED';
 var PROPOSAL_RESPONDED = exports.PROPOSAL_RESPONDED = 'PROPOSAL_RESPONDED';
 
@@ -797,6 +734,12 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+// TODO: this Singleton is not server-safe.
+// If you're planning to make your app render on the server,
+// you need to refactor this to be a function that generates one object per session,
+// and pass that object through to each consumer.
+// If you're running clientside-only, then have at it.
 
 exports.default = {
 
@@ -949,6 +892,7 @@ exports.initialState = undefined;
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 exports.deriveProjectId = deriveProjectId;
+exports.deriveProposalId = deriveProposalId;
 
 var _reactRouterRedux = require('react-router-redux');
 
@@ -1006,56 +950,36 @@ var reduced = {
 
 		}
 	},
-
-
-	// TODO: break this into nested / combined reducers, this is becoming illegible
 	projects: function projects() {
 		var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 		var action = arguments[1];
 
-		var existing = void 0;
 		switch (action.type) {
 
-			case actions.PROJECT_METADATA_REQUESTED:
-			case actions.PROJECT_METADATA_RESPONDED:
-				existing = state[action.meta.projectKey] || {};
-				return _extends({}, state, _defineProperty({}, action.meta.projectKey, _extends({}, existing, {
-					loading: action.type === actions.PROJECT_METADATA_REQUESTED,
-					error: action.error,
-					data: _extends({}, existing.data, action.payload)
-				})));
+			case actions.PROJECT_REQUESTED:
+			case actions.PROJECT_RESPONDED:
+				return _extends({}, state, _defineProperty({}, action.meta.projectKey, _extends({}, state[action.meta.projectKey] || {}, {
+					loading: action.type === actions.PROJECT_REQUESTED,
+					error: action.error
+				}, action.payload)));
 
-			case actions.PROJECT_CONTENTS_REQUESTED:
-			case actions.PROJECT_CONTENTS_RESPONDED:
-				existing = state[action.meta.projectKey] || {};
-				return _extends({}, state, _defineProperty({}, action.meta.projectKey, _extends({}, existing, {
-					loading: action.type === actions.PROJECT_CONTENTS_REQUESTED,
-					error: action.error,
-					contents: _extends({}, existing.contents, action.payload)
-				})));
+			default:
+				return _extends({}, state);
 
-			case actions.PROJECT_PROPOSALS_REQUESTED:
-			case actions.PROJECT_PROPOSALS_RESPONDED:
-				existing = state[action.meta.projectKey] || {};
-				return _extends({}, state, _defineProperty({}, action.meta.projectKey, _extends({}, existing, {
-					proposals: {
-						loading: action.type === actions.PROJECT_PROPOSALS_REQUESTED,
-						error: action.error,
-						data: _extends({}, existing.proposals && existing.proposals.data || {}, action.payload)
-					}
-				})));
+		}
+	},
+	proposals: function proposals() {
+		var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+		var action = arguments[1];
+
+		switch (action.type) {
 
 			case actions.PROPOSAL_REQUESTED:
 			case actions.PROPOSAL_RESPONDED:
-				existing = state[action.meta.projectKey] || {};
-				var existingProposal = existing.proposals && existing.proposals[action.meta.proposalId] || {};
-				return _extends({}, state, _defineProperty({}, action.meta.projectKey, _extends({}, existing, {
-					proposals: {
-						loading: action.type === actions.PROPOSAL_REQUESTED,
-						error: action.error,
-						data: _extends({}, existing.proposals && existing.proposals.data || {}, _defineProperty({}, action.meta.proposalId, _extends({}, existingProposal, action.payload)))
-					}
-				})));
+				return _extends({}, state, _defineProperty({}, action.meta.proposalKey, _extends({}, state[action.meta.proposalKey] || {}, {
+					loading: action.type === actions.PROPOSAL_REQUESTED,
+					error: action.error
+				}, action.payload)));
 
 			default:
 				return _extends({}, state);
@@ -1075,11 +999,9 @@ function deriveProjectId(owner, projectId) {
 	return owner + '-' + projectId;
 }
 
-/*
-export function deriveProposalId (owner, projectId, proposalId) {
-	return `${ owner }-${ projectId }-${ proposalId }`;
+function deriveProposalId(owner, projectId, proposalId) {
+	return owner + '-' + projectId + '-' + proposalId;
 }
-*/
 
 },{"./actions":6,"react-router-redux":615}],10:[function(require,module,exports){
 'use strict';
@@ -1697,22 +1619,7 @@ var ProjectPage = function (_React$Component) {
 		key: 'componentWillMount',
 		value: function componentWillMount() {
 
-			this.props.actions.requestProjectMetadata(this.props.params.owner, this.props.params.projectId);
-			this.props.actions.requestProjectProposals(this.props.params.owner, this.props.params.projectId);
-		}
-	}, {
-		key: 'componentDidMount',
-		value: function componentDidMount() {
-
-			//
-
-		}
-	}, {
-		key: 'componentWillUnmount',
-		value: function componentWillUnmount() {
-
-			//
-
+			this.props.actions.requestProject(this.props.params.owner, this.props.params.projectId);
 		}
 	}, {
 		key: 'render',
@@ -1720,7 +1627,7 @@ var ProjectPage = function (_React$Component) {
 
 			var storeState = this.props.store.getState(),
 			    project = storeState.projects[(0, _reducers.deriveProjectId)(this.props.params.owner, this.props.params.projectId)];
-			var proposals = (0, _lodash2.default)(project, 'proposals.data') || {};
+			var proposals = (0, _lodash2.default)(project, 'proposals') || {};
 
 			proposals = Object.keys(proposals).map(function (k) {
 				return proposals[k];
@@ -1747,7 +1654,7 @@ var ProjectPage = function (_React$Component) {
 								'li',
 								{ key: proposal.id },
 								_react2.default.createElement(_ProposalThumb2.default, _extends({
-									project: project.data
+									project: project.metadata
 								}, proposal))
 							);
 						})
@@ -1768,12 +1675,12 @@ var ProjectPage = function (_React$Component) {
 				_react2.default.createElement(
 					'h2',
 					{ className: 'project-name' },
-					(0, _lodash2.default)(project, 'data.name') || ''
+					(0, _lodash2.default)(project, 'metadata.name') || ''
 				),
 				_react2.default.createElement(
 					'p',
 					{ className: 'project-desc' },
-					(0, _lodash2.default)(project, 'data.description') || ''
+					(0, _lodash2.default)(project, 'metadata.description') || ''
 				),
 				body
 			);
@@ -1841,76 +1748,35 @@ var ProposalPage = function (_React$Component) {
 		value: function componentWillMount() {
 			var _getStoreState = this.getStoreState();
 
-			var projectInfo = _getStoreState.projectInfo;
 			var proposal = _getStoreState.proposal;
+			var project = _getStoreState.project;
 
 
-			if (!projectInfo || !Object.keys(projectInfo).length) {
+			if (!project || !Object.keys(project).length) {
 				// only fetch containing project if it's not already in the store
-				// TODO: looks like project data exists within `base` property of proposals (pulls) response...
-				// 		 may not need this call at all?
-				this.props.actions.requestProjectMetadata(this.props.params.owner, this.props.params.projectId);
+				this.props.actions.requestProject(this.props.params.owner, this.props.params.projectId);
 			}
 
 			if (!proposal) {
 				// only fetch proposal if it's not already in the store.
 				this.props.actions.requestProposal(this.props.params.owner, this.props.params.projectId, this.props.params.proposalId);
-			} else {
-				if (!proposal.revisions) {
-					this.props.actions.requestProposalRevisions(proposal);
-				}
-			}
-		}
-	}, {
-		key: 'componentDidUpdate',
-		value: function componentDidUpdate() {
-
-			// TODO: fetching these additional data is not the view's responsibility;
-			// rather, should be the provenance of actions.js, in the requestProposal promise chain
-			// (though should come in async to the main chunk of proposal data).
-			var _getStoreState2 = this.getStoreState();
-
-			var projectInfo = _getStoreState2.projectInfo;
-			var proposal = _getStoreState2.proposal;
-			var proposalLoaded = proposal && Object.keys(proposal).length;
-			// projectContentsLoaded = !!projectInfo.contents;
-
-			if (proposalLoaded && !proposal.revisions) {
-				this.props.actions.requestProposalRevisions(proposal);
-			}
-
-			// TODO: comments comes through as a number, we want to replace that in our data structure with an array of comment objects...
-			if (proposalLoaded && !isNaN(proposal.comments)) {
-				this.props.actions.requestProposalComments(proposal);
-			}
-
-			// TODO: this flag is a hack; remove the request from here
-			// and move to actions per above comment
-			if (!this.projectContentLoadRequested) {
-				this.projectContentLoadRequested = true;
-				this.props.actions.requestProjectContents(this.props.params.owner, this.props.params.projectId);
 			}
 		}
 	}, {
 		key: 'render',
 		value: function render() {
-			var _getStoreState3 = this.getStoreState();
+			var _getStoreState2 = this.getStoreState();
 
-			var project = _getStoreState3.project;
-			var projectInfo = _getStoreState3.projectInfo;
-			var proposal = _getStoreState3.proposal;
-
+			var projectMetadata = _getStoreState2.projectMetadata;
+			var projectContents = _getStoreState2.projectContents;
+			var proposal = _getStoreState2.proposal;
+			var proposalIsLoading = !proposal || proposal.loading;
 
 			var body = (0, _sanitizeHtml2.default)(((0, _lodash2.default)(proposal, 'body') || '').replace(/\n/g, '<br>'));
 
-			if (projectInfo && Object.keys(projectInfo).length && proposal && Object.keys(proposal).length) {
-				console.log(">>>>> project:", projectInfo);
-				console.log(">>>>> proposal:", proposal);
-			}
-
 			var diffPaths = void 0;
-			if (proposal && proposal.base && proposal.head && project && project.contents) {
-				diffPaths = ['https://raw.githubusercontent.com/' + this.props.params.owner + '/' + this.props.params.projectId + '/' + proposal.base.sha + '/' + project.contents.map.name, 'https://raw.githubusercontent.com/' + this.props.params.owner + '/' + this.props.params.projectId + '/' + proposal.head.sha + '/' + project.contents.map.name];
+			if (!proposalIsLoading && projectContents) {
+				diffPaths = ['https://raw.githubusercontent.com/' + this.props.params.owner + '/' + this.props.params.projectId + '/' + proposal.base.sha + '/' + projectContents.map.name, 'https://raw.githubusercontent.com/' + this.props.params.owner + '/' + this.props.params.projectId + '/' + proposal.head.sha + '/' + projectContents.map.name];
 			}
 
 			return _react2.default.createElement(
@@ -1930,15 +1796,15 @@ var ProposalPage = function (_React$Component) {
 						_react2.default.createElement(
 							'h2',
 							{ className: 'title' },
-							proposal.title
+							proposalIsLoading ? '' : proposal.title
 						),
 						_react2.default.createElement(
 							_reactRouter.Link,
 							{ to: '#' },
-							(0, _lodash2.default)(projectInfo, 'name') || ''
+							(0, _lodash2.default)(projectMetadata, 'name') || ''
 						),
 						_react2.default.createElement('p', { className: 'body', dangerouslySetInnerHTML: { __html: body } }),
-						_react2.default.createElement(
+						proposalIsLoading ? null : _react2.default.createElement(
 							'div',
 							{ className: 'created-date' },
 							(0, _moment2.default)(proposal.created_at).format('MMM D YYYY')
@@ -1965,12 +1831,14 @@ var ProposalPage = function (_React$Component) {
 
 			var storeState = this.props.store.getState(),
 			    project = storeState.projects[(0, _reducers.deriveProjectId)(this.props.params.owner, this.props.params.projectId)],
-			    projectInfo = (0, _lodash2.default)(project, 'data'),
-			    proposal = (0, _lodash2.default)(project, 'proposals.data[' + this.props.params.proposalId + ']');
+			    projectMetadata = (0, _lodash2.default)(project, 'metadata'),
+			    projectContents = (0, _lodash2.default)(project, 'contents'),
+			    proposal = storeState.proposals[(0, _reducers.deriveProposalId)(this.props.params.owner, this.props.params.projectId, this.props.params.proposalId)];
 
 			return {
 				project: project,
-				projectInfo: projectInfo,
+				projectMetadata: projectMetadata,
+				projectContents: projectContents,
 				proposal: proposal
 			};
 		}
