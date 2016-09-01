@@ -1,3 +1,9 @@
+// TODO: this Singleton is not server-safe.
+// If you're planning to make your app render on the server,
+// you need to refactor this to be a function that generates one object per session,
+// and pass that object through to each consumer.
+// If you're running clientside-only, then have at it.
+
 export default {
 
 	// these sample values should either be overridden inline

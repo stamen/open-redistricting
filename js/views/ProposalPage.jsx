@@ -5,7 +5,10 @@ import get from 'lodash.get';
 import moment from 'moment';
 import sanitizeHtml from 'sanitize-html';
 
-import { deriveProjectId } from '../models/reducers';
+import {
+	deriveProjectId,
+	deriveProposalId
+} from '../models/reducers';
 import DiffMap from '../components/DiffMap.jsx';
 
 class ProposalPage extends React.Component {
@@ -18,55 +21,19 @@ class ProposalPage extends React.Component {
 
 	componentWillMount () {
 
-		const { 
-			projectInfo,
-			proposal
+		const {
+			proposal,
+			project
 		} = this.getStoreState();
 
-		if (!projectInfo || !Object.keys(projectInfo).length) {
+		if (!project || !Object.keys(project).length) {
 			// only fetch containing project if it's not already in the store
-			// TODO: looks like project data exists within `base` property of proposals (pulls) response...
-			// 		 may not need this call at all?
-			this.props.actions.requestProjectMetadata(this.props.params.owner, this.props.params.projectId);
+			this.props.actions.requestProject(this.props.params.owner, this.props.params.projectId);
 		}
 
 		if (!proposal) {
 			// only fetch proposal if it's not already in the store.
 			this.props.actions.requestProposal(this.props.params.owner, this.props.params.projectId, this.props.params.proposalId);
-		} else {
-			if (!proposal.revisions) {
-				this.props.actions.requestProposalRevisions(proposal);
-			}
-		}
-
-	}
-
-	componentDidUpdate () {
-
-		// TODO: fetching these additional data is not the view's responsibility;
-		// rather, should be the provenance of actions.js, in the requestProposal promise chain
-		// (though should come in async to the main chunk of proposal data).
-		const {
-				projectInfo,
-				proposal
-			} = this.getStoreState(),
-			proposalLoaded = proposal && Object.keys(proposal).length;
-			// projectContentsLoaded = !!projectInfo.contents;
-
-		if (proposalLoaded && !proposal.revisions) {
-			this.props.actions.requestProposalRevisions(proposal);
-		}
-
-		// TODO: comments comes through as a number, we want to replace that in our data structure with an array of comment objects...
-		if (proposalLoaded && !isNaN(proposal.comments)) {
-			this.props.actions.requestProposalComments(proposal);
-		}
-
-		// TODO: this flag is a hack; remove the request from here
-		// and move to actions per above comment
-		if (!this.projectContentLoadRequested) {
-			this.projectContentLoadRequested = true;
-			this.props.actions.requestProjectContents(this.props.params.owner, this.props.params.projectId);
 		}
 
 	}
@@ -74,25 +41,19 @@ class ProposalPage extends React.Component {
 	render () {
 
 		const {
-			project,
-			projectInfo,
-			proposal
-		} = this.getStoreState();
+				projectMetadata,
+				projectContents,
+				proposal
+			} = this.getStoreState(),
+			proposalIsLoading = !proposal || proposal.loading;
 
 		let body = sanitizeHtml((get(proposal, 'body') || '').replace(/\n/g, '<br>'));
 
-		if (projectInfo && Object.keys(projectInfo).length &&
-			proposal && Object.keys(proposal).length) {
-			console.log(">>>>> project:", projectInfo);
-			console.log(">>>>> proposal:", proposal);
-		}
-
 		let diffPaths;
-		if (proposal && proposal.base && proposal.head &&
-			project && project.contents) {
+		if (!proposalIsLoading && projectContents) {
 			diffPaths = [
-				`https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ proposal.base.sha }/${ project.contents.map.name }`,
-				`https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ proposal.head.sha }/${ project.contents.map.name }`
+				`https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ proposal.base.sha }/${ projectContents.map.name }`,
+				`https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ proposal.head.sha }/${ projectContents.map.name }`
 			];
 		}
 
@@ -108,10 +69,10 @@ class ProposalPage extends React.Component {
 						: null
 					}
 					<div className='info'>
-						<h2 className='title'>{ proposal.title }</h2>
-						<Link to='#'>{ get(projectInfo, 'name') || '' }</Link>
+						<h2 className='title'>{ proposalIsLoading ? '' : proposal.title }</h2>
+						<Link to='#'>{ get(projectMetadata, 'name') || '' }</Link>
 						<p className='body' dangerouslySetInnerHTML={{ __html: body }} />
-						<div className='created-date'>{ moment(proposal.created_at).format('MMM D YYYY') }</div>
+						{ proposalIsLoading ? null : <div className='created-date'>{ moment(proposal.created_at).format('MMM D YYYY') }</div> }
 						<div className='footer'>{/* consider making this a functional component, with social share icons, and thumbs up/down as its own component */}</div>
 					</div>
 					<div className='comments'>
@@ -131,12 +92,14 @@ class ProposalPage extends React.Component {
 
 		const storeState = this.props.store.getState(),
 			project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)],
-			projectInfo = get(project, 'data'),
-			proposal = get(project, `proposals.data[${ this.props.params.proposalId }]`);
+			projectMetadata = get(project, 'metadata'),
+			projectContents = get(project, 'contents'),
+			proposal = storeState.proposals[deriveProposalId(this.props.params.owner, this.props.params.projectId, this.props.params.proposalId)];
 
 		return {
 			project,
-			projectInfo,
+			projectMetadata,
+			projectContents,
 			proposal
 		};
 

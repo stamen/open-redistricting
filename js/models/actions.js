@@ -2,16 +2,15 @@ import moment from 'moment';
 
 import { githubOrgName } from '../../static/appConfig.json';
 import auth from './auth';
-import { deriveProjectId } from './reducers';
+import {
+	deriveProjectId,
+	deriveProposalId
+} from './reducers';
 
 export const PROJECT_LIST_REQUESTED = 'PROJECT_LIST_REQUESTED';
 export const PROJECT_LIST_RESPONDED = 'PROJECT_LIST_RESPONDED';
-export const PROJECT_METADATA_REQUESTED = 'PROJECT_METADATA_REQUESTED';
-export const PROJECT_METADATA_RESPONDED = 'PROJECT_METADATA_RESPONDED';
-export const PROJECT_CONTENTS_REQUESTED = 'PROJECT_CONTENTS_REQUESTED';
-export const PROJECT_CONTENTS_RESPONDED = 'PROJECT_CONTENTS_RESPONDED';
-export const PROJECT_PROPOSALS_REQUESTED = 'PROJECT_PROPOSALS_REQUESTED';
-export const PROJECT_PROPOSALS_RESPONDED = 'PROJECT_PROPOSALS_RESPONDED';
+export const PROJECT_REQUESTED = 'PROJECT_REQUESTED';
+export const PROJECT_RESPONDED = 'PROJECT_RESPONDED';
 export const PROPOSAL_REQUESTED = 'PROPOSAL_REQUESTED';
 export const PROPOSAL_RESPONDED = 'PROPOSAL_RESPONDED';
 
@@ -31,7 +30,7 @@ export default function (store, transport) {
 
 			let url = `https://api.github.com/orgs/${ githubOrgName }/repos`;
 
-			transport.request(url, this.parseProjectList)
+			transport.request(url, this.parseProjectList, this.buildAuthHeader())
 			.then(
 				response => {
 					// console.log(">>>>> received project list:", response);
@@ -69,41 +68,41 @@ export default function (store, transport) {
 		},
 
 		/**
-		 * Request metadata for one Open Redistricting project (repository).
+		 * Request the following for one Open Redistricting project (repository):
+		 * - metadata
+		 * - file list
+		 * - proposal list (A "proposal" is a pull request (defaults to return only open requests) on a GitHub "open-redist" repository)
 		 */
-		requestProjectMetadata (owner, projectId) {
+		requestProject (owner, projectId) {
 
 			let projectKey = deriveProjectId(owner, projectId);
 			store.dispatch({
-				type: PROJECT_METADATA_REQUESTED,
+				type: PROJECT_REQUESTED,
 				meta: { projectKey }
 			});
 
-			let url = `https://api.github.com/repos/${ owner }/${ projectId }`;
-
-			/*
-			// not an authed call after all...
-			// but if it was, here's how we'd do it:
-			// TODO: abstract into transport layer
-			let headers = new Headers();
-			headers.append('Authorization', `token ${ auth.getToken() }`);
-			transport.request(url, this.parseProject, { headers })
-			*/
-
-			transport.request(url, this.parseProjectMetadata)
+			Promise.all([
+				transport.request(`https://api.github.com/repos/${ owner }/${ projectId }`, this.parseProjectMetadata, this.buildAuthHeader()),
+				transport.request(`https://api.github.com/repos/${ owner }/${ projectId }/contents`, this.parseProjectContents, this.buildAuthHeader()),
+				transport.request(`https://api.github.com/repos/${ owner }/${ projectId }/pulls`, this.parseProjectProposals, this.buildAuthHeader())
+			])
 			.then(
-				response => {
+				responses => {
 					// console.log(">>>>> received project metadata:", response);
 					store.dispatch({
-						type: PROJECT_METADATA_RESPONDED,
+						type: PROJECT_RESPONDED,
 						meta: { projectKey },
-						payload: response
+						payload: {
+							metadata: responses[0],
+							contents: responses[1],
+							proposals: responses[2]
+						}
 					});
 				},
 				error => {
 					// Fail loudly on error
 					store.dispatch({
-						type: PROJECT_METADATA_RESPONDED,
+						type: PROJECT_RESPONDED,
 						meta: { projectKey },
 						error: error
 					});
@@ -119,53 +118,8 @@ export default function (store, transport) {
 
 		parseProjectMetadata (response) {
 
-			// extract only the subset of data needed for this application
 			return response.json()
-			.then(json => {
-
-				return json;
-
-			});
-
-		},
-
-		/**
-		 * Request file list for an Open Redistricting project.
-		 */
-		requestProjectContents (owner, projectId) {
-
-			let projectKey = deriveProjectId(owner, projectId);
-			store.dispatch({
-				type: PROJECT_CONTENTS_REQUESTED,
-				meta: { projectKey }
-			});
-
-			let url = `https://api.github.com/repos/${ owner }/${ projectId }/contents`;
-
-			transport.request(url, this.parseProjectContents)
-			.then(
-				response => {
-					// console.log(">>>>> received project contents:", response);
-					store.dispatch({
-						type: PROJECT_CONTENTS_RESPONDED,
-						meta: { projectKey },
-						payload: response
-					});
-				},
-				error => {
-					// Fail loudly on error
-					store.dispatch({
-						type: PROJECT_CONTENTS_RESPONDED,
-						meta: { projectKey },
-						error: error
-					});
-				}
-			)
-			.catch(error => {
-				// fail loudly if the application errors in response to the
-				// reducer state change triggered by the successful store.dispatch
-				throw error;
-			});
+			.then(json => json);
 
 		},
 
@@ -173,55 +127,10 @@ export default function (store, transport) {
 
 			// extract only the subset of data needed for this application
 			return response.json()
-			.then(json => {
-
-				return {
+			.then(json => ({
 					all: json,
 					map: json.find(d => d.name.slice(-7) === 'geojson')
-				};
-
-			});
-
-		},
-
-		/**
-		 * Request all proposals for an Open Redistricting project.
-		 * A "proposal" is a pull request (defaults to return only open requests) on a GitHub "open-redist" repository.
-		 */
-		requestProjectProposals (owner, projectId) {
-
-			let projectKey = deriveProjectId(owner, projectId);
-			store.dispatch({
-				type: PROJECT_PROPOSALS_REQUESTED,
-				meta: { projectKey }
-			});
-
-			let url = `https://api.github.com/repos/${ owner }/${ projectId }/pulls`;
-
-			transport.request(url, this.parseProjectProposals)
-			.then(
-				response => {
-					// console.log(">>>>> received project proposals:", response);
-					store.dispatch({
-						type: PROJECT_PROPOSALS_RESPONDED,
-						meta: { projectKey },
-						payload: response
-					});
-				},
-				error => {
-					// Fail loudly on error
-					store.dispatch({
-						type: PROJECT_PROPOSALS_RESPONDED,
-						meta: { projectKey },
-						error: error
-					});
-				}
-			)
-			.catch(error => {
-				// fail loudly if the application errors in response to the
-				// reducer state change triggered by the successful store.dispatch
-				throw error;
-			});
+			}));
 
 		},
 
@@ -229,14 +138,10 @@ export default function (store, transport) {
 
 			// extract only the subset of data needed for this application
 			return response.json()
-			.then(json => {
-
-				return json.reduce((acc, proposal) => {
-					acc[proposal.number] = proposal;
-					return acc;
-				}, {});
-
-			});
+			.then(json => json.reduce((acc, proposal) => {
+				acc[proposal.number] = proposal;
+				return acc;
+			}, {}));
 
 		},
 
@@ -246,21 +151,21 @@ export default function (store, transport) {
 		 */
 		requestProposal (owner, projectId, proposalId) {
 
-			let projectKey = deriveProjectId(owner, projectId);
+			let proposalKey = deriveProposalId(owner, projectId, proposalId);
 			store.dispatch({
 				type: PROPOSAL_REQUESTED,
-				meta: { projectKey, proposalId }
+				meta: { proposalKey }
 			});
 
 			let url = `https://api.github.com/repos/${ owner }/${ projectId }/pulls/${ proposalId }`;
 
-			transport.request(url, this.parseProposal)
+			transport.request(url, this.parseProposal, this.buildAuthHeader())
 			.then(
 				response => {
 					// console.log(">>>>> received proposal:", response);
 					store.dispatch({
 						type: PROPOSAL_RESPONDED,
-						meta: { projectKey, proposalId },
+						meta: { proposalKey },
 						payload: response
 					});
 				},
@@ -268,7 +173,7 @@ export default function (store, transport) {
 					// Fail loudly on error
 					store.dispatch({
 						type: PROPOSAL_RESPONDED,
-						meta: { projectKey, proposalId },
+						meta: { proposalKey },
 						error: error
 					});
 				}
@@ -314,6 +219,28 @@ export default function (store, transport) {
 		fetchJSON (path) {
 
 			return transport.request(path);
+
+		},
+
+		/**
+		 * Authentication is not necessary for many GitHub API methods,
+		 * but go ahead and auth calls if logged in because
+		 * GitHub grants higher rate limits for authed calls.
+		 */
+		buildAuthHeader () {
+
+			let token = auth.getToken();
+			if (token) {
+
+				let headers = new Headers();
+				headers.append('Authorization', `token ${ token }`);
+				return { headers };
+
+			} else {
+
+				return null;
+
+			}
 
 		}
 

@@ -53,80 +53,41 @@ let reduced = {
 		}
 	},
 
-	// TODO: break this into nested / combined reducers, this is becoming illegible
 	projects (state = {}, action) {
-		let existing;
 		switch (action.type) {
 
-			case actions.PROJECT_METADATA_REQUESTED:
-			case actions.PROJECT_METADATA_RESPONDED:
-				existing = state[action.meta.projectKey] || {};
+			case actions.PROJECT_REQUESTED:
+			case actions.PROJECT_RESPONDED:
 				return {
 					...state,
 					[action.meta.projectKey]: {
-						...existing,
-						loading: action.type === actions.PROJECT_METADATA_REQUESTED,
+						...(state[action.meta.projectKey] || {}),
+						loading: action.type === actions.PROJECT_REQUESTED,
 						error: action.error,
-						data: {
-							...existing.data,
-							...action.payload
-						}
+						...action.payload
 					}
 				};
 
-			case actions.PROJECT_CONTENTS_REQUESTED:
-			case actions.PROJECT_CONTENTS_RESPONDED:
-				existing = state[action.meta.projectKey] || {};
+			default:
 				return {
-					...state,
-					[action.meta.projectKey]: {
-						...existing,
-						loading: action.type === actions.PROJECT_CONTENTS_REQUESTED,
-						error: action.error,
-						contents: {
-							...existing.contents,
-							...action.payload
-						}
-					}
+					...state
 				};
 
-			case actions.PROJECT_PROPOSALS_REQUESTED:
-			case actions.PROJECT_PROPOSALS_RESPONDED:
-				existing = state[action.meta.projectKey] || {};
-				return {
-					...state,
-					[action.meta.projectKey]: {
-						...existing,
-						proposals: {
-							loading: action.type === actions.PROJECT_PROPOSALS_REQUESTED,
-							error: action.error,
-							data: {
-								...(existing.proposals && existing.proposals.data || {}),
-								...action.payload
-							}
-						}
-					}
-				};
+		}
+	},
+
+	proposals (state = {}, action) {
+		switch (action.type) {
 
 			case actions.PROPOSAL_REQUESTED:
 			case actions.PROPOSAL_RESPONDED:
-				existing = state[action.meta.projectKey] || {};
-				let existingProposal = existing.proposals && existing.proposals[action.meta.proposalId] || {};
 				return {
 					...state,
-					[action.meta.projectKey]: {
-						...existing,
-						proposals: {
-							loading: action.type === actions.PROPOSAL_REQUESTED,
-							error: action.error,
-							data: {
-								...(existing.proposals && existing.proposals.data || {}),
-								[action.meta.proposalId]: {
-									...existingProposal,
-									...action.payload
-								}
-							}
-						}
+					[action.meta.proposalKey]: {
+						...(state[action.meta.proposalKey] || {}),
+						loading: action.type === actions.PROPOSAL_REQUESTED,
+						error: action.error,
+						...action.payload
 					}
 				};
 
@@ -151,8 +112,6 @@ export function deriveProjectId (owner, projectId) {
 	return `${ owner }-${ projectId }`;
 }
 
-/*
 export function deriveProposalId (owner, projectId, proposalId) {
 	return `${ owner }-${ projectId }-${ proposalId }`;
 }
-*/
