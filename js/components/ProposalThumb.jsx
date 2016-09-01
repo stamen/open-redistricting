@@ -5,7 +5,7 @@ import GeoJsonMap from './GeoJsonMap.jsx';
 
 const ProposalThumb = ({
 	projectMetadata,
-	projectMapPath,
+	mapPath,
 	number,
 	title,
 	geoJsonPath,
@@ -18,7 +18,7 @@ const ProposalThumb = ({
 		<Link to={ link }>
 			<figure className='proposal-thumb'>
 				<GeoJsonMap
-					path={ projectMapPath }
+					path={ mapPath }
 					fetchJSON={ fetchJSON }
 				/>
 				<figcaption>{ title }</figcaption>
@@ -37,7 +37,7 @@ ProposalThumb.propTypes = {
 		}),
 		name: PropTypes.string
 	}).isRequired,
-	projectMapPath: PropTypes.string.isRequired,
+	mapPath: PropTypes.string.isRequired,
 	fetchJSON: PropTypes.func.isRequired
 };
 

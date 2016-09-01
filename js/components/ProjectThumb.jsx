@@ -9,6 +9,12 @@ const ProjectThumb = ({ name, description, owner }) => {
 		<Link to={ link }>
 			<figure className='project-thumb'>
 				<div className='map'></div>
+				{/*
+				<GeoJsonMap
+					path={ projectMapPath }
+					fetchJSON={ fetchJSON }
+				/>
+				*/}
 				<figcaption>{ description }</figcaption>
 			</figure>
 		</Link>
@@ -21,7 +27,9 @@ ProjectThumb.propTypes = {
 	description: PropTypes.string.isRequired,
 	owner: PropTypes.shape({
 		login: PropTypes.string
-	}).isRequired
+	}).isRequired/*,
+	mapPath: PropTypes.string.isRequired,
+	fetchJSON: PropTypes.func.isRequired*/
 };
 
 export default ProjectThumb;

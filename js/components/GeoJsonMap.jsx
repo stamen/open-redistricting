@@ -114,6 +114,7 @@ class GeoJsonMap extends React.Component {
 	onMapLayerAdd (event) {
 
 		if (event.layer.feature) {
+			console.log(">>>>> onMapLayerAdd");
 			// fit map bounds to GeoJSON layer once it loads
 			this.refs.leafletMap.leafletElement.fitBounds(
 				event.layer.getBounds(),
