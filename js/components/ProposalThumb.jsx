@@ -1,14 +1,26 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 
-const ProposalThumb = ({ project, number, title }) => {
+import GeoJsonMap from './GeoJsonMap.jsx';
 
-	let link = `/${ project.owner.login }/${ project.name }/${ number }`;
+const ProposalThumb = ({
+	projectMetadata,
+	projectMapPath,
+	number,
+	title,
+	geoJsonPath,
+	fetchJSON
+}) => {
+
+	let link = `/${ projectMetadata.owner.login }/${ projectMetadata.name }/${ number }`;
 	
 	return (
 		<Link to={ link }>
 			<figure className='proposal-thumb'>
-				<div className='map'></div>
+				<GeoJsonMap
+					path={ projectMapPath }
+					fetchJSON={ fetchJSON }
+				/>
 				<figcaption>{ title }</figcaption>
 			</figure>
 		</Link>
@@ -19,12 +31,14 @@ const ProposalThumb = ({ project, number, title }) => {
 ProposalThumb.propTypes = {
 	number: PropTypes.number.isRequired,
 	title: PropTypes.string.isRequired,
-	project: PropTypes.shape({
+	projectMetadata: PropTypes.shape({
 		owner: PropTypes.shape({
 			login: PropTypes.string
 		}),
 		name: PropTypes.string
-	}).isRequired
+	}).isRequired,
+	projectMapPath: PropTypes.string.isRequired,
+	fetchJSON: PropTypes.func.isRequired
 };
 
 export default ProposalThumb;

@@ -2,13 +2,6 @@
 .proposal-thumb {
 	margin: 1rem $horiz-spacing;
 
-	.map {
-		width: $thumb-width;
-		height: $thumb-height;
-
-		background-color: $text-link-color;
-	}
-
 	figcaption {
 		max-width: $thumb-width;
 		margin-top: 0.5rem;

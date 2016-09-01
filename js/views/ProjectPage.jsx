@@ -46,7 +46,9 @@ class ProjectPage extends React.Component {
 							return (
 								<li key={ proposal.id }>
 									<ProposalThumb
-										project={ project.metadata }
+										projectMetadata={ project.metadata }
+										projectMapPath={ `https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ proposal.head.sha }/${ project.contents.map.name }` }
+										fetchJSON={ this.props.actions.fetchJSON }
 										{ ...proposal }
 									/>
 								</li>
