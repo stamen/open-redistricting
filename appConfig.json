@@ -13,5 +13,12 @@
 			gatekeeperAccessTokenURL: "https://open-redistricting-auth-prod.herokuapp.com/authenticate/",
 			tokenName: "github-auth"
 		}
+	},
+	map: {
+		tileLayers: [
+			{
+				"url": "http://sm.mapstack.stamen.com/toner-lite/{z}/{x}/{y}.png"
+			}
+		]
 	}
 }
