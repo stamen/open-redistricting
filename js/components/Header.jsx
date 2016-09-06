@@ -27,9 +27,8 @@ class Header extends React.Component {
 	logout () {
 
 		auth.logout(() => {
-			this.props.router.push({
-				pathname: '/'
-			});
+			// hard refresh/redirect to app root
+			window.location = window.location.origin + window.location.pathname;
 		});
 
 	}

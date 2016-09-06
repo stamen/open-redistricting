@@ -97,7 +97,28 @@ let reduced = {
 				};
 
 		}
+	},
+
+	viewer (state = {}, action) {
+		switch (action.type) {
+
+			case actions.VIEWER_INFO_REQUESTED:
+			case actions.VIEWER_INFO_RESPONDED:
+				return {
+					...state,
+					loading: action.type === actions.VIEWER_INFO_REQUESTED,
+					error: action.error,
+					...action.payload
+				};
+
+			default:
+				return {
+					...state
+				};
+
+		}
 	}
+
 };
 
 export default reduced;
@@ -105,7 +126,9 @@ export default reduced;
 // Default values passed into reducers on store initialization (in `main.jsx`).
 // These values will override the defaults specified in each reducer's argument list.
 export const initialState = {
-	// appConfig...
+	viewer: {
+		isMember: undefined
+	}
 };
 
 export function deriveProjectId (owner, projectId) {

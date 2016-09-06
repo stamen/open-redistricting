@@ -8,6 +8,7 @@ class HomePage extends React.Component {
 	constructor (props) {
 
 		super(props);
+		this.openNewProjectModal = this.openNewProjectModal.bind(this);
 
 	}
 
@@ -15,15 +16,16 @@ class HomePage extends React.Component {
 
 		this.props.actions.requestProjectList();
 
-		this.props.actions.authedUserIsMember()
-		.then(
-			response => {
-				console.log(">>>>> user IS member", response);
-			},
-			error => {
-				console.log(">>>>> user IS NOT member", error);
-			}
-		);
+		let { viewer } = this.props.store.getState();
+		if (typeof(viewer.isMember === 'undefined') && !viewer.loading) {
+			this.props.actions.authedUserIsMember();
+		}
+
+	}
+
+	openNewProjectModal () {
+
+		console.log(">>>>> TODO: open new project modal");
 
 	}
 
@@ -58,6 +60,14 @@ class HomePage extends React.Component {
 
 						</li>;
 					}) }
+					{ storeState.viewer.isMember ? 
+						<li key='add-project'>
+							<div className='add-project' onClick={ this.openNewProjectModal }>
+								<span className='plus'>+</span>add project
+							</div>
+						</li>
+						: null
+					}
 				</ul>
 			</div>
 		);

@@ -13,6 +13,8 @@ export const PROJECT_REQUESTED = 'PROJECT_REQUESTED';
 export const PROJECT_RESPONDED = 'PROJECT_RESPONDED';
 export const PROPOSAL_REQUESTED = 'PROPOSAL_REQUESTED';
 export const PROPOSAL_RESPONDED = 'PROPOSAL_RESPONDED';
+export const VIEWER_INFO_REQUESTED = 'VIEWER_INFO_REQUESTED';
+export const VIEWER_INFO_RESPONDED = 'VIEWER_INFO_RESPONDED';
 
 export default function (store, transport) {
 
@@ -218,13 +220,24 @@ export default function (store, transport) {
 
 		authedUserIsMember () {
 
+			store.dispatch({
+				type: VIEWER_INFO_REQUESTED
+			});
+
 			let token = auth.getToken();
 			if (!token) {
-				return Promise.reject({ message: 'Viewer is not currently logged in.' });
+				// viewer is not currently logged in
+				setTimeout(() => {
+					store.dispatch({
+						type: VIEWER_INFO_RESPONDED,
+						payload: { isMember: false }
+					});
+				}, 1);
+				return;
 			};
 
 			let url = 'https://api.github.com/user';
-			return transport.request(url, null, this.buildAuthHeader())
+			transport.request(url, null, this.buildAuthHeader())
 			.then(
 				response => {
 					url = `https://api.github.com/orgs/${ githubOrgName }/public_members/${ response.login }`;
@@ -238,18 +251,29 @@ export default function (store, transport) {
 					// (possibly by redirecting to /login).
 					// TODO: handle with general need-to-login redirect when implemented.
 					console.error(">>>>> ERROR GETTING AUTHED USER");
+					store.dispatch({
+						type: VIEWER_INFO_RESPONDED,
+						payload: { isMember: false }
+					});
 				}
 			)
 			.then(
 				response => {
-					return { isMember: true };
+					store.dispatch({
+						type: VIEWER_INFO_RESPONDED,
+						payload: { isMember: true }
+					});
 				},
 				error => {
-					return { isMember: false };
+					store.dispatch({
+						type: VIEWER_INFO_REQUESTED,
+						payload: { isMember: false }
+					});
 				}
 			)
 			.catch(error => {
-				// fail loudly even if the application errors when resolving the returned Promise chain
+				// fail loudly if the application errors in response to the
+				// reducer state change triggered by the successful store.dispatch
 				throw error;
 			});
 
