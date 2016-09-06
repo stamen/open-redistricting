@@ -2,13 +2,13 @@
 	githubOrgName: 'open-redist',
 	auth: {
 		dev: {
-			githubAPIClientId: "c2f002feaae356a50b34",
+			githubAPIClientId: "a28dec5e95710eeb18cf",
 			redirectURL: "http://localhost:3000/",
 			gatekeeperAccessTokenURL: "https://open-redistricting-auth-dev.herokuapp.com/authenticate/",
 			tokenName: "github-auth"
 		},
 		prod: {
-			githubAPIClientId: "d420ee636334d634b4b1",
+			githubAPIClientId: "b59bd6802b8a36f7613d",
 			redirectURL: "https://stamen.github.io/usopendata/",
 			gatekeeperAccessTokenURL: "https://open-redistricting-auth-prod.herokuapp.com/authenticate/",
 			tokenName: "github-auth"
