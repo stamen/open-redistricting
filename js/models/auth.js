@@ -66,8 +66,10 @@ export default {
 	},
 
 	setToken (val) {
-		// use session storage rather than local, to avoid problems with stale access tokens.
-		// auth as necessary to get a token if it is not stored in the session --
+		// Use session storage rather than local, to avoid problems with stale access tokens.
+		// Also, using session storage syncs with per-session request cache used in transport.js.
+		// 
+		// Auth as necessary to get a token if it is not stored in the session --
 		// the auth redirects will be mostly transparent to the user.
 		window.sessionStorage[this.config.tokenName] = val;
 	},

@@ -19,7 +19,8 @@ export default function (options) {
 		 * 
 		 * @param  {String} url             URL to `fetch`.
 		 * @param  {Function} parser        Custom parser to apply to response; defaults to `fetch`'s `response.json()`
-		 * @param  {Object} requestOptions  Options to pass to `fetch`.
+		 * @param  {Object} requestOptions  Options; some are passed to `fetch()`, like `headers`;
+		 *                                  others are used internally, like `expiration` or `statusOnly`
 		 * @return {Promise}                Promise that resolves with the parsed response,
 		 *                                  or rejects with any error generated during fetch/parse.
 		 *                                  NOTE: If request is already in-flight, returns a Promise that does not resolve nor reject.
@@ -42,7 +43,7 @@ export default function (options) {
 				// fetching; return fetch+parse Promise chain
 				return returnVal
 				.then(this.checkStatus)
-				.then(parser)
+				.then(response => !requestOptions.statusOnly ? parser(response) : Promise.resolve(response))
 				.then(response => this.cacheResponse(url, response))
 				.catch(error => {
 

@@ -15,6 +15,16 @@ class HomePage extends React.Component {
 
 		this.props.actions.requestProjectList();
 
+		this.props.actions.authedUserIsMember()
+		.then(
+			response => {
+				console.log(">>>>> user IS member", response);
+			},
+			error => {
+				console.log(">>>>> user IS NOT member", error);
+			}
+		);
+
 	}
 
 	render () {

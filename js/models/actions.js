@@ -216,6 +216,45 @@ export default function (store, transport) {
 
 		},
 
+		authedUserIsMember () {
+
+			let token = auth.getToken();
+			if (!token) {
+				return Promise.reject({ message: 'Viewer is not currently logged in.' });
+			};
+
+			let url = 'https://api.github.com/user';
+			return transport.request(url, null, this.buildAuthHeader())
+			.then(
+				response => {
+					url = `https://api.github.com/orgs/${ githubOrgName }/public_members/${ response.login }`;
+					return transport.request(url, null, {
+						...this.buildAuthHeader(),
+						statusOnly: true
+					});
+				},
+				error => {
+					// NOTE: we could get here if the access token expired, so need to handle this case
+					// (possibly by redirecting to /login).
+					// TODO: handle with general need-to-login redirect when implemented.
+					console.error(">>>>> ERROR GETTING AUTHED USER");
+				}
+			)
+			.then(
+				response => {
+					return { isMember: true };
+				},
+				error => {
+					return { isMember: false };
+				}
+			)
+			.catch(error => {
+				// fail loudly even if the application errors when resolving the returned Promise chain
+				throw error;
+			});
+
+		},
+
 		fetchJSON (path) {
 
 			return transport.request(path);
