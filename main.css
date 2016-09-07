@@ -5,7 +5,8 @@ h4,
 h5,
 h6,
 div,
-text, p {
+text, p, .add-item-modal input,
+.add-item-modal textarea {
   font-family: 'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif;
   font-weight: 300; }
 
@@ -68,6 +69,27 @@ a:active {
 .home-page li {
   list-style-type: none; }
 
+.home-page .add-project {
+  width: 20rem;
+  height: 11.25rem;
+  margin: 1rem 1rem;
+  background-color: #9ecfde;
+  color: #ffffff;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.075rem;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none; }
+  .home-page .add-project .plus {
+    display: block;
+    width: 100%;
+    line-height: 8rem;
+    font-size: 7rem;
+    font-weight: bold; }
+
 .project-page ul {
   display: flex;
   flex-direction: row;
@@ -99,7 +121,7 @@ a:active {
   .proposal-page .map {
     width: 100%;
     height: 25rem;
-    background-color: #2dade0;
+    background-color: #9ecfde;
     border: 1px solid #f6f6f6; }
   .proposal-page .info {
     position: relative;
@@ -159,7 +181,7 @@ a:active {
   .project-thumb .map {
     width: 20rem;
     height: 11.25rem;
-    background-color: #2dade0; }
+    background-color: #9ecfde; }
   .project-thumb figcaption {
     max-width: 20rem;
     margin-top: 0.5rem;
@@ -181,7 +203,7 @@ a:active {
 .diff-map {
   width: 100%;
   height: 25rem;
-  background-color: #2dade0;
+  background-color: #9ecfde;
   border: 1px solid #f6f6f6; }
   .diff-map .map-container {
     width: 100%;
@@ -202,7 +224,7 @@ a:active {
 .geojson-map {
   width: 20rem;
   height: 11.25rem;
-  background-color: #2dade0; }
+  background-color: #9ecfde; }
   .geojson-map .map-container {
     width: 100%;
     height: 100%; }
@@ -214,3 +236,75 @@ a:active {
     stroke-opacity: 0.5;
     fill: #ff9933;
     fill-opacity: 0.2; }
+
+.add-item-modal {
+  position: absolute;
+  left: 30%;
+  right: 30%;
+  top: 20%;
+  bottom: 40%;
+  min-height: 25rem;
+  padding: 1rem;
+  background-color: #ffffff;
+  border: 1px solid #f2f2f2;
+  overflow: auto;
+  -webkit-overflow-scrolling: auto;
+  outline: none; }
+  .add-item-modal h2 {
+    margin-top: 0.5rem; }
+  .add-item-modal .button {
+    padding: 0.5rem;
+    width: 10rem;
+    background-color: #f2f2f2;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer; }
+  .add-item-modal .button-container {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem; }
+  .add-item-modal .upload {
+    width: 15rem; }
+  .add-item-modal .confirm {
+    display: inline-block;
+    margin-left: 1rem;
+    background-color: #2dade0; }
+  .add-item-modal .cancel {
+    display: inline-block; }
+  .add-item-modal input,
+  .add-item-modal textarea {
+    position: relative;
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    border: none;
+    background-color: #f2f2f2;
+    font-size: 1rem;
+    color: #333333;
+    text-transform: capitalize; }
+    .add-item-modal input::-webkit-input-placeholder,
+    .add-item-modal textarea::-webkit-input-placeholder {
+      color: rgba(51, 51, 51, 0.5);
+      font-size: 1rem; }
+    .add-item-modal input::-moz-placeholder,
+    .add-item-modal textarea::-moz-placeholder {
+      font-size: 1rem; }
+    .add-item-modal input:-ms-input-placeholder,
+    .add-item-modal textarea:-ms-input-placeholder {
+      font-size: 1rem; }
+    .add-item-modal input::placeholder,
+    .add-item-modal textarea::placeholder {
+      font-size: 1rem; }
+  .add-item-modal textarea {
+    height: 10rem; }
+  .add-item-modal .desc {
+    height: 5rem; }
+
+.add-item-modal-overlay {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); }
