@@ -2,13 +2,18 @@ import React from 'react';
 import { withRouter } from 'react-router';
 
 import ProjectThumb from '../components/ProjectThumb.jsx';
+import AddItemModal from '../components/AddItemModal.jsx';
 
 class HomePage extends React.Component {
 
 	constructor (props) {
 
 		super(props);
-		this.openNewProjectModal = this.openNewProjectModal.bind(this);
+
+		this.openModal = this.openModal.bind(this);
+		this.onModalClose = this.onModalClose.bind(this);
+
+		this.state = {};
 
 	}
 
@@ -23,9 +28,23 @@ class HomePage extends React.Component {
 
 	}
 
-	openNewProjectModal () {
+	openModal () {
 
-		console.log(">>>>> TODO: open new project modal");
+		this.setState({ modalIsOpen: true });
+
+	}
+
+	onModalClose (values) {
+
+		if (!values) {
+			this.setState({ modalIsOpen: false });
+		} else {
+			console.log(">>>>> TODO: fire addNewProject action with values:", values);
+			setTimeout(() => {
+				// TODO: close modal after action completes and changes store state
+				this.setState({ modalIsOpen: false });
+			}, 500);
+		}
 
 	}
 
@@ -62,13 +81,18 @@ class HomePage extends React.Component {
 					}) }
 					{ storeState.viewer.isMember ? 
 						<li key='add-project'>
-							<div className='add-project' onClick={ this.openNewProjectModal }>
+							<div className='add-project' onClick={ this.openModal }>
 								<span className='plus'>+</span>add project
 							</div>
 						</li>
 						: null
 					}
 				</ul>
+				<AddItemModal
+					type='project'
+					isOpen={ this.state.modalIsOpen }
+					onClose={ this.onModalClose }
+				/>
 			</div>
 		);
 
