@@ -43,7 +43,7 @@ class HomePage extends React.Component {
 			setTimeout(() => {
 				// TODO: close modal after action completes and changes store state
 				this.setState({ modalIsOpen: false });
-			}, 500);
+			}, 1000);
 		}
 
 	}

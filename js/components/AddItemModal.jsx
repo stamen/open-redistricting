@@ -56,7 +56,8 @@ export default class AddItemModal extends React.Component {
 		// it is transformed into local state here so that the modal has control over closing itself
 		// and triggering the onRequestClose callback.
 		this.setState({
-			isOpen: nextProps.isOpen
+			isOpen: nextProps.isOpen,
+			isClosing: false
 		});
 
 	}
@@ -69,11 +70,16 @@ export default class AddItemModal extends React.Component {
 
 	closeModal (confirmed) {
 
+		if (this.state.isClosing) return;
+
 		this.props.onClose && this.props.onClose(confirmed ? {
 			valueOne: 'foo'
 		} : null);
 
-		console.log(">>>>> TODO: display loading indicator until closed by parent");
+		if (confirmed) {
+			// TODO: display nicer loading indicator
+			this.setState({ isClosing: true });
+		}
 
 	}
 
@@ -89,17 +95,25 @@ export default class AddItemModal extends React.Component {
 				isOpen={ this.state.isOpen }
 				style={ styles }
 			>
-				<h2 ref="subtitle">Hello</h2>
-				<button onClick={ () => this.closeModal(false) }>cancel</button>
-				<button onClick={ () => this.closeModal(true) }>confirm</button>
-				<div>I am a modal</div>
-				<form>
-					<input />
-					<button>tab navigation</button>
-					<button>stays</button>
-					<button>inside</button>
-					<button>the modal</button>
-				</form>
+				{ this.state.isClosing ? 
+					<div>
+						Loading...
+					</div>
+					:
+					<div>
+						<h2 ref="subtitle">Hello</h2>
+						<button onClick={ () => this.closeModal(false) }>cancel</button>
+						<button onClick={ () => this.closeModal(true) }>confirm</button>
+						<div>I am a modal</div>
+						<form>
+							<input />
+							<button>tab navigation</button>
+							<button>stays</button>
+							<button>inside</button>
+							<button>the modal</button>
+						</form>
+					</div>
+				}
 			</Modal>
 		);
 	}
