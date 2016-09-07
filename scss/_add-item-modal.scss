@@ -1,0 +1,105 @@
+$modal-padding: 1rem;
+.add-item-modal {
+	position: absolute;
+	left: 30%;
+	right: 30%;
+	top: 20%;
+	bottom: 40%;
+	min-height: 25rem;
+
+	padding: $modal-padding;
+	background-color: $background-color;
+    border: 1px solid $form-background-color;
+
+    overflow: auto;
+    -webkit-overflow-scrolling: auto;
+    outline: none;
+
+    h2 {
+    	margin-top: 0.5rem;
+    }
+
+	.button {
+		padding: 0.5rem;
+		width: 10rem;
+		background-color: $form-background-color;
+		border-radius: 10px;
+		text-align: center;
+		cursor: pointer;
+	}
+
+	.button-container {
+		position: absolute;
+		right: $modal-padding;
+		bottom: $modal-padding;
+	}
+
+	.upload {
+		width: 15rem;
+	}
+
+	.confirm {
+		display: inline-block;
+		margin-left: 1rem;
+		background-color: $text-link-color;
+	}
+
+	.cancel {
+		display: inline-block;
+	}
+
+	$input-font-size: 1rem;
+	input,
+	textarea {
+		position: relative;
+		width: 100%;
+		margin-bottom: 1rem;
+		padding: 0.5rem;
+		box-sizing: border-box;
+
+		border: none;
+		background-color: $form-background-color;
+
+		@extend %better-helvetica;
+		font-size: $input-font-size;
+		color: $text-color;
+		text-transform: capitalize;
+
+		&::-webkit-input-placeholder {
+			color: rgba($text-color, 0.5);
+			font-size: $input-font-size;
+		}
+		&::-moz-placeholder {
+			font-size: $input-font-size;
+		}
+		&:-ms-input-placeholder {
+			font-size: $input-font-size;
+		}
+		&::placeholder {
+			font-size: $input-font-size;
+		}
+	}
+
+	textarea {
+		height: 10rem;
+		// resize: vertical;
+		// max-height: 10rem;
+	}
+
+	.name {
+		//
+	}
+
+	.desc {
+		height: 5rem;
+	}
+}
+
+.add-item-modal-overlay {
+	position: fixed;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+}

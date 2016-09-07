@@ -92,6 +92,7 @@ class HomePage extends React.Component {
 					type='project'
 					isOpen={ this.state.modalIsOpen }
 					onClose={ this.onModalClose }
+					className='add-item-modal'
 				/>
 			</div>
 		);

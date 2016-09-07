@@ -28,7 +28,12 @@
 
 		text-align: center;
 		text-transform: uppercase;
+		letter-spacing: 0.075rem;
 		cursor: pointer;
+
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
 		user-select: none;
 
 		.plus {

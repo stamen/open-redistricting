@@ -9,27 +9,11 @@ export default class AddItemModal extends React.Component {
 	static propTypes = {
 		type: PropTypes.string.isRequired,	// 'Project', 'Proposal'
 		isOpen: PropTypes.bool,
-		onClose: PropTypes.func,
-		styles: PropTypes.object
+		onClose: PropTypes.func
 	}
 
 	static defaultProps = {
-		onClose: () => {},
-		styles: {}
-	}
-
-	static styles = {
-		overlay: {
-			backgroundColor: 'rgba(0, 0, 0, 0.5)'
-		},
-		content: {
-			left: '30%',
-			right: '30%',
-			top: '15%',
-			bottom: '40%',
-			borderRadius: '0',
-			padding: '1rem'
-		}
+		onClose: () => {}
 	}
 
 	constructor (props) {
@@ -38,6 +22,7 @@ export default class AddItemModal extends React.Component {
 		this.state = {};
 
 		this.onKeyDown = this.onKeyDown.bind(this);
+		this.uploadMap = this.uploadMap.bind(this);
 		this.closeModal = this.closeModal.bind(this);
 
 	}
@@ -68,6 +53,12 @@ export default class AddItemModal extends React.Component {
 
 	}
 
+	uploadMap () {
+
+		// TODO: implement
+
+	}
+
 	closeModal (confirmed) {
 
 		if (this.state.isClosing) return;
@@ -85,15 +76,14 @@ export default class AddItemModal extends React.Component {
 
 	render () {
 
-		let styles = {
-				...AddItemModal.styles,
-				...this.props.styles
-			};
+		// let title = `Create new ${ this.props.type.charAt(0).toUpperCase() + this.props.type.slice(1) }`;
+		let title = `Create new ${ this.props.type }`;
 
 		return (
 			<Modal
 				isOpen={ this.state.isOpen }
-				style={ styles }
+				className='add-item-modal'
+				overlayClassName='add-item-modal-overlay'
 			>
 				{ this.state.isClosing ? 
 					<div>
@@ -101,17 +91,17 @@ export default class AddItemModal extends React.Component {
 					</div>
 					:
 					<div>
-						<h2 ref="subtitle">Hello</h2>
-						<button onClick={ () => this.closeModal(false) }>cancel</button>
-						<button onClick={ () => this.closeModal(true) }>confirm</button>
-						<div>I am a modal</div>
+						<h2>{ title }</h2>
+						<p>Create a new Open Redistricting project. A project contains a single district map, and one or more proposals to revise it.</p>
 						<form>
-							<input />
-							<button>tab navigation</button>
-							<button>stays</button>
-							<button>inside</button>
-							<button>the modal</button>
+							<input className='name' placeholder='Project name'/>
+							<textarea className='desc' placeholder='Project description'/>
 						</form>
+						<div className='button upload' onClick={ this.uploadMap }>Upload .geojson map</div>
+						<div className='button-container'>
+							<div className='button cancel' onClick={ () => this.closeModal(false) }>Cancel</div>
+							<div className='button confirm' onClick={ () => this.closeModal(true) }>Finish</div>
+						</div>
 					</div>
 				}
 			</Modal>
