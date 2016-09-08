@@ -371,6 +371,7 @@ export default function (store, transport) {
 				response => {
 					console.log(">>>>> Success creating initial commit:", response);
 					console.log("TODO NEXT: add project to projects in reducers");
+					console.log("TODO NEXT: change add project dialog to use 'description' as name in context of open-redist.org, and automatically create repo name as slugified entered name.");
 					debugger;
 					store.dispatch({
 						type: CREATE_PROJECT_RESPONDED,
