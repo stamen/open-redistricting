@@ -28,12 +28,12 @@ class ProposalPage extends React.Component {
 
 		if (!project || !Object.keys(project).length) {
 			// only fetch containing project if it's not already in the store
-			this.props.actions.requestProject(this.props.params.owner, this.props.params.projectId);
+			this.props.actions.requestProject(this.props.params.projectId);
 		}
 
 		if (!proposal) {
 			// only fetch proposal if it's not already in the store.
-			this.props.actions.requestProposal(this.props.params.owner, this.props.params.projectId, this.props.params.proposalId);
+			this.props.actions.requestProposal(this.props.params.projectId, this.props.params.proposalId);
 		}
 
 	}

@@ -18,7 +18,7 @@ class ProjectPage extends React.Component {
 
 	componentWillMount () {
 
-		this.props.actions.requestProject(this.props.params.owner, this.props.params.projectId);
+		this.props.actions.requestProject(this.props.params.projectId);
 
 	}
 

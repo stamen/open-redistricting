@@ -20,8 +20,9 @@ $modal-padding: 1rem;
     }
 
 	.button {
-		padding: 0.5rem;
+		display: inline-block;
 		width: 10rem;
+		padding: 0.5rem;
 		background-color: $form-background-color;
 		border-radius: 10px;
 		text-align: center;
@@ -39,13 +40,23 @@ $modal-padding: 1rem;
 	}
 
 	.confirm {
-		display: inline-block;
 		margin-left: 1rem;
 		background-color: $text-link-color;
+
+		&.disabled {
+			opacity: 0.5;
+			cursor: auto;
+		}
 	}
 
 	.cancel {
-		display: inline-block;
+		//
+	}
+
+	.upload-info {
+		margin-top: 0.5rem;
+		font-style: italic;
+		opacity: 0.65;
 	}
 
 	$input-font-size: 1rem;
@@ -63,7 +74,6 @@ $modal-padding: 1rem;
 		@extend %better-helvetica;
 		font-size: $input-font-size;
 		color: $text-color;
-		text-transform: capitalize;
 
 		&::-webkit-input-placeholder {
 			color: rgba($text-color, 0.5);

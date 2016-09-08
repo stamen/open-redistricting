@@ -39,11 +39,19 @@ class HomePage extends React.Component {
 		if (!values) {
 			this.setState({ modalIsOpen: false });
 		} else {
-			console.log(">>>>> TODO: fire addNewProject action with values:", values);
+
+			let reader = new FileReader();
+			reader.addEventListener('load', event => {
+				let fileBase64 = reader.result.split(',')[1];
+				this.props.actions.createProject(values.name, values.desc, fileBase64);
+			});
+			reader.readAsDataURL(values.file);
+
 			setTimeout(() => {
 				// TODO: close modal after action completes and changes store state
 				this.setState({ modalIsOpen: false });
 			}, 1000);
+
 		}
 
 	}

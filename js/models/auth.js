@@ -29,12 +29,13 @@ export default {
 	 *                          Note that redirection is ultimately up to implementation code, not auth.js;
 	 *                          this path is simply passed through all the redirects.
 	 */
-	authorize (landingPath='/') {
+	authorize (landingPath='/', scopes) {
 
 		if (landingPath === true) landingPath = window.location.pathname;
 
 		let authUrl = 'https://github.com/login/oauth/authorize?client_id=' + this.config.githubAPIClientId + '&redirect_uri=' + this.config.redirectURL;
 		if (landingPath) authUrl += '&state=' + landingPath;
+		if (scopes) authUrl += '&scope=' + scopes.join(' ');
 
 		window.location = authUrl;
 

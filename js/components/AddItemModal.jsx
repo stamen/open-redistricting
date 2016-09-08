@@ -42,29 +42,48 @@ export default class AddItemModal extends React.Component {
 		// and triggering the onRequestClose callback.
 		this.setState({
 			isOpen: nextProps.isOpen,
-			isClosing: false
+			isClosing: false,
+			selectedFile: null
 		});
 
 	}
 
 	onKeyDown (event) {
 
-		if (event.keyCode === 27) this.closeModal();
+		switch (event.keyCode) {
+			case 13:	// enter
+				this.closeModal(true);
+				break;
+			case 27:	// escape
+				this.closeModal(false);
+				break;
+		}
 
 	}
 
 	uploadMap () {
 
-		// TODO: implement
+		let fileInput = this.refs.uploadInput,
+			onFileSelect = event => {
+				let file = fileInput.files[0];
+				fileInput.removeEventListener('change', onFileSelect);
+				this.setState({ selectedFile: file || null });
+			};
+
+		fileInput.addEventListener('change', onFileSelect);
+		fileInput.click();
 
 	}
 
 	closeModal (confirmed) {
 
 		if (this.state.isClosing) return;
+		if (confirmed && !this.state.selectedFile) return;
 
 		this.props.onClose && this.props.onClose(confirmed ? {
-			valueOne: 'foo'
+			file: this.state.selectedFile,
+			name: this.refs.nameInput.value,
+			desc: this.refs.descInput.value
 		} : null);
 
 		if (confirmed) {
@@ -76,8 +95,11 @@ export default class AddItemModal extends React.Component {
 
 	render () {
 
-		// let title = `Create new ${ this.props.type.charAt(0).toUpperCase() + this.props.type.slice(1) }`;
-		let title = `Create new ${ this.props.type }`;
+		let title = `Create new ${ this.props.type }`,
+			confirmEnabled =
+				this.state.selectedFile
+				&& (this.refs.nameInput && this.refs.nameInput.value)
+				&& (this.refs.descInput && this.refs.descInput.value);
 
 		return (
 			<Modal
@@ -94,13 +116,17 @@ export default class AddItemModal extends React.Component {
 						<h2>{ title }</h2>
 						<p>Create a new Open Redistricting project. A project contains a single district map, and one or more proposals to revise it.</p>
 						<form>
-							<input className='name' placeholder='Project name'/>
-							<textarea className='desc' placeholder='Project description'/>
+							<input className='name' ref='nameInput' placeholder='Project name'/>
+							<textarea className='desc' ref='descInput' placeholder='Project description'/>
 						</form>
+
+						<input type='file' accept='.geojson' ref='uploadInput' style={{ display: 'none' }} />
 						<div className='button upload' onClick={ this.uploadMap }>Upload .geojson map</div>
+						<div className='upload-info'>{ this.state.selectedFile ? `✓ ${ this.state.selectedFile.name }` : '' }</div>
+
 						<div className='button-container'>
 							<div className='button cancel' onClick={ () => this.closeModal(false) }>Cancel</div>
-							<div className='button confirm' onClick={ () => this.closeModal(true) }>Finish</div>
+							<div className={ `button confirm${ !confirmEnabled ? ' disabled' : '' }` } onClick={ () => this.closeModal(true) }>Finish</div>
 						</div>
 					</div>
 				}
