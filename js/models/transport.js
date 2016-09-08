@@ -37,21 +37,23 @@ export default function (options) {
 				parser = this.parseJSON;
 			}
 
-			let returnVal = this.retrieveOrFetch(url, requestOptions);
+			let cacheKey = this.deriveCacheKey(url ,requestOptions),
+				returnVal = this.retrieveOrFetch(url, requestOptions, cacheKey);
+
 			if (returnVal instanceof Promise) {
 
 				// fetching; return fetch+parse Promise chain
 				return returnVal
 				.then(this.checkStatus)
 				.then(response => !requestOptions.statusOnly ? parser(response) : Promise.resolve(response))
-				.then(response => this.cacheResponse(url, response))
+				.then(response => this.cacheResponse(cacheKey, response))
 				.catch(error => {
 
-					let numTries = this.cacheError(url, error);
+					let numTries = this.cacheError(cacheKey, error);
 					if (numTries < this.MAX_NUM_RETRIES) {
 						// try again...
-						console.warn(`Request failed on attempt ${numTries} of ${this.MAX_NUM_RETRIES} [url: ${url} ]`);
-						return this.request(url, parser);
+						console.warn(`Request failed on attempt ${ numTries } of ${ this.MAX_NUM_RETRIES } [url: ${ url } ]`);
+						return this.request(url, parser, requestOptions);
 					} else {
 						// i give up!
 
@@ -92,12 +94,15 @@ export default function (options) {
 
 		},
 
-		retrieveOrFetch: function (url, requestOptions) {
+		retrieveOrFetch: function (url, requestOptions, cacheKey) {
 
-			let cached = this.cache[url];
-			if (cached && performance.now() - cached.time < requestOptions.expiration) {
+			let cached = this.cache[cacheKey],
+				methodIsGet = !requestOptions || !requestOptions.method || requestOptions.method === 'GET';
 
-				// return cached value immediately if it's not past the expiration date
+			if (cached && methodIsGet && performance.now() - cached.time < requestOptions.expiration) {
+
+				// return cached value immediately if it's not past the expiration date.
+				// never return cached value for non-GET requests.
 				return cached.value;
 
 			} else {
@@ -124,9 +129,20 @@ export default function (options) {
 
 			} else {
 
-				let error = new Error(response.statusText);
+				let error = new Error(`${ response.status } (${ response.statusText })`);
 				error.response = response;
-				throw error;
+
+				// extract any error response and pass along to error handler
+				return response.json()
+				.then(
+					rsp => {
+						if (rsp.message) error = new Error(`${ response.status } (${ response.statusText }): ${ rsp.message }`);
+						throw error;
+					},
+					err => {
+						throw error;
+					}
+				);
 
 			}
 
@@ -159,6 +175,32 @@ export default function (options) {
 			errors.push(error);
 
 			return errors.length;
+
+		},
+
+		deriveCacheKey: function (url, requestOptions) {
+
+			let optionsAsKey = [
+					requestOptions.method,
+					requestOptions.body
+				].reduce((acc, o) => {
+
+					// stringify and slugify select requestOptions
+					if (o) acc += (
+						JSON.stringify(o,
+							(k, v) => typeof v === 'string' ? v.slice(0, 40) : v
+						)
+						.replace(/["{}]/g, '')		// remove quotes and braces
+						.replace(/[:;,.\s]/g, '-')	// replace various punctuation with dashes
+						+ '-');						// dash delimiters between request options
+					return acc;
+				}, '');
+
+			if (optionsAsKey) {
+				return url + '-' + optionsAsKey;
+			} else {
+				return url;
+			}
 
 		}
 
