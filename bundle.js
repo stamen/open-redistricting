@@ -60,30 +60,51 @@ var AddItemModal = function (_React$Component) {
 			// and triggering the onRequestClose callback.
 			this.setState({
 				isOpen: nextProps.isOpen,
-				isClosing: false
+				isClosing: false,
+				selectedFile: null
 			});
 		}
 	}, {
 		key: 'onKeyDown',
 		value: function onKeyDown(event) {
 
-			if (event.keyCode === 27) this.closeModal();
+			switch (event.keyCode) {
+				case 13:
+					// enter
+					this.closeModal(true);
+					break;
+				case 27:
+					// escape
+					this.closeModal(false);
+					break;
+			}
 		}
 	}, {
 		key: 'uploadMap',
 		value: function uploadMap() {
+			var _this2 = this;
 
-			// TODO: implement
+			var fileInput = this.refs.uploadInput,
+			    onFileSelect = function onFileSelect(event) {
+				var file = fileInput.files[0];
+				fileInput.removeEventListener('change', onFileSelect);
+				_this2.setState({ selectedFile: file || null });
+			};
 
+			fileInput.addEventListener('change', onFileSelect);
+			fileInput.click();
 		}
 	}, {
 		key: 'closeModal',
 		value: function closeModal(confirmed) {
 
 			if (this.state.isClosing) return;
+			if (confirmed && !this.state.selectedFile) return;
 
 			this.props.onClose && this.props.onClose(confirmed ? {
-				valueOne: 'foo'
+				file: this.state.selectedFile,
+				name: this.refs.nameInput.value,
+				desc: this.refs.descInput.value
 			} : null);
 
 			if (confirmed) {
@@ -94,10 +115,10 @@ var AddItemModal = function (_React$Component) {
 	}, {
 		key: 'render',
 		value: function render() {
-			var _this2 = this;
+			var _this3 = this;
 
-			// let title = `Create new ${ this.props.type.charAt(0).toUpperCase() + this.props.type.slice(1) }`;
-			var title = 'Create new ' + this.props.type;
+			var title = 'Create new ' + this.props.type,
+			    confirmEnabled = this.state.selectedFile && this.refs.nameInput && this.refs.nameInput.value && this.refs.descInput && this.refs.descInput.value;
 
 			return _react2.default.createElement(
 				_reactModal2.default,
@@ -126,9 +147,10 @@ var AddItemModal = function (_React$Component) {
 					_react2.default.createElement(
 						'form',
 						null,
-						_react2.default.createElement('input', { className: 'name', placeholder: 'Project name' }),
-						_react2.default.createElement('textarea', { className: 'desc', placeholder: 'Project description' })
+						_react2.default.createElement('input', { className: 'name', ref: 'nameInput', placeholder: 'Project name' }),
+						_react2.default.createElement('textarea', { className: 'desc', ref: 'descInput', placeholder: 'Project description' })
 					),
+					_react2.default.createElement('input', { type: 'file', accept: '.geojson', ref: 'uploadInput', style: { display: 'none' } }),
 					_react2.default.createElement(
 						'div',
 						{ className: 'button upload', onClick: this.uploadMap },
@@ -136,18 +158,23 @@ var AddItemModal = function (_React$Component) {
 					),
 					_react2.default.createElement(
 						'div',
+						{ className: 'upload-info' },
+						this.state.selectedFile ? '✓ ' + this.state.selectedFile.name : ''
+					),
+					_react2.default.createElement(
+						'div',
 						{ className: 'button-container' },
 						_react2.default.createElement(
 							'div',
 							{ className: 'button cancel', onClick: function onClick() {
-									return _this2.closeModal(false);
+									return _this3.closeModal(false);
 								} },
 							'Cancel'
 						),
 						_react2.default.createElement(
 							'div',
-							{ className: 'button confirm', onClick: function onClick() {
-									return _this2.closeModal(true);
+							{ className: 'button confirm' + (!confirmEnabled ? ' disabled' : ''), onClick: function onClick() {
+									return _this3.closeModal(true);
 								} },
 							'Finish'
 						)
@@ -840,13 +867,17 @@ var createReduxComponent = function createReduxComponent(Component, props) {
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-exports.VIEWER_INFO_RESPONDED = exports.VIEWER_INFO_REQUESTED = exports.PROPOSAL_RESPONDED = exports.PROPOSAL_REQUESTED = exports.PROJECT_RESPONDED = exports.PROJECT_REQUESTED = exports.PROJECT_LIST_RESPONDED = exports.PROJECT_LIST_REQUESTED = undefined;
+exports.CREATE_PROJECT_RESPONDED = exports.CREATE_PROJECT_REQUESTED = exports.VIEWER_INFO_RESPONDED = exports.VIEWER_INFO_REQUESTED = exports.PROPOSAL_RESPONDED = exports.PROPOSAL_REQUESTED = exports.PROJECT_RESPONDED = exports.PROJECT_REQUESTED = exports.PROJECT_LIST_RESPONDED = exports.PROJECT_LIST_REQUESTED = undefined;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 exports.default = function (store, transport) {
 
 	return {
+
+		// ================================================
+		// READ METHODS
+		// ================================================
 
 		/**
    * Request all Open Redistricting projects.
@@ -894,15 +925,15 @@ exports.default = function (store, transport) {
    * - file list
    * - proposal list (A "proposal" is a pull request (defaults to return only open requests) on a GitHub "open-redist" repository)
    */
-		requestProject: function requestProject(owner, projectId) {
+		requestProject: function requestProject(projectId) {
 
-			var projectKey = (0, _reducers.deriveProjectId)(owner, projectId);
+			var projectKey = (0, _reducers.deriveProjectId)(_appConfig.githubOrgName, projectId);
 			store.dispatch({
 				type: PROJECT_REQUESTED,
 				meta: { projectKey: projectKey }
 			});
 
-			Promise.all([transport.request('https://api.github.com/repos/' + owner + '/' + projectId, this.parseProjectMetadata, this.buildAuthHeader()), transport.request('https://api.github.com/repos/' + owner + '/' + projectId + '/contents', this.parseProjectContents, this.buildAuthHeader()), transport.request('https://api.github.com/repos/' + owner + '/' + projectId + '/pulls', this.parseProjectProposals, this.buildAuthHeader())]).then(function (responses) {
+			Promise.all([transport.request('https://api.github.com/repos/' + _appConfig.githubOrgName + '/' + projectId, this.parseProjectMetadata, this.buildAuthHeader()), transport.request('https://api.github.com/repos/' + _appConfig.githubOrgName + '/' + projectId + '/contents', this.parseProjectContents, this.buildAuthHeader()), transport.request('https://api.github.com/repos/' + _appConfig.githubOrgName + '/' + projectId + '/pulls', this.parseProjectProposals, this.buildAuthHeader())]).then(function (responses) {
 				// console.log(">>>>> received project metadata:", response);
 				store.dispatch({
 					type: PROJECT_RESPONDED,
@@ -960,15 +991,15 @@ exports.default = function (store, transport) {
    * Request details for one proposal for an Open Redistricting project.
    * A "proposal" is a pull request on a GitHub "open-redist" repository.
    */
-		requestProposal: function requestProposal(owner, projectId, proposalId) {
+		requestProposal: function requestProposal(projectId, proposalId) {
 
-			var proposalKey = (0, _reducers.deriveProposalId)(owner, projectId, proposalId);
+			var proposalKey = (0, _reducers.deriveProposalId)(_appConfig.githubOrgName, projectId, proposalId);
 			store.dispatch({
 				type: PROPOSAL_REQUESTED,
 				meta: { proposalKey: proposalKey }
 			});
 
-			var url = 'https://api.github.com/repos/' + owner + '/' + projectId + '/pulls/' + proposalId;
+			var url = 'https://api.github.com/repos/' + _appConfig.githubOrgName + '/' + projectId + '/pulls/' + proposalId;
 
 			transport.request(url, this.parseProposal, this.buildAuthHeader()).then(function (response) {
 				// console.log(">>>>> received proposal:", response);
@@ -1012,6 +1043,16 @@ exports.default = function (store, transport) {
 			// 		 need to refactor / split up the increasingly massive projects reducers
 			// 		 while doing this.
 		},
+
+
+		/**
+   * Determine if the authorized user is a member of the 'open-redist' organization.
+   * If so, additionally checks response headers for write access (the 'public_repo' OAuth scope);
+   * if write access is not yet granted, will push the user through the OAuth flow one more time
+   * with increased permissions.
+   * If the user is a member and is successfully granted, or already has, write access,
+   * the `viewer` object in the store will have its `isMember` flag set to `true`.
+   */
 		authedUserIsMember: function authedUserIsMember() {
 			var _this = this;
 
@@ -1031,8 +1072,10 @@ exports.default = function (store, transport) {
 				return;
 			};
 
+			// Get basic info about the authed user...
 			var url = 'https://api.github.com/user';
 			transport.request(url, null, this.buildAuthHeader()).then(function (response) {
+				// ...and use that to determine if the user is part of the organization.
 				url = 'https://api.github.com/orgs/' + _appConfig.githubOrgName + '/public_members/' + response.login;
 				return transport.request(url, null, _extends({}, _this.buildAuthHeader(), {
 					statusOnly: true
@@ -1046,14 +1089,25 @@ exports.default = function (store, transport) {
 					type: VIEWER_INFO_RESPONDED,
 					payload: { isMember: false }
 				});
-			}).then(function (response) {
-				store.dispatch({
-					type: VIEWER_INFO_RESPONDED,
-					payload: { isMember: true }
-				});
+			}).then(
+			// If the user is part of the org, ensure write access.
+			function (response) {
+				// Check 'x-oauth-scopes' header for 'public_repo' scope.
+				var authedScopes = response.headers.get('x-oauth-scopes');
+				if (!~authedScopes.indexOf('public_repo')) {
+					// Authed user is part of the org, but does not yet have write access.
+					// Send through OAuth flow one more time, requesting the proper scope.
+					_auth2.default.authorize(true, ['public_repo']);
+				} else {
+					// Authed user is part of the org and has write access. Hooray!
+					store.dispatch({
+						type: VIEWER_INFO_RESPONDED,
+						payload: { isMember: true }
+					});
+				}
 			}, function (error) {
 				store.dispatch({
-					type: VIEWER_INFO_REQUESTED,
+					type: VIEWER_INFO_RESPONDED,
 					payload: { isMember: false }
 				});
 			}).catch(function (error) {
@@ -1067,6 +1121,135 @@ exports.default = function (store, transport) {
 			return transport.request(path);
 		},
 
+
+		// ================================================
+		// WRITE METHODS
+		// ================================================
+
+		createProject: function createProject(name, description, base64File) {
+			var _this2 = this;
+
+			var initialCommitMessage = 'Initial commit of geojson map',
+			    mapPath = 'map.geojson';
+
+			var projectId = (0, _reducers.deriveProjectId)(_appConfig.githubOrgName, name),
+			    projectResponse = void 0;
+
+			store.dispatch({
+				type: CREATE_PROJECT_REQUESTED,
+				meta: { projectId: projectId }
+			});
+
+			var url = 'https://api.github.com/orgs/' + _appConfig.githubOrgName + '/repos';
+			return transport.request(url, null, _extends({}, this.buildAuthHeader(), {
+				method: 'POST',
+				body: JSON.stringify({
+					name: name,
+					description: description
+				})
+			})).then(function (response) {
+				projectResponse = response;
+				projectId = projectResponse.name;
+				url = 'https://api.github.com/repos/' + _appConfig.githubOrgName + '/' + projectId + '/contents/' + mapPath;
+				return transport.request(url, null, _extends({}, _this2.buildAuthHeader(), {
+					method: 'PUT',
+					body: JSON.stringify({
+						path: mapPath,
+						message: initialCommitMessage,
+						content: base64File
+					})
+				}));
+			}, function (error) {
+				// NOTE: we could get here if the access token expired, so need to handle this case
+				// (possibly by redirecting to /login).
+				// TODO: handle with general need-to-login redirect when implemented.
+				console.error("Error creating project (repository):", error);
+				store.dispatch({
+					type: CREATE_PROJECT_RESPONDED,
+					meta: { projectId: projectId },
+					error: error
+				});
+			}).then(function (response) {
+				console.log(">>>>> Success creating initial commit:", response);
+				console.log("TODO NEXT: add project to projects in reducers");
+				debugger;
+				store.dispatch({
+					type: CREATE_PROJECT_RESPONDED,
+					meta: { projectId: projectId },
+					payload: projectResponse
+				});
+			}, function (error) {
+				console.error("Error creating initial commit:", error);
+				store.dispatch({
+					type: CREATE_PROJECT_RESPONDED,
+					meta: { projectId: projectId },
+					error: error
+				});
+			}).catch(function (error) {
+				// fail loudly if the application errors in response to the
+				// reducer state change triggered by the successful store.dispatch
+				throw error;
+			});
+		},
+
+
+		/**
+   * Checks if authed user already has write access (the 'public_repo' OAuth scope).
+   * If not, updates the authorization to include the 'public_repo' OAuth scope.
+   * See https://developer.github.com/v3/oauth/#scopes for more info.
+   * Returns a Promise that resolves once user has write access.
+   * 
+   * NOTE: Strangely, cannot check authorizations with tokens, only with basic username/password.
+   * 		 Therefore, this method remains unused (because it doesn't work).
+   */
+		grantWriteAccess: function grantWriteAccess() {
+			var _this3 = this;
+
+			var clientId = _appConfig2.default.auth["production" === 'production' ? 'prod' : 'dev'],
+			    url = 'https://api.github.com/authorizations';
+
+			return transport.request(url) //, null, this.buildAuthHeader())
+			.then(function (response) {
+				debugger;
+				var openRedistApp = response.find(function (authedApp) {
+					return authedApp.app.client_id === clientId;
+				});
+
+				if (!openRedistApp) throw new Error('User is not currently authed.');
+
+				if (~openRedistApp.scopes.indexOf('public_repo')) {
+					return { userHasWriteAccess: true };
+				} else {
+					url = 'https://api.github.com/authorizations/' + openRedistApp.id;
+					return transport.request(url, null, _extends({}, _this3.buildAuthHeader(), {
+						method: 'PATCH',
+						body: {
+							add_scopes: ['public_repo']
+						}
+					}));
+				}
+			}, function (error) {
+				// NOTE: we could get here if the access token expired, so need to handle this case
+				// (possibly by redirecting to /login).
+				// TODO: handle with general need-to-login redirect when implemented.
+				console.error("Error getting existing authorizations:", error);
+				throw error;
+			}).then(function (response) {
+				debugger;
+				return { userHasWriteAccess: true };
+			}, function (error) {
+				console.error("Error adding write access:", error);
+				throw error;
+			}).catch(function (error) {
+				// fail loudly if the application errors further down the promise chain.
+				throw error;
+			});
+		},
+
+
+		// ================================================
+		// UTILITIES
+		// ================================================
 
 		/**
    * Authentication is not necessary for many GitHub API methods,
@@ -1095,6 +1278,8 @@ var _moment2 = _interopRequireDefault(_moment);
 
 var _appConfig = require('../../static/appConfig.json');
 
+var _appConfig2 = _interopRequireDefault(_appConfig);
+
 var _auth = require('./auth');
 
 var _auth2 = _interopRequireDefault(_auth);
@@ -1111,6 +1296,9 @@ var PROPOSAL_REQUESTED = exports.PROPOSAL_REQUESTED = 'PROPOSAL_REQUESTED';
 var PROPOSAL_RESPONDED = exports.PROPOSAL_RESPONDED = 'PROPOSAL_RESPONDED';
 var VIEWER_INFO_REQUESTED = exports.VIEWER_INFO_REQUESTED = 'VIEWER_INFO_REQUESTED';
 var VIEWER_INFO_RESPONDED = exports.VIEWER_INFO_RESPONDED = 'VIEWER_INFO_RESPONDED';
+
+var CREATE_PROJECT_REQUESTED = exports.CREATE_PROJECT_REQUESTED = 'CREATE_PROJECT_REQUESTED';
+var CREATE_PROJECT_RESPONDED = exports.CREATE_PROJECT_RESPONDED = 'CREATE_PROJECT_RESPONDED';
 
 ;
 
@@ -1156,12 +1344,14 @@ exports.default = {
   */
 	authorize: function authorize() {
 		var landingPath = arguments.length <= 0 || arguments[0] === undefined ? '/' : arguments[0];
+		var scopes = arguments[1];
 
 
 		if (landingPath === true) landingPath = window.location.pathname;
 
 		var authUrl = 'https://github.com/login/oauth/authorize?client_id=' + this.config.githubAPIClientId + '&redirect_uri=' + this.config.redirectURL;
 		if (landingPath) authUrl += '&state=' + landingPath;
+		if (scopes) authUrl += '&scope=' + scopes.join(' ');
 
 		window.location = authUrl;
 	},
@@ -1422,6 +1612,8 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 exports.default = function (options) {
 
 	options = options || {};
@@ -1460,21 +1652,23 @@ exports.default = function (options) {
 				parser = this.parseJSON;
 			}
 
-			var returnVal = this.retrieveOrFetch(url, requestOptions);
+			var cacheKey = this.deriveCacheKey(url, requestOptions),
+			    returnVal = this.retrieveOrFetch(url, requestOptions, cacheKey);
+
 			if (returnVal instanceof Promise) {
 
 				// fetching; return fetch+parse Promise chain
 				return returnVal.then(this.checkStatus).then(function (response) {
 					return !requestOptions.statusOnly ? parser(response) : Promise.resolve(response);
 				}).then(function (response) {
-					return _this.cacheResponse(url, response);
+					return _this.cacheResponse(cacheKey, response);
 				}).catch(function (error) {
 
-					var numTries = _this.cacheError(url, error);
+					var numTries = _this.cacheError(cacheKey, error);
 					if (numTries < _this.MAX_NUM_RETRIES) {
 						// try again...
 						console.warn('Request failed on attempt ' + numTries + ' of ' + _this.MAX_NUM_RETRIES + ' [url: ' + url + ' ]');
-						return _this.request(url, parser);
+						return _this.request(url, parser, requestOptions);
 					} else {
 						// i give up!
 
@@ -1507,12 +1701,15 @@ exports.default = function (options) {
 			}
 		},
 
-		retrieveOrFetch: function retrieveOrFetch(url, requestOptions) {
+		retrieveOrFetch: function retrieveOrFetch(url, requestOptions, cacheKey) {
 
-			var cached = this.cache[url];
-			if (cached && performance.now() - cached.time < requestOptions.expiration) {
+			var cached = this.cache[cacheKey],
+			    methodIsGet = !requestOptions || !requestOptions.method || requestOptions.method === 'GET';
 
-				// return cached value immediately if it's not past the expiration date
+			if (cached && methodIsGet && performance.now() - cached.time < requestOptions.expiration) {
+
+				// return cached value immediately if it's not past the expiration date.
+				// never return cached value for non-GET requests.
 				return cached.value;
 			} else {
 
@@ -1534,10 +1731,23 @@ exports.default = function (options) {
 
 				return response;
 			} else {
+				var _ret = function () {
 
-				var error = new Error(response.statusText);
-				error.response = response;
-				throw error;
+					var error = new Error(response.status + ' (' + response.statusText + ')');
+					error.response = response;
+
+					// extract any error response and pass along to error handler
+					return {
+						v: response.json().then(function (rsp) {
+							if (rsp.message) error = new Error(response.status + ' (' + response.statusText + '): ' + rsp.message);
+							throw error;
+						}, function (err) {
+							throw error;
+						})
+					};
+				}();
+
+				if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
 			}
 		},
 
@@ -1566,6 +1776,26 @@ exports.default = function (options) {
 			errors.push(error);
 
 			return errors.length;
+		},
+
+		deriveCacheKey: function deriveCacheKey(url, requestOptions) {
+
+			var optionsAsKey = [requestOptions.method, requestOptions.body].reduce(function (acc, o) {
+
+				// stringify and slugify select requestOptions
+				if (o) acc += JSON.stringify(o, function (k, v) {
+					return typeof v === 'string' ? v.slice(0, 40) : v;
+				}).replace(/["{}]/g, '') // remove quotes and braces
+				.replace(/[:;,.\s]/g, '-') // replace various punctuation with dashes
+				+ '-'; // dash delimiters between request options
+				return acc;
+			}, '');
+
+			if (optionsAsKey) {
+				return url + '-' + optionsAsKey;
+			} else {
+				return url;
+			}
 		}
 
 	};
@@ -1981,11 +2211,20 @@ var HomePage = function (_React$Component) {
 			if (!values) {
 				this.setState({ modalIsOpen: false });
 			} else {
-				console.log(">>>>> TODO: fire addNewProject action with values:", values);
-				setTimeout(function () {
-					// TODO: close modal after action completes and changes store state
-					_this2.setState({ modalIsOpen: false });
-				}, 1000);
+				(function () {
+
+					var reader = new FileReader();
+					reader.addEventListener('load', function (event) {
+						var fileBase64 = reader.result.split(',')[1];
+						_this2.props.actions.createProject(values.name, values.desc, fileBase64);
+					});
+					reader.readAsDataURL(values.file);
+
+					setTimeout(function () {
+						// TODO: close modal after action completes and changes store state
+						_this2.setState({ modalIsOpen: false });
+					}, 1000);
+				})();
 			}
 		}
 	}, {
@@ -2096,7 +2335,7 @@ var ProjectPage = function (_React$Component) {
 		key: 'componentWillMount',
 		value: function componentWillMount() {
 
-			this.props.actions.requestProject(this.props.params.owner, this.props.params.projectId);
+			this.props.actions.requestProject(this.props.params.projectId);
 		}
 	}, {
 		key: 'render',
@@ -2234,12 +2473,12 @@ var ProposalPage = function (_React$Component) {
 
 			if (!project || !Object.keys(project).length) {
 				// only fetch containing project if it's not already in the store
-				this.props.actions.requestProject(this.props.params.owner, this.props.params.projectId);
+				this.props.actions.requestProject(this.props.params.projectId);
 			}
 
 			if (!proposal) {
 				// only fetch proposal if it's not already in the store.
-				this.props.actions.requestProposal(this.props.params.owner, this.props.params.projectId, this.props.params.proposalId);
+				this.props.actions.requestProposal(this.props.params.projectId, this.props.params.proposalId);
 			}
 		}
 	}, {

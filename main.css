@@ -253,8 +253,9 @@ a:active {
   .add-item-modal h2 {
     margin-top: 0.5rem; }
   .add-item-modal .button {
-    padding: 0.5rem;
+    display: inline-block;
     width: 10rem;
+    padding: 0.5rem;
     background-color: #f2f2f2;
     border-radius: 10px;
     text-align: center;
@@ -266,11 +267,15 @@ a:active {
   .add-item-modal .upload {
     width: 15rem; }
   .add-item-modal .confirm {
-    display: inline-block;
     margin-left: 1rem;
     background-color: #2dade0; }
-  .add-item-modal .cancel {
-    display: inline-block; }
+    .add-item-modal .confirm.disabled {
+      opacity: 0.5;
+      cursor: auto; }
+  .add-item-modal .upload-info {
+    margin-top: 0.5rem;
+    font-style: italic;
+    opacity: 0.65; }
   .add-item-modal input,
   .add-item-modal textarea {
     position: relative;
@@ -281,8 +286,7 @@ a:active {
     border: none;
     background-color: #f2f2f2;
     font-size: 1rem;
-    color: #333333;
-    text-transform: capitalize; }
+    color: #333333; }
     .add-item-modal input::-webkit-input-placeholder,
     .add-item-modal textarea::-webkit-input-placeholder {
       color: rgba(51, 51, 51, 0.5);
