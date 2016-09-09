@@ -1,20 +1,25 @@
 import React, { PropTypes } from 'react';
 import { Link } from 'react-router';
 
-const ProjectThumb = ({ name, description, owner }) => {
+import GeoJsonMap from './GeoJsonMap.jsx';
+
+const ProjectThumb = ({
+	name,
+	description,
+	owner,
+	mapPath,
+	fetchJSON
+}) => {
 
 	let link = `/${ owner.login }/${ name }`;
 	
 	return (
 		<Link to={ link }>
 			<figure className='project-thumb'>
-				<div className='map'></div>
-				{/*
 				<GeoJsonMap
-					path={ projectMapPath }
+					path={ mapPath }
 					fetchJSON={ fetchJSON }
 				/>
-				*/}
 				<figcaption>{ description }</figcaption>
 			</figure>
 		</Link>
@@ -27,9 +32,9 @@ ProjectThumb.propTypes = {
 	description: PropTypes.string.isRequired,
 	owner: PropTypes.shape({
 		login: PropTypes.string
-	}).isRequired/*,
+	}).isRequired,
 	mapPath: PropTypes.string.isRequired,
-	fetchJSON: PropTypes.func.isRequired*/
+	fetchJSON: PropTypes.func.isRequired
 };
 
 export default ProjectThumb;

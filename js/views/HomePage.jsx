@@ -1,6 +1,7 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 
+import { githubOrgName, mapFilename } from '../../static/appConfig.json';
 import ProjectThumb from '../components/ProjectThumb.jsx';
 import AddItemModal from '../components/AddItemModal.jsx';
 
@@ -80,24 +81,17 @@ class HomePage extends React.Component {
 				<ul className='section recent-projects'>
 					{ projectList.map(project => {
 						return <li key={ project.id }>
-							<ProjectThumb
-								{ ...project }
-							/>
-							
 							{/*
-
-							TODO: programmatically set a standard name for the single geojson file uploaded per project.
-							this will remove the need to make the repo contents call from the whole site,
-							and is especially important here, where we would have to make that call for every repo.
-							then, instead of `project.contents.map.name`, we just hardcode that geojson filename.
-
+								TODO: programmatically set a standard name for the single geojson file uploaded per project.
+								this will remove the need to make the repo contents call from the whole site,
+								and is especially important here, where we would have to make that call for every repo.
+								then, instead of `project.contents.map.name`, we just hardcode that geojson filename.
+							*/}
 							<ProjectThumb
 								{ ...project }
-								mapPath={ `https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/master/${ project.contents.map.name }` }
+								mapPath={ `https://raw.githubusercontent.com/${ githubOrgName }/${ project.name }/master/${ mapFilename }` }
 								fetchJSON={ this.props.actions.fetchJSON }
 							/>
-							*/}
-
 						</li>;
 					}) }
 					{ storeState.viewer.isMember ? 

@@ -4,11 +4,10 @@ import { Link } from 'react-router';
 import GeoJsonMap from './GeoJsonMap.jsx';
 
 const ProposalThumb = ({
-	projectMetadata,
-	mapPath,
 	number,
 	title,
-	geoJsonPath,
+	projectMetadata,
+	mapPath,
 	fetchJSON
 }) => {
 

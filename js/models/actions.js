@@ -323,7 +323,7 @@ export default function (store, transport) {
 			const readmeCommitMessage = 'Initial commit of README with name and description',
 				mapCommitMessage = 'Initial commit of geojson map',
 				readmePath = 'README.md',
-				mapPath = 'map.geojson';
+				mapPath = appConfig.mapFilename;
 
 			let projectResponse,
 				projectId;
