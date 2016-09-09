@@ -318,40 +318,49 @@ export default function (store, transport) {
 		// WRITE METHODS
 		// ================================================
 
-		createProject (name, description, base64File) {
+		createProject (name, description, base64MapFile) {
 
-			const initialCommitMessage = 'Initial commit of geojson map',
+			const readmeCommitMessage = 'Initial commit of README with name and description',
+				mapCommitMessage = 'Initial commit of geojson map',
+				readmePath = 'README.md',
 				mapPath = 'map.geojson';
 
-			let projectId = deriveProjectId(githubOrgName, name),
-				projectResponse;
+			let projectResponse,
+				projectId;
+
+			// don't have id until repo creation response,
+			// so skip the CREATE_PROJECT_REQUESTED action.
+			/*
+				projectId = deriveProjectId(githubOrgName, name);
 
 			store.dispatch({
 				type: CREATE_PROJECT_REQUESTED,
 				meta: { projectId }
 			});
+			*/
 
 			let url = `https://api.github.com/orgs/${ githubOrgName }/repos`;
 			return transport.request(url, null, {
 				...this.buildAuthHeader(),
 				method: 'POST',
 				body: JSON.stringify({
-					name,
-					description
+					name,				// GitHub will slugify this and use as the repo id
+					description: name	// We use this field here as a human-readable name
 				})
 			})
 			.then(
 				response => {
+					// Success creating repo. Commit the README...
 					projectResponse = response;
 					projectId = projectResponse.name;
-					url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents/${ mapPath }`;
+					url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents/${ readmePath }`;
 					return transport.request(url, null, {
 						...this.buildAuthHeader(),
 						method: 'PUT',
 						body: JSON.stringify({
 							path: mapPath,
-							message: initialCommitMessage,
-							content: base64File
+							message: readmeCommitMessage,
+							content: window.btoa(unescape(encodeURIComponent(description)))
 						})
 					});
 				},
@@ -365,6 +374,22 @@ export default function (store, transport) {
 						meta: { projectId },
 						error: error
 					});
+				}
+			)
+			.then(
+				response => {
+					// Success committing README. Commit the map...
+					url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents/${ mapPath }`;
+					return transport.request(url, null, {
+						...this.buildAuthHeader(),
+						method: 'PUT',
+						body: JSON.stringify({
+							path: mapPath,
+							message: mapCommitMessage,
+							content: base64MapFile
+						})
+					});
+
 				}
 			)
 			.then(
