@@ -49,7 +49,9 @@ class GeoJsonMap extends React.Component {
 	componentDidUpdate () {
 
 		let map = this.refs.leafletMap && this.refs.leafletMap.leafletElement;
-		if (map) {
+		if (map && !this.geojsonLoadState) {
+
+			this.geojsonLoadState = 'loading';
 
 			let numFeatures = this.state.geoJson.features.length,
 				numFeaturesLoaded = 0,
@@ -61,6 +63,7 @@ class GeoJsonMap extends React.Component {
 								animate: false,
 								padding: [20, 20]
 							});
+							this.geojsonLoadState = 'loaded';
 						}
 
 					},

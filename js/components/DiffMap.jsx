@@ -149,11 +149,14 @@ class DiffMap extends React.Component {
 	onMapLayerAdd (event) {
 
 		if (event.layer.feature) {
-			// fit map bounds to GeoJSON layer once it loads
-			// TODO: this fires for each GeoJson layer. how can i distinguish the diff from the intersection?
+
 			// TODO: really should be fitting bounds to the union, actually...
 			//		 or just manually adding diff + intersection bounds together and using the resulting bounds rect
-			this.refs.leafletMap.leafletElement.fitBounds(event.layer.getBounds());
+			if (event.layer._options && event.layer._options.className === 'intersection') {
+				// fit map bounds to GeoJSON layer once it loads
+				this.refs.leafletMap.leafletElement.fitBounds(event.layer.getBounds());
+			}
+
 		}
 
 	}
