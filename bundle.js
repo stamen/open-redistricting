@@ -364,11 +364,13 @@ var DiffMap = function (_React$Component) {
 		value: function onMapLayerAdd(event) {
 
 			if (event.layer.feature) {
-				// fit map bounds to GeoJSON layer once it loads
-				// TODO: this fires for each GeoJson layer. how can i distinguish the diff from the intersection?
+
 				// TODO: really should be fitting bounds to the union, actually...
 				//		 or just manually adding diff + intersection bounds together and using the resulting bounds rect
-				this.refs.leafletMap.leafletElement.fitBounds(event.layer.getBounds());
+				if (event.layer._options && event.layer._options.className === 'intersection') {
+					// fit map bounds to GeoJSON layer once it loads
+					this.refs.leafletMap.leafletElement.fitBounds(event.layer.getBounds());
+				}
 			}
 		}
 	}]);
@@ -425,7 +427,6 @@ var GeoJsonMap = function (_React$Component) {
 		var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(GeoJsonMap).call(this, props));
 
 		_this.state = {};
-		_this.onMapLayerAdd = _this.onMapLayerAdd.bind(_this);
 
 		return _this;
 	}
@@ -450,6 +451,38 @@ var GeoJsonMap = function (_React$Component) {
 			});
 		}
 	}, {
+		key: 'componentDidUpdate',
+		value: function componentDidUpdate() {
+			var _this3 = this;
+
+			var map = this.refs.leafletMap && this.refs.leafletMap.leafletElement;
+			if (map && !this.geojsonLoadState) {
+				(function () {
+
+					_this3.geojsonLoadState = 'loading';
+
+					var numFeatures = _this3.state.geoJson.features.length,
+					    numFeaturesLoaded = 0,
+					    geojsonLayer = L.geoJson(null, {
+						onEachFeature: function onEachFeature(feature, layer) {
+
+							if (++numFeaturesLoaded >= numFeatures) {
+								map.fitBounds(geojsonLayer.getBounds(), {
+									animate: false,
+									padding: [20, 20]
+								});
+								_this3.geojsonLoadState = 'loaded';
+							}
+						},
+						className: 'geojson-layer'
+					}).addTo(map);
+
+					// add geojson after setting up handlers to ensure layer is available
+					geojsonLayer.addData(_this3.state.geoJson);
+				})();
+			}
+		}
+	}, {
 		key: 'render',
 		value: function render() {
 
@@ -460,7 +493,6 @@ var GeoJsonMap = function (_React$Component) {
 				var mapConfig = {
 					zoom: 8,
 					center: [0, 0],
-					zoomSnap: 0.0,
 					zoomControl: false,
 					attributionControl: false,
 					keyboard: false,
@@ -473,9 +505,8 @@ var GeoJsonMap = function (_React$Component) {
 
 				body = _react2.default.createElement(
 					_reactLeaflet.Map,
-					_extends({}, mapConfig, { ref: 'leafletMap', className: 'map-container', onLayeradd: this.onMapLayerAdd }),
-					this.renderTileLayers(),
-					_react2.default.createElement(_reactLeaflet.GeoJson, { className: 'geojson-layer', data: this.state.geoJson })
+					_extends({}, mapConfig, { ref: 'leafletMap', className: 'map-container' }),
+					this.renderTileLayers()
 				);
 			} else if (this.state.loadError) {
 
@@ -508,19 +539,6 @@ var GeoJsonMap = function (_React$Component) {
 			}
 
 			return layers;
-		}
-	}, {
-		key: 'onMapLayerAdd',
-		value: function onMapLayerAdd(event) {
-
-			if (event.layer.feature) {
-				console.log(">>>>> onMapLayerAdd");
-				// fit map bounds to GeoJSON layer once it loads
-				this.refs.leafletMap.leafletElement.fitBounds(event.layer.getBounds(), {
-					animate: false,
-					padding: [20, 20]
-				});
-			}
 		}
 	}]);
 
