@@ -19,7 +19,8 @@ class GeoJsonMap extends React.Component {
 
 	static propTypes = {
 		path: PropTypes.string.isRequired,
-		fetchJSON: PropTypes.func.isRequired
+		fetchJSON: PropTypes.func.isRequired,
+		mapOptions: PropTypes.object
 	}
 
 	componentWillMount () {
@@ -93,7 +94,8 @@ class GeoJsonMap extends React.Component {
 				touchZoom: false,
 				scrollWheelZoom: false,
 				doubleClickZoom: false,
-				boxZoom: false
+				boxZoom: false,
+				...(this.props.mapOptions || {})
 			};
 
 			body = (

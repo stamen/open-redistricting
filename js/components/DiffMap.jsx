@@ -24,7 +24,8 @@ class DiffMap extends React.Component {
 	static propTypes = {
 		path1: PropTypes.string.isRequired,
 		path2: PropTypes.string.isRequired,
-		fetchJSON: PropTypes.func.isRequired
+		fetchJSON: PropTypes.func.isRequired,
+		mapOptions: PropTypes.object
 	}
 
 	componentWillMount () {
@@ -99,6 +100,7 @@ class DiffMap extends React.Component {
 			let mapConfig = {
 				zoom: 8,
 				center: [0, 0],
+				...(this.props.mapOptions || {})
 			};
 
 			body = (
