@@ -14,7 +14,6 @@ class GeoJsonMap extends React.Component {
 
 		super(props);
 		this.state = {};
-		this.onMapLayerAdd = this.onMapLayerAdd.bind(this);
 
 	}
 
@@ -47,6 +46,34 @@ class GeoJsonMap extends React.Component {
 
 	}
 
+	componentDidUpdate () {
+
+		let map = this.refs.leafletMap && this.refs.leafletMap.leafletElement;
+		if (map) {
+
+			let numFeatures = this.state.geoJson.features.length,
+				numFeaturesLoaded = 0,
+				geojsonLayer = L.geoJson(null, {
+					onEachFeature: (feature, layer) => {
+
+						if (++numFeaturesLoaded >= numFeatures) {
+							map.fitBounds(geojsonLayer.getBounds(), {
+								animate: false,
+								padding: [20, 20]
+							});
+						}
+
+					},
+					className: 'geojson-layer'
+				}).addTo(map);
+
+			// add geojson after setting up handlers to ensure layer is available
+			geojsonLayer.addData(this.state.geoJson);
+
+		}
+
+	}
+
 	render () {
 
 		let body = '';
@@ -56,7 +83,6 @@ class GeoJsonMap extends React.Component {
 			let mapConfig = {
 				zoom: 8,
 				center: [0, 0],
-				zoomSnap: 0.0,
 				zoomControl: false,
 				attributionControl: false,
 				keyboard: false,
@@ -68,9 +94,8 @@ class GeoJsonMap extends React.Component {
 			};
 
 			body = (
-				<Map { ...mapConfig } ref='leafletMap' className='map-container' onLayeradd={ this.onMapLayerAdd }>
+				<Map { ...mapConfig } ref='leafletMap' className='map-container'>
 					{ this.renderTileLayers() }
-					<GeoJson className='geojson-layer' data={ this.state.geoJson } />
 				</Map>
 			);
 
@@ -108,22 +133,6 @@ class GeoJsonMap extends React.Component {
 		}
 
 		return layers;
-
-	}
-
-	onMapLayerAdd (event) {
-
-		if (event.layer.feature) {
-			console.log(">>>>> onMapLayerAdd");
-			// fit map bounds to GeoJSON layer once it loads
-			this.refs.leafletMap.leafletElement.fitBounds(
-				event.layer.getBounds(),
-				{
-					animate: false,
-					padding: [20, 20]
-				}
-			);
-		}
 
 	}
 
