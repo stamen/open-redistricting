@@ -315,10 +315,10 @@ var DiffMap = function (_React$Component) {
 
 			if (this.state.diff) {
 
-				var mapConfig = {
+				var mapConfig = _extends({
 					zoom: 8,
 					center: [0, 0]
-				};
+				}, this.props.mapOptions || {});
 
 				body = _react2.default.createElement(
 					_reactLeaflet.Map,
@@ -381,7 +381,8 @@ var DiffMap = function (_React$Component) {
 DiffMap.propTypes = {
 	path1: _react.PropTypes.string.isRequired,
 	path2: _react.PropTypes.string.isRequired,
-	fetchJSON: _react.PropTypes.func.isRequired
+	fetchJSON: _react.PropTypes.func.isRequired,
+	mapOptions: _react.PropTypes.object
 };
 exports.default = DiffMap;
 
@@ -490,7 +491,7 @@ var GeoJsonMap = function (_React$Component) {
 
 			if (this.state.geoJson) {
 
-				var mapConfig = {
+				var mapConfig = _extends({
 					zoom: 8,
 					center: [0, 0],
 					zoomControl: false,
@@ -501,7 +502,7 @@ var GeoJsonMap = function (_React$Component) {
 					scrollWheelZoom: false,
 					doubleClickZoom: false,
 					boxZoom: false
-				};
+				}, this.props.mapOptions || {});
 
 				body = _react2.default.createElement(
 					_reactLeaflet.Map,
@@ -547,7 +548,8 @@ var GeoJsonMap = function (_React$Component) {
 
 GeoJsonMap.propTypes = {
 	path: _react.PropTypes.string.isRequired,
-	fetchJSON: _react.PropTypes.func.isRequired
+	fetchJSON: _react.PropTypes.func.isRequired,
+	mapOptions: _react.PropTypes.object
 };
 exports.default = GeoJsonMap;
 
