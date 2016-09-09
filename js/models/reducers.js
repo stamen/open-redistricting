@@ -45,6 +45,15 @@ let reduced = {
 					data: (action.payload || null)
 				};
 
+			case actions.CREATE_PROJECT_REQUESTED:
+			case actions.CREATE_PROJECT_RESPONDED:
+				return {
+					...state,
+					loading: action.type === actions.PROJECT_LIST_REQUESTED,
+					error: action.error,
+					data: action.payload ? (state.data || []).concat([action.payload]) : state.data
+				};
+
 			default:
 				return {
 					...state

@@ -328,16 +328,9 @@ export default function (store, transport) {
 			let projectResponse,
 				projectId;
 
-			// don't have id until repo creation response,
-			// so skip the CREATE_PROJECT_REQUESTED action.
-			/*
-				projectId = deriveProjectId(githubOrgName, name);
-
 			store.dispatch({
-				type: CREATE_PROJECT_REQUESTED,
-				meta: { projectId }
+				type: CREATE_PROJECT_REQUESTED
 			});
-			*/
 
 			let url = `https://api.github.com/orgs/${ githubOrgName }/repos`;
 			return transport.request(url, null, {
@@ -371,7 +364,6 @@ export default function (store, transport) {
 					console.error("Error creating project (repository):", error);
 					store.dispatch({
 						type: CREATE_PROJECT_RESPONDED,
-						meta: { projectId },
 						error: error
 					});
 				}
@@ -389,26 +381,20 @@ export default function (store, transport) {
 							content: base64MapFile
 						})
 					});
-
 				}
+				// don't need another error handler here for almost the same operation...
 			)
 			.then(
 				response => {
-					console.log(">>>>> Success creating initial commit:", response);
-					console.log("TODO NEXT: add project to projects in reducers");
-					console.log("TODO NEXT: change add project dialog to use 'description' as name in context of open-redist.org, and automatically create repo name as slugified entered name.");
-					debugger;
 					store.dispatch({
 						type: CREATE_PROJECT_RESPONDED,
-						meta: { projectId },
 						payload: projectResponse
 					});
 				},
 				error => {
-					console.error("Error creating initial commit:", error);
+					console.error("Error creating initial commits:", error);
 					store.dispatch({
 						type: CREATE_PROJECT_RESPONDED,
-						meta: { projectId },
 						error: error
 					});
 				}
