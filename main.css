@@ -304,6 +304,10 @@ a:active {
     height: 10rem; }
   .add-item-modal .desc {
     height: 5rem; }
+  .add-item-modal .loader {
+    width: 100%;
+    margin-top: 30%;
+    text-align: center; }
 
 .add-item-modal-overlay {
   position: fixed;
