@@ -40,11 +40,14 @@ export default class AddItemModal extends React.Component {
 		// NOTE: while `isOpen` is controlled by parent component for opening the modal,
 		// it is transformed into local state here so that the modal has control over closing itself
 		// and triggering the onRequestClose callback.
-		this.setState({
-			isOpen: nextProps.isOpen,
-			isClosing: false,
-			selectedFile: null
-		});
+		// However, current state is preserved when the modal is remaining open.
+		if (!nextProps.isOpen || !this.state.isOpen) {
+			this.setState({
+				isOpen: nextProps.isOpen,
+				isClosing: false,
+				selectedFile: null
+			});
+		}
 
 	}
 
@@ -86,10 +89,7 @@ export default class AddItemModal extends React.Component {
 			desc: this.refs.descInput.value
 		} : null);
 
-		if (confirmed) {
-			// TODO: display nicer loading indicator
-			this.setState({ isClosing: true });
-		}
+		if (confirmed) this.setState({ isClosing: true });
 
 	}
 
@@ -108,8 +108,8 @@ export default class AddItemModal extends React.Component {
 				overlayClassName='add-item-modal-overlay'
 			>
 				{ this.state.isClosing ? 
-					<div>
-						Loading...
+					<div className='loader'>
+						<h2>{ `Creating ${ this.props.type }...` }</h2>
 					</div>
 					:
 					<div>

@@ -28,6 +28,20 @@ class HomePage extends React.Component {
 
 	}
 
+	componentWillReceiveProps (nextProps) {
+
+		const storeState = nextProps.store.getState(),
+			projectList = storeState.projectList && storeState.projectList.data || [];
+
+		if (typeof this.previousNumProjects !== 'undefined' && this.previousNumProjects !== projectList.length) {
+			// new store state coming in with just-created project,
+			// so close the modal
+			delete this.previousNumProjects;
+			this.setState({ modalIsOpen: false });
+		}
+
+	}
+
 	openModal () {
 
 		this.setState({ modalIsOpen: true });
@@ -40,17 +54,16 @@ class HomePage extends React.Component {
 			this.setState({ modalIsOpen: false });
 		} else {
 
+			const storeState = this.props.store.getState(),
+				projectList = storeState.projectList && storeState.projectList.data || [];
+			this.previousNumProjects = projectList.length;
+
 			let reader = new FileReader();
 			reader.addEventListener('load', event => {
 				let fileBase64 = reader.result.split(',')[1];
 				this.props.actions.createProject(values.name, values.desc, fileBase64);
 			});
 			reader.readAsDataURL(values.file);
-
-			setTimeout(() => {
-				// TODO: close modal after action completes and changes store state
-				this.setState({ modalIsOpen: false });
-			}, 1000);
 
 		}
 
