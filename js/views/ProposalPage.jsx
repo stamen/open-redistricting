@@ -5,6 +5,7 @@ import get from 'lodash.get';
 import moment from 'moment';
 import sanitizeHtml from 'sanitize-html';
 
+import { mapFilename } from '../../static/appConfig.json';
 import {
 	deriveProjectId,
 	deriveProposalId
@@ -42,7 +43,6 @@ class ProposalPage extends React.Component {
 
 		const {
 				projectMetadata,
-				projectContents,
 				proposal
 			} = this.getStoreState(),
 			proposalIsLoading = !proposal || proposal.loading;
@@ -50,10 +50,10 @@ class ProposalPage extends React.Component {
 		let body = sanitizeHtml((get(proposal, 'body') || '').replace(/\n/g, '<br>'));
 
 		let diffPaths;
-		if (!proposalIsLoading && projectContents) {
+		if (!proposalIsLoading) {
 			diffPaths = [
-				`https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ proposal.base.sha }/${ projectContents.map.name }`,
-				`https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ proposal.head.sha }/${ projectContents.map.name }`
+				`https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ proposal.base.sha }/${ mapFilename }`,
+				`https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ proposal.head.sha }/${ mapFilename }`
 			];
 		}
 
@@ -93,13 +93,11 @@ class ProposalPage extends React.Component {
 		const storeState = this.props.store.getState(),
 			project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)],
 			projectMetadata = get(project, 'metadata'),
-			projectContents = get(project, 'contents'),
 			proposal = storeState.proposals[deriveProposalId(this.props.params.owner, this.props.params.projectId, this.props.params.proposalId)];
 
 		return {
 			project,
 			projectMetadata,
-			projectContents,
 			proposal
 		};
 

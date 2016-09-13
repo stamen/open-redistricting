@@ -92,7 +92,7 @@ export default function (store, transport) {
 
 			Promise.all([
 				transport.request(`https://api.github.com/repos/${ githubOrgName }/${ projectId }`, this.parseProjectMetadata, this.buildAuthHeader()),
-				transport.request(`https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents`, this.parseProjectContents, this.buildAuthHeader()),
+				// transport.request(`https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents`, this.parseProjectContents, this.buildAuthHeader()),
 				transport.request(`https://api.github.com/repos/${ githubOrgName }/${ projectId }/pulls`, this.parseProjectProposals, this.buildAuthHeader())
 			])
 			.then(
@@ -103,8 +103,9 @@ export default function (store, transport) {
 						meta: { projectKey },
 						payload: {
 							metadata: responses[0],
-							contents: responses[1],
-							proposals: responses[2]
+							proposals: responses[1]
+							// contents: responses[1],
+							// proposals: responses[2]
 						}
 					});
 				},
@@ -322,7 +323,7 @@ export default function (store, transport) {
 
 			const readmeCommitMessage = 'Initial commit of README with name and description',
 				mapCommitMessage = 'Initial commit of geojson map',
-				readmePath = 'README.md',
+				readmePath = appConfig.readmeFilename,
 				mapPath = appConfig.mapFilename;
 
 			let projectResponse,
@@ -404,6 +405,12 @@ export default function (store, transport) {
 				// reducer state change triggered by the successful store.dispatch
 				throw error;
 			});
+
+		},
+
+		createProposal (name, description, base64MapFile) {
+
+			console.log(">>>>> TODO: implement createProposal");
 
 		},
 

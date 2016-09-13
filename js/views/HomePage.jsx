@@ -81,12 +81,6 @@ class HomePage extends React.Component {
 				<ul className='section recent-projects'>
 					{ projectList.map(project => {
 						return <li key={ project.id }>
-							{/*
-								TODO: programmatically set a standard name for the single geojson file uploaded per project.
-								this will remove the need to make the repo contents call from the whole site,
-								and is especially important here, where we would have to make that call for every repo.
-								then, instead of `project.contents.map.name`, we just hardcode that geojson filename.
-							*/}
 							<ProjectThumb
 								{ ...project }
 								mapPath={ `https://raw.githubusercontent.com/${ githubOrgName }/${ project.name }/master/${ mapFilename }` }
@@ -105,6 +99,7 @@ class HomePage extends React.Component {
 				</ul>
 				<AddItemModal
 					type='project'
+					desc='Create a new Open Redistricting project. A project contains a single district map, and one or more proposals to revise it.'
 					isOpen={ this.state.modalIsOpen }
 					onClose={ this.onModalClose }
 					className='add-item-modal'

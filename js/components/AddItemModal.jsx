@@ -8,6 +8,7 @@ export default class AddItemModal extends React.Component {
 
 	static propTypes = {
 		type: PropTypes.string.isRequired,	// 'Project', 'Proposal'
+		desc: PropTypes.string,
 		isOpen: PropTypes.bool,
 		onClose: PropTypes.func
 	}
@@ -96,6 +97,7 @@ export default class AddItemModal extends React.Component {
 	render () {
 
 		let title = `Create new ${ this.props.type }`,
+			cappedType = this.props.type.slice(0, 1).toUpperCase() + this.props.type.slice(1),
 			confirmEnabled =
 				this.state.selectedFile
 				&& (this.refs.nameInput && this.refs.nameInput.value)
@@ -114,10 +116,10 @@ export default class AddItemModal extends React.Component {
 					:
 					<div>
 						<h2>{ title }</h2>
-						<p>Create a new Open Redistricting project. A project contains a single district map, and one or more proposals to revise it.</p>
+						<p className='modal-desc'>{ this.props.desc || '' }</p>
 						<form>
-							<input className='name' ref='nameInput' placeholder='Project name'/>
-							<textarea className='desc' ref='descInput' placeholder='Project description'/>
+							<input className='name' ref='nameInput' placeholder={ `${ cappedType } name` } />
+							<textarea className='desc' ref='descInput' placeholder={ `${ cappedType } description` } />
 						</form>
 
 						<input type='file' accept='.geojson' ref='uploadInput' style={{ display: 'none' }} />

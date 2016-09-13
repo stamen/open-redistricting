@@ -13,4 +13,32 @@
 	li {
 		list-style-type: none;
 	}
+
+	.add-project {
+		width: $thumb-width;
+		height: $thumb-height;
+		margin: 1rem $horiz-spacing;
+
+		background-color: $thumb-background-color;
+		color: $background-color;
+
+		text-align: center;
+		text-transform: uppercase;
+		letter-spacing: 0.075rem;
+		cursor: pointer;
+
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+
+		.plus {
+			display: block;
+			width: 100%;
+
+			line-height: 8rem;
+			font-size: 7rem;
+			font-weight: bold;
+		}
+	}
 }
