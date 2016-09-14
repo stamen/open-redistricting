@@ -1,6 +1,7 @@
 {
 	githubOrgName: "open-redist",
 	mapFilename: "map.geojson",
+	readmeFilename: "README.md",
 	auth: {
 		dev: {
 			githubAPIClientId: "a28dec5e95710eeb18cf",

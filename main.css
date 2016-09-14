@@ -102,6 +102,27 @@ a:active {
 .project-page li {
   list-style-type: none; }
 
+.project-page .add-project {
+  width: 20rem;
+  height: 11.25rem;
+  margin: 1rem 1rem;
+  background-color: #9ecfde;
+  color: #ffffff;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.075rem;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none; }
+  .project-page .add-project .plus {
+    display: block;
+    width: 100%;
+    line-height: 8rem;
+    font-size: 7rem;
+    font-weight: bold; }
+
 .proposal-page {
   position: relative;
   display: flex;
@@ -252,6 +273,8 @@ a:active {
   outline: none; }
   .add-item-modal h2 {
     margin-top: 0.5rem; }
+  .add-item-modal .modal-desc {
+    white-space: pre-wrap; }
   .add-item-modal .button {
     display: inline-block;
     width: 10rem;
