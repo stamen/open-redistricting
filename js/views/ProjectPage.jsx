@@ -122,7 +122,21 @@ class ProjectPage extends React.Component {
 
 			} else {
 
-				body = <div>No proposals created yet.</div>;
+				body = (
+					<div>
+						No proposals created yet.
+						<ul>
+							{ storeState.viewer.isMember ? 
+								<li key='add-project'>
+									<div className='add-project' onClick={ this.openModal }>
+										<span className='plus'>+</span>add proposal
+									</div>
+								</li>
+								: null
+							}
+						</ul>
+					</div>
+				);
 
 			}
 		}
