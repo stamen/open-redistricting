@@ -97,20 +97,16 @@ export default function (store, transport) {
 
 			Promise.all([
 				transport.request(`https://api.github.com/repos/${ githubOrgName }/${ projectId }`, this.parseProjectMetadata, this.buildAuthHeader()),
-				// transport.request(`https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents`, this.parseProjectContents, this.buildAuthHeader()),
 				transport.request(`https://api.github.com/repos/${ githubOrgName }/${ projectId }/pulls`, this.parseProjectProposals, this.buildAuthHeader())
 			])
 			.then(
 				responses => {
-					// console.log(">>>>> received project metadata:", response);
 					store.dispatch({
 						type: PROJECT_RESPONDED,
 						meta: { projectKey },
 						payload: {
 							metadata: responses[0],
 							proposals: responses[1]
-							// contents: responses[1],
-							// proposals: responses[2]
 						}
 					});
 				},
@@ -348,6 +344,7 @@ export default function (store, transport) {
 				type: CREATE_PROJECT_REQUESTED
 			});
 
+			// 1. Create a new repository in the open-redist org
 			let url = `https://api.github.com/orgs/${ githubOrgName }/repos`;
 			return transport.request(url, null, {
 				...this.buildAuthHeader(),
@@ -359,7 +356,7 @@ export default function (store, transport) {
 			})
 			.then(
 				response => {
-					// Success creating repo. Commit the README...
+					// 2. Commit a README file containing the project description
 					projectResponse = response;
 					projectId = projectResponse.name;
 					url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents/${ readmePath }`;
@@ -377,16 +374,12 @@ export default function (store, transport) {
 					// NOTE: we could get here if the access token expired, so need to handle this case
 					// (possibly by redirecting to /login).
 					// TODO: handle with general need-to-login redirect when implemented.
-					console.error("Error creating project (repository):", error);
-					store.dispatch({
-						type: CREATE_PROJECT_RESPONDED,
-						error: error
-					});
+					throw new Error("Error creating project (repository): " + error.message);
 				}
 			)
 			.then(
 				response => {
-					// Success committing README. Commit the map...
+					// 3. Commit a .geojson map
 					url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents/${ mapPath }`;
 					return transport.request(url, null, {
 						...this.buildAuthHeader(),
@@ -397,8 +390,10 @@ export default function (store, transport) {
 							content: base64MapFile
 						})
 					});
+				},
+				error => {
+					throw new Error("Error committing README: " + error.message);
 				}
-				// don't need another error handler here for almost the same operation...
 			)
 			.then(
 				response => {
@@ -408,16 +403,16 @@ export default function (store, transport) {
 					});
 				},
 				error => {
-					console.error("Error creating initial commits:", error);
-					store.dispatch({
-						type: CREATE_PROJECT_RESPONDED,
-						error: error
-					});
+					throw new Error("Error committing map.geojson: " + error.message);
 				}
 			)
 			.catch(error => {
 				// fail loudly if the application errors in response to the
 				// reducer state change triggered by the successful store.dispatch
+				store.dispatch({
+					type: CREATE_PROJECT_RESPONDED,
+					error: error
+				});
 				throw error;
 			});
 
@@ -426,9 +421,10 @@ export default function (store, transport) {
 		/**
 		 * Three steps to creating a new proposal (pull request):
 		 * 1. Get the SHA of `master`
-		 * 2. Create a new branch from `master`
-		 * 3. Commit the updated .geojson map
-		 * 4. Creat a pull request with the specified name and description
+		 * 2. Get the blob SHA for master/map.geojson
+		 * 3. Create a new branch from `master`
+		 * 4. Commit the updated .geojson map
+		 * 5. Create a pull request with the specified name and description
 		 * 
 		 * @param  {String} name          Human-readable name for the project; GitHub will slugify this and use as the id / url
 		 * @param  {String} description   Text description of the project
@@ -438,53 +434,52 @@ export default function (store, transport) {
 		createProposal (name, description, base64MapFile, projectId) {
 
 			let branchName = slug(name).toLowerCase(),
-				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/git/refs/heads`;
+				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/git/refs/heads`,
+				masterSHA,
+				mapBlobSHA;
 
-			const mapCommitMessage = 'Update geojson map for new proposal `branchName`',
+			const projectKey = deriveProjectId(githubOrgName, projectId),
+				mapCommitMessage = `Update geojson map for new proposal ${ branchName }`,
 				mapPath = appConfig.mapFilename;
 
 			store.dispatch({
-				type: CREATE_PROJECT_RESPONDED
+				type: CREATE_PROPOSAL_REQUESTED,
+				meta: { projectKey }
 			});
 
+			// 1. Get the SHA of `master`
 			return transport.request(url, null, this.buildAuthHeader())
 			.then(
 				response => {
-					console.log(`Creating branch with name: ${ branchName } ...`);
-					debugger;
+					// 2. Get the blob SHA for master/map.geojson
 					let master = response.find(r => r.ref === 'refs/heads/master');
 					if (!master) throw new Error('No `master` ref returned.');
+					masterSHA = master.object.sha;
 
+					url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents/`;
+					return transport.request(url, null, this.buildAuthHeader());
+				}
+			)
+			.then(
+				response => {
+					// 3. Create a new branch from `master`
+					let mapFileDescriptor = response.find(f => f.name === mapPath);
+					mapBlobSHA = mapFileDescriptor ? mapFileDescriptor.sha : '';	// if map is not found, the following API call will be a
+																					// create instead of update, which is unexpected but ok.
 					url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/git/refs`;
 					return transport.request(url, null, {
 						...this.buildAuthHeader(),
 						method: 'POST',
 						body: JSON.stringify({
 							ref: `refs/heads/${ branchName }`,
-							sha: master.object.sha
+							sha: masterSHA
 						})
 					});
 				}
 			)
 			.then(
 				response => {
-					console.log("Committing map to new branch...");
-
-					//
-					// TODO WEDS:
-					// HTTP 422, "sha" wasn't supplied
-					// https://developer.github.com/v3/repos/contents/
-					// didn't think sha was required for this endpoint...not sure what it would be, but possibly branch HEAD sha?
-					// 
-					// ahhh, this should be an update, not a create.
-					// I guess GH is treating this as an upsert and falling through to update,
-					// since the URL to the endpoint is the same.
-					// https://developer.github.com/v3/repos/contents/#update-a-file
-					// 
-					// clear out the branch and try, try again!
-					// 
-
-					debugger;
+					// 4. Commit the updated .geojson map
 					url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents/${ mapPath }`;
 					return transport.request(url, null, {
 						...this.buildAuthHeader(),
@@ -493,15 +488,15 @@ export default function (store, transport) {
 							path: mapPath,
 							message: mapCommitMessage,
 							content: base64MapFile,
-							branch: branchName
+							branch: branchName,
+							sha: mapBlobSHA
 						})
 					});
 				}
 			)
 			.then(
 				response => {
-					console.log("Opening a PR...");
-					debugger;
+					// 5. Create a pull request with the specified name and description
 					url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/pulls`;
 					return transport.request(url, null, {
 						...this.buildAuthHeader(),
@@ -517,12 +512,16 @@ export default function (store, transport) {
 			)
 			.then(
 				response => {
-					let proposalId = response.id,
+					// Proposal complete!
+					let proposalId = response.number,
 						proposalKey = deriveProposalId(githubOrgName, projectId, proposalId);
 
 					store.dispatch({
 						type: CREATE_PROPOSAL_RESPONDED,
-						meta: { proposalKey },
+						meta: {
+							projectKey,
+							proposalKey
+						},
 						payload: response
 					});
 				}
@@ -530,6 +529,7 @@ export default function (store, transport) {
 			.catch(error => {
 				store.dispatch({
 					type: CREATE_PROPOSAL_RESPONDED,
+					meta: { projectKey },
 					error: error
 				});
 				throw error;

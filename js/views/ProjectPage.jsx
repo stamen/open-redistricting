@@ -40,7 +40,7 @@ class ProjectPage extends React.Component {
 			project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)];
 		let proposals = get(project, 'proposals') || {};
 
-		if (typeof this.previousNumProposals !== 'undefined' && this.previousNumProposals !== proposals.length) {
+		if (typeof this.previousNumProposals !== 'undefined' && this.previousNumProposals !== Object.keys(proposals).length) {
 			// new store state coming in with just-created proposal,
 			// so close the modal
 			delete this.previousNumProposals;
@@ -64,7 +64,7 @@ class ProjectPage extends React.Component {
 			const storeState = this.props.store.getState(),
 				project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)];
 			let proposals = get(project, 'proposals') || {};
-			this.previousNumProposals = proposals.length;
+			this.previousNumProposals = Object.keys(proposals).length;
 
 			let reader = new FileReader();
 			reader.addEventListener('load', event => {

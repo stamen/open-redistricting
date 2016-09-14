@@ -77,6 +77,26 @@ let reduced = {
 					}
 				};
 
+			case actions.CREATE_PROPOSAL_REQUESTED:
+			case actions.CREATE_PROPOSAL_RESPONDED:
+				if (!action.meta || !action.meta.projectKey) return { ...state };
+				let existingProject = state[action.meta.projectKey];
+				if (!existingProject) return { ...state };
+
+				let proposals = { ...existingProject.proposals };
+				if (action.payload) proposals[action.payload.number] = action.payload;
+
+				// add new proposal to project.proposals
+				return {
+					...state,
+					[action.meta.projectKey]: {
+						...existingProject,
+						loading: action.type === actions.CREATE_PROPOSAL_REQUESTED,
+						error: action.error,
+						proposals
+					}
+				};
+
 			default:
 				return {
 					...state
