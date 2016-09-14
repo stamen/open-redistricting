@@ -11,6 +11,7 @@ import {
 	deriveProposalId
 } from '../models/reducers';
 import DiffMap from '../components/DiffMap.jsx';
+import Comment from '../components/Comment.jsx';
 
 class ProposalPage extends React.Component {
 
@@ -57,6 +58,9 @@ class ProposalPage extends React.Component {
 			];
 		}
 
+		let revisions = get(proposal, 'commits') || [],
+			comments = get(proposal, 'comments') || [];
+
 		return (
 			<div className='page proposal-page'>
 				<div className='main'>
@@ -77,8 +81,19 @@ class ProposalPage extends React.Component {
 					</div>
 					<div className='comments'>
 						<h3>Comments</h3>
-						<div className='comment-input'>
-						</div>
+						<ul className='comment-input'>
+							{ comments.map(comment => {
+								return <li key={ comment.id }>
+									<Comment
+										body= { comment.body }
+										authorName= { comment.user.login }
+										date= { moment(comment.updated_at).format('MMM D YYYY') }
+										upvotes= { comment.reactions['+1'] }
+										downvotes= { comment.reactions['-1'] }
+									/>
+								</li>;
+							}) }
+						</ul>
 					</div>
 				</div>
 				<div className='sidebar'>

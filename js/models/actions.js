@@ -162,7 +162,9 @@ export default function (store, transport) {
 		 */
 		requestProposal (projectId, proposalId) {
 
-			let proposalKey = deriveProposalId(githubOrgName, projectId, proposalId);
+			let proposalKey = deriveProposalId(githubOrgName, projectId, proposalId),
+				proposal;
+
 			store.dispatch({
 				type: PROPOSAL_REQUESTED,
 				meta: { proposalKey }
@@ -173,25 +175,40 @@ export default function (store, transport) {
 			transport.request(url, this.parseProposal, this.buildAuthHeader())
 			.then(
 				response => {
-					// console.log(">>>>> received proposal:", response);
+					proposal = { ...response };
+					return transport.request(proposal.commits_url, this.parseProposal, this.buildAuthHeader());
+				}
+			)
+			.then(
+				response => {
+					proposal.commits = response;
+
+					// add custom Accept header to return reactions on comments
+					// per: https://developer.github.com/v3/issues/comments/#reactions-summary
+					let headers = this.buildAuthHeader().headers;
+					headers.append('Accept', 'application/vnd.github.squirrel-girl-preview');
+					
+					return transport.request(proposal.comments_url, this.parseProposal, { headers });
+				}
+			)
+			.then(
+				response => {
+					proposal.comments = response;
+					
 					store.dispatch({
 						type: PROPOSAL_RESPONDED,
 						meta: { proposalKey },
-						payload: response
-					});
-				},
-				error => {
-					// Fail loudly on error
-					store.dispatch({
-						type: PROPOSAL_RESPONDED,
-						meta: { proposalKey },
-						error: error
+						payload: proposal
 					});
 				}
 			)
 			.catch(error => {
-				// fail loudly if the application errors in response to the
-				// reducer state change triggered by the successful store.dispatch
+				// Fail loudly on error
+				store.dispatch({
+					type: PROPOSAL_RESPONDED,
+					meta: { proposalKey },
+					error: error
+				});
 				throw error;
 			});
 
@@ -206,24 +223,6 @@ export default function (store, transport) {
 				return json;
 
 			});
-
-		},
-
-		requestProposalRevisions (proposal) {
-
-			console.log(">>>>> TODO: fetch proposal revisions from:", proposal.commits_url);
-			// TODO: fetch commits (revisions) and add to project > proposal > in reducers;
-			// 		 need to refactor / split up the increasingly massive projects reducers
-			// 		 while doing this.
-
-		},
-
-		requestProposalComments (proposal) {
-
-			console.log(">>>>> TODO: fetch proposal comments from:", proposal.comments_url);
-			// TODO: fetch comments and add to project > proposal > in reducers;
-			// 		 need to refactor / split up the increasingly massive projects reducers
-			// 		 while doing this.
 
 		},
 
