@@ -1,0 +1,47 @@
+.comment {
+	position: relative;
+	margin-bottom: 3rem;
+
+	h4 {
+		margin: 0;
+		font-size: 1rem;
+		font-weight: bold;
+	}
+
+	.created-date {
+		position: absolute;
+		top: 0;
+		right: 0;
+
+		color: $text-secondary-color;
+	}
+
+	p {
+
+	}
+
+	.votes {
+		display: inline-block;
+		.em {
+			width: 1.5rem;
+			height: 1.5rem;
+			margin-right: 0.5rem;
+			filter: saturate(0%) contrast(300%) invert(100%);
+		}
+
+		&.active .em {
+			cursor: pointer;
+			&:active {
+				filter: saturate(0%) contrast(300%) invert(0%);
+			}
+		}
+
+		&.up {
+			margin-right: 1.5rem;
+		}
+
+		&.down {
+			//
+		}
+	}
+}

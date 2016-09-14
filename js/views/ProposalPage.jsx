@@ -10,6 +10,7 @@ import {
 	deriveProjectId,
 	deriveProposalId
 } from '../models/reducers';
+import auth from '../models/auth';
 import DiffMap from '../components/DiffMap.jsx';
 import Comment from '../components/Comment.jsx';
 
@@ -18,6 +19,9 @@ class ProposalPage extends React.Component {
 	constructor (props) {
 
 		super(props);
+		this.login = this.login.bind(this);
+		this.onCommentVote = this.onCommentVote.bind(this);
+		this.submitComment = this.submitComment.bind(this);
 
 	}
 
@@ -40,13 +44,32 @@ class ProposalPage extends React.Component {
 
 	}
 
+	login () {
+
+		auth.authorize(this.props.location.pathname);
+
+	}
+
+	onCommentVote (commentId, val) {
+
+		console.log(`>>>>> TODO: vote on ${ commentId }: ${ val }`);
+
+	}
+
+	submitComment () {
+
+		console.log(`>>>>> TODO: subimt comment: ${ this.refs.commentInput.value }`);
+
+	}
+
 	render () {
 
 		const {
 				projectMetadata,
 				proposal
 			} = this.getStoreState(),
-			proposalIsLoading = !proposal || proposal.loading;
+			proposalIsLoading = !proposal || proposal.loading,
+			isLoggedIn = auth.loggedIn();
 
 		let body = sanitizeHtml((get(proposal, 'body') || '').replace(/\n/g, '<br>'));
 
@@ -81,15 +104,25 @@ class ProposalPage extends React.Component {
 					</div>
 					<div className='comments'>
 						<h3>Comments</h3>
-						<ul className='comment-input'>
+						{ isLoggedIn ?
+							<div className='comment-input'>
+								<textarea ref='commentInput' placeholder='Add comment' />
+								<div className='comment-button' onClick={ () => this.submitComment() }>Comment</div>
+							</div> :
+							<div className='signin-cta' onClick={ this.login }>Sign in to add a comment.</div>
+						}
+						<ul>
 							{ comments.map(comment => {
 								return <li key={ comment.id }>
 									<Comment
+										id={ comment.id.toString() }
 										body= { comment.body }
 										authorName= { comment.user.login }
 										date= { moment(comment.updated_at).format('MMM D YYYY') }
 										upvotes= { comment.reactions['+1'] }
 										downvotes= { comment.reactions['-1'] }
+										canVote={ isLoggedIn }
+										onVote={ this.onCommentVote }
 									/>
 								</li>;
 							}) }

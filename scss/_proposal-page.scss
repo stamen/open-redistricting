@@ -78,21 +78,72 @@ $cell-spacing: 1rem;
 
 	.comments {
 		width: 100%;
-		height: 6rem;
 
 		padding: $cell-spacing;
 
 		background-color: $background-color;
 		border: 1px solid $cell-border-color;
+
+		h3 {
+			font-weight: bold;
+		}
+
+		ul {
+			margin: 3rem 0 0 0;
+			padding: 0;
+		}
+
+		li {
+			list-style-type: none;
+		}
 	}
 
+	$input-font-size: 1rem;
 	.comment-input {
-		margin: 2rem $cell-spacing;
-		padding: $cell-spacing;
-		background-color: $app-background-color;
+		position: relative;
+		textarea {
+			width: 100%;
+			min-height: 5rem;
+			margin-bottom: 3rem;
+			padding: 0.5rem;
+			box-sizing: border-box;
+
+			border: none;
+			background-color: $form-background-color;
+
+			@extend %better-helvetica;
+			font-size: $input-font-size;
+			color: $text-color;
+
+			&::-webkit-input-placeholder {
+				color: rgba($text-color, 0.5);
+				font-size: $input-font-size;
+			}
+			&::-moz-placeholder {
+				font-size: $input-font-size;
+			}
+			&:-ms-input-placeholder {
+				font-size: $input-font-size;
+			}
+			&::placeholder {
+				font-size: $input-font-size;
+			}
+		}
+		.comment-button {
+			position: absolute;
+			right: 0;
+			bottom: 0;
+
+			width: 10rem;
+			padding: 0.5rem;
+			background-color: $text-link-color;
+			border-radius: 10px;
+			text-align: center;
+			cursor: pointer;
+		}
 	}
 
-	.comment {
-
+	.signin-cta {
+		// TODO
 	}
 }
