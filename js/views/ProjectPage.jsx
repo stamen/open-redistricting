@@ -69,7 +69,7 @@ class ProjectPage extends React.Component {
 			let reader = new FileReader();
 			reader.addEventListener('load', event => {
 				let fileBase64 = reader.result.split(',')[1];
-				this.props.actions.createProposal(values.name, values.desc, fileBase64);
+				this.props.actions.createProposal(values.name, values.desc, fileBase64, this.props.params.projectId);
 			});
 			reader.readAsDataURL(values.file);
 

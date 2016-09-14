@@ -100,6 +100,19 @@ let reduced = {
 					}
 				};
 
+			case actions.CREATE_PROPOSAL_REQUESTED:
+			case actions.CREATE_PROPOSAL_RESPONDED:
+				if (!action.meta.proposalKey) return { ...state };
+				
+				return {
+					...state,
+					[action.meta.proposalKey]: {
+						loading: action.type === actions.CREATE_PROPOSAL_REQUESTED,
+						error: action.error,
+						...action.payload
+					}
+				};
+
 			default:
 				return {
 					...state

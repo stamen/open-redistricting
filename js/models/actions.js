@@ -1,4 +1,5 @@
 import moment from 'moment';
+import slug from 'slug';
 
 import appConfig, { githubOrgName } from '../../static/appConfig.json';
 import auth from './auth';
@@ -7,6 +8,7 @@ import {
 	deriveProposalId
 } from './reducers';
 
+// read
 export const PROJECT_LIST_REQUESTED = 'PROJECT_LIST_REQUESTED';
 export const PROJECT_LIST_RESPONDED = 'PROJECT_LIST_RESPONDED';
 export const PROJECT_REQUESTED = 'PROJECT_REQUESTED';
@@ -16,8 +18,11 @@ export const PROPOSAL_RESPONDED = 'PROPOSAL_RESPONDED';
 export const VIEWER_INFO_REQUESTED = 'VIEWER_INFO_REQUESTED';
 export const VIEWER_INFO_RESPONDED = 'VIEWER_INFO_RESPONDED';
 
+// create
 export const CREATE_PROJECT_REQUESTED = 'CREATE_PROJECT_REQUESTED';
 export const CREATE_PROJECT_RESPONDED = 'CREATE_PROJECT_RESPONDED';
+export const CREATE_PROPOSAL_REQUESTED = 'CREATE_PROPOSAL_REQUESTED';
+export const CREATE_PROPOSAL_RESPONDED = 'CREATE_PROPOSAL_RESPONDED';
 
 export default function (store, transport) {
 
@@ -319,6 +324,16 @@ export default function (store, transport) {
 		// WRITE METHODS
 		// ================================================
 
+		/**
+		 * Three steps to creating a new project (repository):
+		 * 1. Create a new repository in the open-redist org
+		 * 2. Commit a README file containing the project description
+		 * 3. Commit a .geojson map
+		 * 
+		 * @param  {String} name          Human-readable name for the project; GitHub will slugify this and use as the id / url
+		 * @param  {String} description   Text description of the project
+		 * @param  {String} base64MapFile Base64-encoded .geojson file
+		 */
 		createProject (name, description, base64MapFile) {
 
 			const readmeCommitMessage = 'Initial commit of README with name and description',
@@ -352,7 +367,7 @@ export default function (store, transport) {
 						...this.buildAuthHeader(),
 						method: 'PUT',
 						body: JSON.stringify({
-							path: mapPath,
+							path: readmePath,
 							message: readmeCommitMessage,
 							content: window.btoa(unescape(encodeURIComponent(description)))
 						})
@@ -408,9 +423,117 @@ export default function (store, transport) {
 
 		},
 
-		createProposal (name, description, base64MapFile) {
+		/**
+		 * Three steps to creating a new proposal (pull request):
+		 * 1. Get the SHA of `master`
+		 * 2. Create a new branch from `master`
+		 * 3. Commit the updated .geojson map
+		 * 4. Creat a pull request with the specified name and description
+		 * 
+		 * @param  {String} name          Human-readable name for the project; GitHub will slugify this and use as the id / url
+		 * @param  {String} description   Text description of the project
+		 * @param  {String} base64MapFile Base64-encoded .geojson file
+		 * @param  {String} projectId     Project id for which to add a proposal
+		 */
+		createProposal (name, description, base64MapFile, projectId) {
 
-			console.log(">>>>> TODO: implement createProposal");
+			let branchName = slug(name).toLowerCase(),
+				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/git/refs/heads`;
+
+			const mapCommitMessage = 'Update geojson map for new proposal `branchName`',
+				mapPath = appConfig.mapFilename;
+
+			store.dispatch({
+				type: CREATE_PROJECT_RESPONDED
+			});
+
+			return transport.request(url, null, this.buildAuthHeader())
+			.then(
+				response => {
+					console.log(`Creating branch with name: ${ branchName } ...`);
+					debugger;
+					let master = response.find(r => r.ref === 'refs/heads/master');
+					if (!master) throw new Error('No `master` ref returned.');
+
+					url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/git/refs`;
+					return transport.request(url, null, {
+						...this.buildAuthHeader(),
+						method: 'POST',
+						body: JSON.stringify({
+							ref: `refs/heads/${ branchName }`,
+							sha: master.object.sha
+						})
+					});
+				}
+			)
+			.then(
+				response => {
+					console.log("Committing map to new branch...");
+
+					//
+					// TODO WEDS:
+					// HTTP 422, "sha" wasn't supplied
+					// https://developer.github.com/v3/repos/contents/
+					// didn't think sha was required for this endpoint...not sure what it would be, but possibly branch HEAD sha?
+					// 
+					// ahhh, this should be an update, not a create.
+					// I guess GH is treating this as an upsert and falling through to update,
+					// since the URL to the endpoint is the same.
+					// https://developer.github.com/v3/repos/contents/#update-a-file
+					// 
+					// clear out the branch and try, try again!
+					// 
+
+					debugger;
+					url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents/${ mapPath }`;
+					return transport.request(url, null, {
+						...this.buildAuthHeader(),
+						method: 'PUT',
+						body: JSON.stringify({
+							path: mapPath,
+							message: mapCommitMessage,
+							content: base64MapFile,
+							branch: branchName
+						})
+					});
+				}
+			)
+			.then(
+				response => {
+					console.log("Opening a PR...");
+					debugger;
+					url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/pulls`;
+					return transport.request(url, null, {
+						...this.buildAuthHeader(),
+						method: 'POST',
+						body: JSON.stringify({
+							title: name,
+							body: description,
+							head: branchName,
+							base: 'master'
+						})
+					});
+				}
+			)
+			.then(
+				response => {
+					let proposalId = response.id,
+						proposalKey = deriveProposalId(githubOrgName, projectId, proposalId);
+
+					store.dispatch({
+						type: CREATE_PROPOSAL_RESPONDED,
+						meta: { proposalKey },
+						payload: response
+					});
+				}
+			)
+			.catch(error => {
+				store.dispatch({
+					type: CREATE_PROPOSAL_RESPONDED,
+					error: error
+				});
+				throw error;
+			});
 
 		},
 
