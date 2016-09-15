@@ -5,7 +5,7 @@ h4,
 h5,
 h6,
 div,
-text, p, .add-item-modal input,
+text, p, .proposal-page .comment-input textarea, .add-item-modal input,
 .add-item-modal textarea {
   font-family: 'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif;
   font-weight: 300; }
@@ -172,14 +172,47 @@ a:active {
       border-top: 1px solid #f6f6f6; }
   .proposal-page .comments {
     width: 100%;
-    height: 6rem;
     padding: 1rem;
     background-color: #ffffff;
     border: 1px solid #f6f6f6; }
+    .proposal-page .comments h3 {
+      font-weight: bold; }
+    .proposal-page .comments ul {
+      margin: 3rem 0 0 0;
+      padding: 0; }
+    .proposal-page .comments li {
+      list-style-type: none; }
   .proposal-page .comment-input {
-    margin: 2rem 1rem;
-    padding: 1rem;
-    background-color: #fafafa; }
+    position: relative; }
+    .proposal-page .comment-input textarea {
+      width: 100%;
+      min-height: 5rem;
+      margin-bottom: 3rem;
+      padding: 0.5rem;
+      box-sizing: border-box;
+      border: none;
+      background-color: #f2f2f2;
+      font-size: 1rem;
+      color: #333333; }
+      .proposal-page .comment-input textarea::-webkit-input-placeholder {
+        color: rgba(51, 51, 51, 0.5);
+        font-size: 1rem; }
+      .proposal-page .comment-input textarea::-moz-placeholder {
+        font-size: 1rem; }
+      .proposal-page .comment-input textarea:-ms-input-placeholder {
+        font-size: 1rem; }
+      .proposal-page .comment-input textarea::placeholder {
+        font-size: 1rem; }
+    .proposal-page .comment-input .comment-button {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 10rem;
+      padding: 0.5rem;
+      background-color: #2dade0;
+      border-radius: 10px;
+      text-align: center;
+      cursor: pointer; }
 
 #header {
   position: relative;
@@ -339,3 +372,29 @@ a:active {
   top: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5); }
+
+.comment {
+  position: relative;
+  margin-bottom: 3rem; }
+  .comment h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: bold; }
+  .comment .created-date {
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: #cccccc; }
+  .comment .votes {
+    display: inline-block; }
+    .comment .votes .em {
+      width: 1.5rem;
+      height: 1.5rem;
+      margin-right: 0.5rem;
+      filter: saturate(0%) contrast(300%) invert(100%); }
+    .comment .votes.active .em {
+      cursor: pointer; }
+      .comment .votes.active .em:active {
+        filter: saturate(0%) contrast(300%) invert(0%); }
+    .comment .votes.up {
+      margin-right: 1.5rem; }
