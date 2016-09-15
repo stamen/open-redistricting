@@ -42,6 +42,12 @@ class ProposalPage extends React.Component {
 			this.props.actions.requestProposal(this.props.params.projectId, this.props.params.proposalId);
 		}
 
+		let { viewer } = this.props.store.getState();
+		if (typeof(viewer.isMember === 'undefined') && !viewer.loading) {
+			// get viewer info if not already available
+			this.props.actions.getViewer();
+		}
+
 	}
 
 	componentWillReceiveProps (nextProps) {
@@ -72,18 +78,25 @@ class ProposalPage extends React.Component {
 
 	onCommentVote (commentId, val) {
 
-		const { proposal } = this.getStoreState();
+		const {
+			proposal,
+			viewer
+		} = this.getStoreState();
 		let comments = get(proposal, 'comments') || [],
-			comment = comments.find(c => c.id === commentId);
+			comment = comments.find(c => c.id === commentId),
+			viewerId = get(viewer, 'login');
 
 		if (!comment) return;
 
-		console.log(`>>>>> TODO: vote ${ val } on: ${ comment }`);
-		
-		// TODO: refactor authedUserIsMember to just get user info,
-		// 		 then check if comment author is viewer and if so bail
-		// 		 (or maybe just let API decide? -- nope, you can thumbs up/down your own content)
-		// 		 in fact, check should be done in render / <Comment> so we can't even get here
+		// author cannot vote on own comments.
+		// already enforced in render(); this is just a safety check.
+		if (viewerId === get(comment, 'user.login')) return;
+
+		this.props.actions.createProposalCommentReaction(val, this.props.params.projectId, this.props.params.proposalId, commentId, viewerId);
+
+		//
+		// TODO: how to set up componentWillReceiveProps check to know when response comes through?
+		// 
 
 	}
 
@@ -104,10 +117,11 @@ class ProposalPage extends React.Component {
 
 		const {
 				projectMetadata,
-				proposal
+				proposal,
+				viewer
 			} = this.getStoreState(),
 			proposalIsLoading = !proposal || proposal.loading,
-			isLoggedIn = auth.loggedIn();
+			isSignedIn = get(viewer, 'isSignedIn');
 
 		let body = sanitizeHtml((get(proposal, 'body') || '').replace(/\n/g, '<br>'));
 
@@ -144,7 +158,7 @@ class ProposalPage extends React.Component {
 					</div>
 					<div className='comments'>
 						<h3>Comments</h3>
-						{ isLoggedIn ?
+						{ isSignedIn ?
 							<div className='comment-input'>
 								<textarea ref='commentInput' placeholder='Add comment' />
 								<div className={ `comment-button${ commentIsBeingSubmitted ? ' disabled' : '' }` } onClick={ () => this.submitComment() }>Comment</div>
@@ -153,16 +167,19 @@ class ProposalPage extends React.Component {
 						}
 						<ul>
 							{ comments.map(comment => {
+								let viewerIsAuthor = get(viewer, 'login') === get(comment, 'user.login'),
+									canVote = isSignedIn && !viewerIsAuthor;
+
 								return <li key={ comment.id }>
 									<Comment
-										id={ comment.id.toString() }
+										id={ comment.id }
 										body= { comment.body }
 										authorName= { comment.user.login }
 										date= { moment(comment.updated_at).format('MMM D YYYY h:mma') }
 										upvotes= { get(comment, 'reactions["+1"]') || 0 }
 										downvotes= { get(comment, 'reactions["-1"]') || 0 }
-										canVote={ isLoggedIn }
-										onVote={ this.onCommentVote }
+										canVote={ canVote }
+										onVote={ canVote ? this.onCommentVote : undefined }
 									/>
 								</li>;
 							}) }
@@ -181,12 +198,14 @@ class ProposalPage extends React.Component {
 		const storeState = this.props.store.getState(),
 			project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)],
 			projectMetadata = get(project, 'metadata'),
-			proposal = storeState.proposals[deriveProposalId(this.props.params.owner, this.props.params.projectId, this.props.params.proposalId)];
+			proposal = storeState.proposals[deriveProposalId(this.props.params.owner, this.props.params.projectId, this.props.params.proposalId)],
+			{ viewer } = storeState;
 
 		return {
 			project,
 			projectMetadata,
-			proposal
+			proposal,
+			viewer
 		};
 
 	}

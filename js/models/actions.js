@@ -595,9 +595,13 @@ export default function (store, transport) {
 
 		},
 
-		createProposalCommentVote (projectId, proposalId, commentId) {
+		createProposalCommentReaction (reaction, projectId, proposalId, commentId, viewerId) {
 
 			// TODO: implement
+			// TODO: implement voting on the proposal itself
+			// TODO: check `https://api.github.com/repos/${ githubOrgName }/${ projectId }/issues/comments/${ commentId }/reactions`
+			// 		 to check if user already voted on this comment
+			console.log(">>>>> TODO: createProposalCommentReaction:", reaction, projectId, proposalId, commentId, viewerId);
 
 		},
 

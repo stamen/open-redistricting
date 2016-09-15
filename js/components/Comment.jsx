@@ -15,18 +15,18 @@ const Comment = ({
 			<h4>{ authorName }</h4>
 			<div className='created-date'>{ date }</div>
 			<p>{ body }</p>
-			<div className={ `up votes${ canVote ? ' active' : '' }` }>
-				<i className='em em---1' onClick={ () => onVote(id, 1) }></i>{ upvotes }
+			<div className={ `up votes${ canVote ? ' enabled' : '' }` }>
+				<i className='em em---1' onClick={ () => onVote(id, '+1') }></i>{ upvotes }
 			</div>
-			<div className={ `down votes${ canVote ? ' active' : '' }` }>
-				<i className='em em--1' onClick={ () => onVote(id, -1) }></i>{ downvotes }
+			<div className={ `down votes${ canVote ? ' enabled' : '' }` }>
+				<i className='em em--1' onClick={ () => onVote(id, '-1') }></i>{ downvotes }
 			</div>
 		</div>
 	);
 };
 
 Comment.propTypes = {
-	id: PropTypes.string.isRequired,
+	id: PropTypes.number.isRequired,
 	body: PropTypes.string.isRequired,
 	authorName: PropTypes.string.isRequired,
 	date: PropTypes.string.isRequired,

@@ -27,10 +27,13 @@
 			height: 1.5rem;
 			margin-right: 0.5rem;
 			filter: saturate(0%) contrast(300%) invert(100%);
+			opacity: 0.25;
 		}
 
-		&.active .em {
+		&.enabled .em {
+			opacity: 1.0;
 			cursor: pointer;
+
 			&:active {
 				filter: saturate(0%) contrast(300%) invert(0%);
 			}
