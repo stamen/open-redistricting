@@ -228,6 +228,7 @@ export default function (store, transport) {
 		},
 
 		/**
+		 * Get info about the authed user.
 		 * Determine if the authorized user is a member of the 'open-redist' organization.
 		 * If so, additionally checks response headers for write access (the 'public_repo' OAuth scope);
 		 * if write access is not yet granted, will push the user through the OAuth flow one more time
@@ -235,19 +236,24 @@ export default function (store, transport) {
 		 * If the user is a member and is successfully granted, or already has, write access,
 		 * the `viewer` object in the store will have its `isMember` flag set to `true`.
 		 */
-		authedUserIsMember () {
+		getViewer () {
 
 			store.dispatch({
 				type: VIEWER_INFO_REQUESTED
 			});
 
-			let token = auth.getToken();
+			let token = auth.getToken(),
+				user = {};
+
 			if (!token) {
 				// viewer is not currently logged in
 				setTimeout(() => {
 					store.dispatch({
 						type: VIEWER_INFO_RESPONDED,
-						payload: { isMember: false }
+						payload: {
+							isSignedIn: false,
+							isMember: false
+						}
 					});
 				}, 1);
 				return;
@@ -259,6 +265,7 @@ export default function (store, transport) {
 			.then(
 				response => {
 					// ...and use that to determine if the user is part of the organization.
+					user = response;
 					url = `https://api.github.com/orgs/${ githubOrgName }/public_members/${ response.login }`;
 					return transport.request(url, null, {
 						...this.buildAuthHeader(),
@@ -269,10 +276,13 @@ export default function (store, transport) {
 					// NOTE: we could get here if the access token expired, so need to handle this case
 					// (possibly by redirecting to /login).
 					// TODO: handle with general need-to-login redirect when implemented.
-					console.error(">>>>> ERROR GETTING AUTHED USER");
+					console.error("Error getting authed user: ", error);
 					store.dispatch({
 						type: VIEWER_INFO_RESPONDED,
-						payload: { isMember: false }
+						payload: {
+							isSignedIn: true,
+							isMember: false
+						}
 					});
 				}
 			)
@@ -289,14 +299,21 @@ export default function (store, transport) {
 						// Authed user is part of the org and has write access. Hooray!
 						store.dispatch({
 							type: VIEWER_INFO_RESPONDED,
-							payload: { isMember: true }
+							payload: {
+								...user,
+								isSignedIn: true,
+								isMember: true
+							}
 						});
 					}
 				},
 				error => {
 					store.dispatch({
 						type: VIEWER_INFO_RESPONDED,
-						payload: { isMember: false }
+						payload: {
+							isSignedIn: true,
+							isMember: false
+						}
 					});
 				}
 			)
@@ -575,6 +592,12 @@ export default function (store, transport) {
 				throw error;
 
 			});
+
+		},
+
+		createProposalCommentVote (projectId, proposalId, commentId) {
+
+			// TODO: implement
 
 		},
 

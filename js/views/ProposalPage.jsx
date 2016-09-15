@@ -72,7 +72,18 @@ class ProposalPage extends React.Component {
 
 	onCommentVote (commentId, val) {
 
-		console.log(`>>>>> TODO: vote on ${ commentId }: ${ val }`);
+		const { proposal } = this.getStoreState();
+		let comments = get(proposal, 'comments') || [],
+			comment = comments.find(c => c.id === commentId);
+
+		if (!comment) return;
+
+		console.log(`>>>>> TODO: vote ${ val } on: ${ comment }`);
+		
+		// TODO: refactor authedUserIsMember to just get user info,
+		// 		 then check if comment author is viewer and if so bail
+		// 		 (or maybe just let API decide? -- nope, you can thumbs up/down your own content)
+		// 		 in fact, check should be done in render / <Comment> so we can't even get here
 
 	}
 

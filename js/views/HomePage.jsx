@@ -24,7 +24,7 @@ class HomePage extends React.Component {
 
 		let { viewer } = this.props.store.getState();
 		if (typeof(viewer.isMember === 'undefined') && !viewer.loading) {
-			this.props.actions.authedUserIsMember();
+			this.props.actions.getViewer();
 		}
 
 	}
