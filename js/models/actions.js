@@ -25,6 +25,8 @@ export const CREATE_PROPOSAL_REQUESTED = 'CREATE_PROPOSAL_REQUESTED';
 export const CREATE_PROPOSAL_RESPONDED = 'CREATE_PROPOSAL_RESPONDED';
 export const CREATE_COMMENT_REQUESTED = 'CREATE_COMMENT_REQUESTED';
 export const CREATE_COMMENT_RESPONDED = 'CREATE_COMMENT_RESPONDED';
+export const CREATE_PROPOSAL_REACTION_REQUESTED = 'CREATE_PROPOSAL_REACTION_REQUESTED';
+export const CREATE_PROPOSAL_REACTION_RESPONDED = 'CREATE_PROPOSAL_REACTION_RESPONDED';
 
 export default function (store, transport) {
 
@@ -172,25 +174,27 @@ export default function (store, transport) {
 				meta: { proposalKey }
 			});
 
-			let url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/pulls/${ proposalId }`;
+			let url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/pulls/${ proposalId }`,
+				headers = this.buildAuthHeader().headers;
 
-			transport.request(url, this.parseProposal, this.buildAuthHeader())
+			// add custom Accept header to return reactions
+			// per: https://developer.github.com/v3/issues/comments/#reactions-summary
+			headers.append('Accept', 'application/vnd.github.squirrel-girl-preview');
+			headers = { headers };
+
+			transport.request(url, this.parseProposal, headers)
 			.then(response => {
 
 				proposal = { ...response };
-				return transport.request(proposal.commits_url, this.parseProposal, this.buildAuthHeader());
+				return transport.request(proposal.commits_url, this.parseProposal, headers);
 
 			})
 			.then(response => {
 
 				proposal.commits = response;
 
-				// add custom Accept header to return reactions on comments
-				// per: https://developer.github.com/v3/issues/comments/#reactions-summary
-				let headers = this.buildAuthHeader().headers;
-				headers.append('Accept', 'application/vnd.github.squirrel-girl-preview');
 				
-				return transport.request(proposal.comments_url, this.parseProposal, { headers });
+				return transport.request(proposal.comments_url, this.parseProposal, headers);
 				
 			})
 			.then(response => {
@@ -595,13 +599,91 @@ export default function (store, transport) {
 
 		},
 
-		createProposalCommentReaction (reaction, projectId, proposalId, commentId, viewerId) {
+		createProposalReaction (reaction, projectId, proposalId, viewerId, commentId) {
 
-			// TODO: implement
+			//
 			// TODO: implement voting on the proposal itself
-			// TODO: check `https://api.github.com/repos/${ githubOrgName }/${ projectId }/issues/comments/${ commentId }/reactions`
-			// 		 to check if user already voted on this comment
-			console.log(">>>>> TODO: createProposalCommentReaction:", reaction, projectId, proposalId, commentId, viewerId);
+			// POST /repos/:owner/:repo/issues/:number/reactions
+			// 
+			
+			let proposalKey = deriveProposalId(githubOrgName, projectId, proposalId),
+				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/issues/comments/${ commentId }/reactions`;
+
+			store.dispatch({
+				type: CREATE_PROPOSAL_REACTION_REQUESTED,
+				meta: {
+					proposalKey,
+					commentId
+				}
+			});
+
+			let headers = this.buildAuthHeader().headers;
+			headers.append('Accept', 'application/vnd.github.squirrel-girl-preview');
+			headers = { headers };
+			
+			return transport.request(url, null, headers)
+			.then(response => {
+
+				// Either create a new reaction or, if this reaction already exists
+				// on this proposal/comment by this author, remove it.
+				let existingReactionByViewer = response.find(r => r.user.login === viewerId && r.content === reaction);
+				if (existingReactionByViewer) {
+
+					// reaction already exists; delete it
+					url = `https://api.github.com/reactions/${ existingReactionByViewer.id }`;
+					return transport.request(url, null, {
+						...headers,
+						method: 'DELETE',
+						statusOnly: true
+					});
+
+				} else {
+
+					// reaction doesn't yet exist; create it
+					url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/issues/comments/${ commentId }/reactions`;
+					return transport.request(url, null, {
+						...headers,
+						method: 'POST',
+						body: JSON.stringify({ content: reaction })
+					});
+
+				}
+
+			})
+			.then(response => {
+
+				// get the end result from the server so we're sure to be in sync,
+				// whether we just created or deleted a response.
+				// (Unfortunately, Reactions API doesn't return the whole context, just the single reaction.)
+				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/issues/comments/${ commentId }`;
+				return transport.request(url, null, headers);
+
+			})
+			.then(response => {
+
+				store.dispatch({
+					type: CREATE_PROPOSAL_REACTION_RESPONDED,
+					meta: {
+						proposalKey,
+						commentId
+					},
+					payload: response
+				});
+
+			})
+			.catch(error => {
+
+				store.dispatch({
+					type: CREATE_PROPOSAL_REACTION_RESPONDED,
+					meta: {
+						proposalKey,
+						commentId
+					},
+					error: error
+				});
+				throw error;
+
+			});
 
 		},
 
@@ -678,18 +760,12 @@ export default function (store, transport) {
 		 */
 		buildAuthHeader () {
 
-			let token = auth.getToken();
-			if (token) {
+			let headers = new Headers(),
+				token = auth.getToken();
 
-				let headers = new Headers();
-				headers.append('Authorization', `token ${ token }`);
-				return { headers };
+			if (token) headers.append('Authorization', `token ${ token }`);
 
-			} else {
-
-				return null;
-
-			}
+			return { headers };
 
 		}
 

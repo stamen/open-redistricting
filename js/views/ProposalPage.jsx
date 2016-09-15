@@ -92,10 +92,11 @@ class ProposalPage extends React.Component {
 		// already enforced in render(); this is just a safety check.
 		if (viewerId === get(comment, 'user.login')) return;
 
-		this.props.actions.createProposalCommentReaction(val, this.props.params.projectId, this.props.params.proposalId, commentId, viewerId);
+		this.props.actions.createProposalReaction(val, this.props.params.projectId, this.props.params.proposalId, viewerId, commentId);
 
 		//
 		// TODO: how to set up componentWillReceiveProps check to know when response comes through?
+		// something like this.commentWithPendingReaction = commentId, but use special key for reaction on proposal
 		// 
 
 	}
@@ -166,7 +167,9 @@ class ProposalPage extends React.Component {
 							<div className='signin-cta' onClick={ this.login }>Sign in to add a comment.</div>
 						}
 						<ul>
-							{ comments.map(comment => {
+							{ comments
+								.filter(c => !!c.id)	// be defensive, only display valid comments
+								.map(comment => {
 								let viewerIsAuthor = get(viewer, 'login') === get(comment, 'user.login'),
 									canVote = isSignedIn && !viewerIsAuthor;
 

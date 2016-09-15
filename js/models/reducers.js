@@ -106,6 +106,9 @@ let reduced = {
 	},
 
 	proposals (state = {}, action) {
+		let existingProposal,
+			comments;
+
 		switch (action.type) {
 
 			case actions.PROPOSAL_REQUESTED:
@@ -136,10 +139,10 @@ let reduced = {
 			case actions.CREATE_COMMENT_REQUESTED:
 			case actions.CREATE_COMMENT_RESPONDED:
 				if (!action.meta.proposalKey) return { ...state };
-				let existingProposal = { ...state[action.meta.proposalKey] };
+				existingProposal = { ...state[action.meta.proposalKey] };
 				if (!existingProposal) return { ...state };
 
-				let comments = existingProposal.comments;
+				comments = existingProposal.comments;
 				if (action.payload) comments.push(action.payload);
 
 				// add new comment to existingProposal.comments
@@ -148,6 +151,38 @@ let reduced = {
 					[action.meta.proposalKey]: {
 						...existingProposal,
 						loading: action.type === actions.CREATE_PROPOSAL_REQUESTED,
+						error: action.error,
+						comments
+					}
+				};
+
+			case actions.CREATE_PROPOSAL_REACTION_REQUESTED:
+			case actions.CREATE_PROPOSAL_REACTION_RESPONDED:
+				if (!action.meta.proposalKey) return { ...state };
+				existingProposal = { ...state[action.meta.proposalKey] };
+				if (!existingProposal) return { ...state };
+
+				comments = existingProposal.comments;
+				if (action.meta.commentId) {
+					// keep the reducer pure:
+					// return only copies, not originals
+					if (action.payload) {
+						comments = comments.map(c => {
+							return (c.id === action.meta.commentId) ? action.payload : { ...c };
+						});
+					} else {
+						comments = [...comments];
+					}
+				} else {
+					// TODO: add/remove the reaction to/from the proposal
+				}
+
+				// add new comment to existingProposal.comments
+				return {
+					...state,
+					[action.meta.proposalKey]: {
+						...existingProposal,
+						loading: action.type === actions.CREATE_PROPOSAL_REACTION_REQUESTED,
 						error: action.error,
 						comments
 					}
