@@ -10,6 +10,7 @@ export default function (options) {
 		errorCache: {},
 		MAX_NUM_RETRIES: options.maxNumRetries || 3,
 		DEFAULT_EXPIRATION: options.expiration || 0,
+		CACHE_KEY_URL_OPTIONS_DELIMITER: '--',
 
 		/**
 		 * Make a request via the fetch API.
@@ -31,14 +32,19 @@ export default function (options) {
 		request: function (url, parser, requestOptions) {
 
 			requestOptions = requestOptions || {};
-			requestOptions.expiration = requestOptions.expiration || this.DEFAULT_EXPIRATION;
+			requestOptions.expiration = typeof requestOptions.expiration === 'undefined' ? this.DEFAULT_EXPIRATION : requestOptions.expiration;
 
 			if (!parser) {
 				parser = this.parseJSON;
 			}
 
 			let cacheKey = this.deriveCacheKey(url ,requestOptions),
-				returnVal = this.retrieveOrFetch(url, requestOptions, cacheKey);
+				returnVal = this.retrieveOrFetch(url, requestOptions, cacheKey),
+				isWrite =
+					requestOptions.method === 'POST' ||
+					requestOptions.method === 'PUT' ||
+					requestOptions.method === 'DELETE' ||
+					requestOptions.method === 'PATCH';
 
 			if (returnVal instanceof Promise) {
 
@@ -46,7 +52,7 @@ export default function (options) {
 				return returnVal
 				.then(this.checkStatus)
 				.then(response => !requestOptions.statusOnly ? parser(response) : Promise.resolve(response))
-				.then(response => this.cacheResponse(cacheKey, response))
+				.then(response => this.cacheResponse(cacheKey, response, isWrite))
 				.catch(error => {
 
 					let numTries = this.cacheError(cacheKey, error);
@@ -102,14 +108,14 @@ export default function (options) {
 			if (cached && methodIsGet && performance.now() - cached.time < requestOptions.expiration) {
 
 				// return cached value immediately if it's not past the expiration date.
-				// never return cached value for non-GET requests.
+				// return cached value only for GET requests.
 				return cached.value;
 
 			} else {
 
 				// fetch a new response,
 				// and mark as in-flight to defend against rapid sequential requests
-				this.cache[url] = {
+				this.cache[cacheKey] = {
 					value: {
 						responsePending: true
 					},
@@ -154,13 +160,22 @@ export default function (options) {
 
 		},
 
-		cacheResponse: function (key, value) {
+		cacheResponse: function (key, value, isWrite) {
 
 			this.cache[key] = {
 				value,
 				time: performance.now()
 			};
 			delete this.errorCache[key];
+
+			// Delete any previous GET requests to the same URL
+			// if we just wrote to that endpoint.
+			if (isWrite) {
+				let getRequestCacheKey = key.split(this.CACHE_KEY_URL_OPTIONS_DELIMITER)[0];
+				delete this.cache[getRequestCacheKey];
+				delete this.errorCache[getRequestCacheKey];
+			}
+
 			return value;
 
 		},
@@ -197,7 +212,7 @@ export default function (options) {
 				}, '');
 
 			if (optionsAsKey) {
-				return url + '-' + optionsAsKey;
+				return url + this.CACHE_KEY_URL_OPTIONS_DELIMITER + optionsAsKey;
 			} else {
 				return url;
 			}

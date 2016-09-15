@@ -656,7 +656,10 @@ export default function (store, transport) {
 				// whether we just created or deleted a response.
 				// (Unfortunately, Reactions API doesn't return the whole context, just the single reaction.)
 				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/issues/comments/${ commentId }`;
-				return transport.request(url, null, headers);
+				return transport.request(url, null, {
+					...headers,
+					expiration: 0	// never persist this response in the cache; always fetch it fresh.
+				});
 
 			})
 			.then(response => {

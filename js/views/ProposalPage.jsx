@@ -121,7 +121,7 @@ class ProposalPage extends React.Component {
 				proposal,
 				viewer
 			} = this.getStoreState(),
-			proposalIsLoading = !proposal || proposal.loading,
+			proposalIsLoading = !proposal || !proposal.base,
 			isSignedIn = get(viewer, 'isSignedIn');
 
 		let body = sanitizeHtml((get(proposal, 'body') || '').replace(/\n/g, '<br>'));

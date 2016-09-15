@@ -91,6 +91,12 @@ class DiffMap extends React.Component {
 
 	}
 
+	shouuldComponentUpdate (nextProps, nextState) {
+
+		return this.props.path1 !== nextProps.path1 || this.props.path2 !== nextProps.path2;
+		
+	}
+
 	render () {
 
 		let body = '';
