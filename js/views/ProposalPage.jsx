@@ -44,6 +44,26 @@ class ProposalPage extends React.Component {
 
 	}
 
+	componentWillReceiveProps (nextProps) {
+
+		const { proposal } = this.getStoreState();
+		let comments = get(proposal, 'comments') || [],
+			revisions = get(proposal, 'revisions') || [];
+
+		if (typeof this.previousNumComments !== 'undefined' && this.previousNumComments !== comments.length) {
+			// new store state coming in with just-created comment,
+			// so reenable the comment UI by removing this flag
+			delete this.previousNumComments;
+
+			// clear out comment textarea
+			this.refs.commentInput.value = '';
+
+		}
+
+		// TODO: same thing for revision creation
+
+	}
+
 	login () {
 
 		auth.authorize(this.props.location.pathname);
@@ -58,7 +78,14 @@ class ProposalPage extends React.Component {
 
 	submitComment () {
 
-		console.log(`>>>>> TODO: subimt comment: ${ this.refs.commentInput.value }`);
+		// bail if already in the process of submitting a comment
+		if (typeof this.previousNumComments !== 'undefined') return;
+
+		const { proposal } = this.getStoreState();
+		let comments = get(proposal, 'comments') || [];
+
+		this.previousNumComments = comments.length;
+		this.props.actions.createProposalComment(this.refs.commentInput.value, this.props.params.projectId, this.props.params.proposalId);
 
 	}
 
@@ -82,7 +109,9 @@ class ProposalPage extends React.Component {
 		}
 
 		let revisions = get(proposal, 'commits') || [],
-			comments = get(proposal, 'comments') || [];
+			comments = get(proposal, 'comments') || [],
+			commentIsBeingSubmitted = typeof this.previousNumComments !== 'undefined',
+			revisionIsBeingSubmitted = typeof this.previousNumRevisions !== 'undefined';
 
 		return (
 			<div className='page proposal-page'>
@@ -97,7 +126,7 @@ class ProposalPage extends React.Component {
 					}
 					<div className='info'>
 						<h2 className='title'>{ proposalIsLoading ? '' : proposal.title }</h2>
-						<Link to='#'>{ get(projectMetadata, 'name') || '' }</Link>
+						<Link to={ `/${ this.props.params.owner }/${ this.props.params.projectId }` }>{ get(projectMetadata, 'name') || '' }</Link>
 						<p className='body' dangerouslySetInnerHTML={{ __html: body }} />
 						{ proposalIsLoading ? null : <div className='created-date'>{ moment(proposal.created_at).format('MMM D YYYY') }</div> }
 						<div className='footer'>{/* consider making this a functional component, with social share icons, and thumbs up/down as its own component */}</div>
@@ -107,7 +136,7 @@ class ProposalPage extends React.Component {
 						{ isLoggedIn ?
 							<div className='comment-input'>
 								<textarea ref='commentInput' placeholder='Add comment' />
-								<div className='comment-button' onClick={ () => this.submitComment() }>Comment</div>
+								<div className={ `comment-button${ commentIsBeingSubmitted ? ' disabled' : '' }` } onClick={ () => this.submitComment() }>Comment</div>
 							</div> :
 							<div className='signin-cta' onClick={ this.login }>Sign in to add a comment.</div>
 						}
@@ -118,9 +147,9 @@ class ProposalPage extends React.Component {
 										id={ comment.id.toString() }
 										body= { comment.body }
 										authorName= { comment.user.login }
-										date= { moment(comment.updated_at).format('MMM D YYYY') }
-										upvotes= { comment.reactions['+1'] }
-										downvotes= { comment.reactions['-1'] }
+										date= { moment(comment.updated_at).format('MMM D YYYY h:mma') }
+										upvotes= { get(comment, 'reactions["+1"]') || 0 }
+										downvotes= { get(comment, 'reactions["-1"]') || 0 }
 										canVote={ isLoggedIn }
 										onVote={ this.onCommentVote }
 									/>

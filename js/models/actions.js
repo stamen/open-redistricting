@@ -23,6 +23,8 @@ export const CREATE_PROJECT_REQUESTED = 'CREATE_PROJECT_REQUESTED';
 export const CREATE_PROJECT_RESPONDED = 'CREATE_PROJECT_RESPONDED';
 export const CREATE_PROPOSAL_REQUESTED = 'CREATE_PROPOSAL_REQUESTED';
 export const CREATE_PROPOSAL_RESPONDED = 'CREATE_PROPOSAL_RESPONDED';
+export const CREATE_COMMENT_REQUESTED = 'CREATE_COMMENT_REQUESTED';
+export const CREATE_COMMENT_RESPONDED = 'CREATE_COMMENT_RESPONDED';
 
 export default function (store, transport) {
 
@@ -173,35 +175,34 @@ export default function (store, transport) {
 			let url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/pulls/${ proposalId }`;
 
 			transport.request(url, this.parseProposal, this.buildAuthHeader())
-			.then(
-				response => {
-					proposal = { ...response };
-					return transport.request(proposal.commits_url, this.parseProposal, this.buildAuthHeader());
-				}
-			)
-			.then(
-				response => {
-					proposal.commits = response;
+			.then(response => {
 
-					// add custom Accept header to return reactions on comments
-					// per: https://developer.github.com/v3/issues/comments/#reactions-summary
-					let headers = this.buildAuthHeader().headers;
-					headers.append('Accept', 'application/vnd.github.squirrel-girl-preview');
-					
-					return transport.request(proposal.comments_url, this.parseProposal, { headers });
-				}
-			)
-			.then(
-				response => {
-					proposal.comments = response;
-					
-					store.dispatch({
-						type: PROPOSAL_RESPONDED,
-						meta: { proposalKey },
-						payload: proposal
-					});
-				}
-			)
+				proposal = { ...response };
+				return transport.request(proposal.commits_url, this.parseProposal, this.buildAuthHeader());
+
+			})
+			.then(response => {
+
+				proposal.commits = response;
+
+				// add custom Accept header to return reactions on comments
+				// per: https://developer.github.com/v3/issues/comments/#reactions-summary
+				let headers = this.buildAuthHeader().headers;
+				headers.append('Accept', 'application/vnd.github.squirrel-girl-preview');
+				
+				return transport.request(proposal.comments_url, this.parseProposal, { headers });
+				
+			})
+			.then(response => {
+				proposal.comments = response;
+				
+				store.dispatch({
+					type: PROPOSAL_RESPONDED,
+					meta: { proposalKey },
+					payload: proposal
+				});
+
+			})
 			.catch(error => {
 				// Fail loudly on error
 				store.dispatch({
@@ -448,90 +449,131 @@ export default function (store, transport) {
 
 			// 1. Get the SHA of `master`
 			return transport.request(url, null, this.buildAuthHeader())
-			.then(
-				response => {
-					// 2. Get the blob SHA for master/map.geojson
-					let master = response.find(r => r.ref === 'refs/heads/master');
-					if (!master) throw new Error('No `master` ref returned.');
-					masterSHA = master.object.sha;
+			.then(response => {
 
-					url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents/`;
-					return transport.request(url, null, this.buildAuthHeader());
-				}
-			)
-			.then(
-				response => {
-					// 3. Create a new branch from `master`
-					let mapFileDescriptor = response.find(f => f.name === mapPath);
-					mapBlobSHA = mapFileDescriptor ? mapFileDescriptor.sha : '';	// if map is not found, the following API call will be a
-																					// create instead of update, which is unexpected but ok.
-					url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/git/refs`;
-					return transport.request(url, null, {
-						...this.buildAuthHeader(),
-						method: 'POST',
-						body: JSON.stringify({
-							ref: `refs/heads/${ branchName }`,
-							sha: masterSHA
-						})
-					});
-				}
-			)
-			.then(
-				response => {
-					// 4. Commit the updated .geojson map
-					url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents/${ mapPath }`;
-					return transport.request(url, null, {
-						...this.buildAuthHeader(),
-						method: 'PUT',
-						body: JSON.stringify({
-							path: mapPath,
-							message: mapCommitMessage,
-							content: base64MapFile,
-							branch: branchName,
-							sha: mapBlobSHA
-						})
-					});
-				}
-			)
-			.then(
-				response => {
-					// 5. Create a pull request with the specified name and description
-					url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/pulls`;
-					return transport.request(url, null, {
-						...this.buildAuthHeader(),
-						method: 'POST',
-						body: JSON.stringify({
-							title: name,
-							body: description,
-							head: branchName,
-							base: 'master'
-						})
-					});
-				}
-			)
-			.then(
-				response => {
-					// Proposal complete!
-					let proposalId = response.number,
-						proposalKey = deriveProposalId(githubOrgName, projectId, proposalId);
+				// 2. Get the blob SHA for master/map.geojson
+				let master = response.find(r => r.ref === 'refs/heads/master');
+				if (!master) throw new Error('No `master` ref returned.');
+				masterSHA = master.object.sha;
 
-					store.dispatch({
-						type: CREATE_PROPOSAL_RESPONDED,
-						meta: {
-							projectKey,
-							proposalKey
-						},
-						payload: response
-					});
-				}
-			)
+				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents/`;
+				return transport.request(url, null, this.buildAuthHeader());
+
+			})
+			.then(response => {
+
+				// 3. Create a new branch from `master`
+				let mapFileDescriptor = response.find(f => f.name === mapPath);
+				mapBlobSHA = mapFileDescriptor ? mapFileDescriptor.sha : '';	// if map is not found, the following API call will be a
+																				// create instead of update, which is unexpected but ok.
+				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/git/refs`;
+				return transport.request(url, null, {
+					...this.buildAuthHeader(),
+					method: 'POST',
+					body: JSON.stringify({
+						ref: `refs/heads/${ branchName }`,
+						sha: masterSHA
+					})
+				});
+
+			})
+			.then(response => {
+
+				// 4. Commit the updated .geojson map
+				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents/${ mapPath }`;
+				return transport.request(url, null, {
+					...this.buildAuthHeader(),
+					method: 'PUT',
+					body: JSON.stringify({
+						path: mapPath,
+						message: mapCommitMessage,
+						content: base64MapFile,
+						branch: branchName,
+						sha: mapBlobSHA
+					})
+				});
+
+			})
+			.then(response => {
+
+				// 5. Create a pull request with the specified name and description
+				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/pulls`;
+				return transport.request(url, null, {
+					...this.buildAuthHeader(),
+					method: 'POST',
+					body: JSON.stringify({
+						title: name,
+						body: description,
+						head: branchName,
+						base: 'master'
+					})
+				});
+
+			})
+			.then(response => {
+
+				// Proposal complete!
+				let proposalId = response.number,
+					proposalKey = deriveProposalId(githubOrgName, projectId, proposalId);
+
+				store.dispatch({
+					type: CREATE_PROPOSAL_RESPONDED,
+					meta: {
+						projectKey,
+						proposalKey
+					},
+					payload: response
+				});
+
+			})
 			.catch(error => {
+
+				// TODO: handle authentication error differently from others,
+				// 		 by redirecting to / suggesting login.
+				
 				store.dispatch({
 					type: CREATE_PROPOSAL_RESPONDED,
 					meta: { projectKey },
 					error: error
 				});
 				throw error;
+
+			});
+
+		},
+
+		createProposalComment (body, projectId, proposalId) {
+
+			let proposalKey = deriveProposalId(githubOrgName, projectId, proposalId);
+			store.dispatch({
+				type: CREATE_COMMENT_REQUESTED,
+				meta: { proposalKey }
+			});
+
+			let url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/issues/${ proposalId }/comments`;
+			return transport.request(url, null, {
+				...this.buildAuthHeader(),
+				method: 'POST',
+				body: JSON.stringify({ body })
+			})
+			.then(response => {
+				
+				store.dispatch({
+					type: CREATE_COMMENT_RESPONDED,
+					meta: { proposalKey },
+					payload: response
+				});
+
+			})
+			.catch(error => {
+
+				store.dispatch({
+					type: CREATE_COMMENT_RESPONDED,
+					meta: { proposalKey },
+					error: error
+				});
+				throw error;
+
 			});
 
 		},

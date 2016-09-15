@@ -140,6 +140,11 @@ $cell-spacing: 1rem;
 			border-radius: 10px;
 			text-align: center;
 			cursor: pointer;
+			
+			&.disabled {
+				opacity: 0.5;
+				cursor: auto;
+			}
 		}
 	}
 

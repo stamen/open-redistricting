@@ -133,6 +133,26 @@ let reduced = {
 					}
 				};
 
+			case actions.CREATE_COMMENT_REQUESTED:
+			case actions.CREATE_COMMENT_RESPONDED:
+				if (!action.meta.proposalKey) return { ...state };
+				let existingProposal = { ...state[action.meta.proposalKey] };
+				if (!existingProposal) return { ...state };
+
+				let comments = existingProposal.comments;
+				if (action.payload) comments.push(action.payload);
+
+				// add new comment to existingProposal.comments
+				return {
+					...state,
+					[action.meta.proposalKey]: {
+						...existingProposal,
+						loading: action.type === actions.CREATE_PROPOSAL_REQUESTED,
+						error: action.error,
+						comments
+					}
+				};
+
 			default:
 				return {
 					...state
