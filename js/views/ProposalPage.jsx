@@ -104,6 +104,9 @@ class ProposalPage extends React.Component {
 
 	onCommentVote (commentId, val) {
 
+		// one vote at a time.
+		if (this.commentVotePending) return;
+
 		const {
 			proposal,
 			viewer
@@ -180,11 +183,11 @@ class ProposalPage extends React.Component {
 						<p className='body' dangerouslySetInnerHTML={{ __html: body }} />
 						{ proposalIsLoading ? null : <div className='created-date'>{ moment(proposal.created_at).format('MMM D YYYY') }</div> }
 						<div className='footer'>
-							<div className={ `up votes${ !viewerIsProposalAuthor ? ' enabled' : '' }` }>
+							<div className={ `up votes${ (isSignedIn && !viewerIsProposalAuthor) ? ' enabled' : '' }` }>
 								<i className='em em---1' onClick={ () => this.onCommentVote(PROPOSAL_VOTE_KEY, '+1') }></i>
 									{ proposalVoteIsPending ? <i className='pending'></i> : proposalUpvotes || 0 }
 							</div>
-							<div className={ `down votes${ !viewerIsProposalAuthor ? ' enabled' : '' }` }>
+							<div className={ `down votes${ (isSignedIn && !viewerIsProposalAuthor) ? ' enabled' : '' }` }>
 								<i className='em em--1' onClick={ () => this.onCommentVote(PROPOSAL_VOTE_KEY, '-1') }></i>
 									{ proposalVoteIsPending ? <i className='pending'></i> : proposalDownvotes || 0 }
 							</div>
