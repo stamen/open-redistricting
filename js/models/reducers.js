@@ -162,29 +162,32 @@ let reduced = {
 				existingProposal = { ...state[action.meta.proposalKey] };
 				if (!existingProposal) return { ...state };
 
-				comments = existingProposal.comments;
+				// keep the reducer pure:
+				// return only copies, not originals
+				comments = [ ...existingProposal.comments ];
+				let reactions = [ ...existingProposal.reactions ];
 				if (action.meta.commentId) {
-					// keep the reducer pure:
-					// return only copies, not originals
 					if (action.payload) {
 						comments = comments.map(c => {
-							return (c.id === action.meta.commentId) ? action.payload : { ...c };
+							return (c.id === action.meta.commentId) ? { ...action.payload } : { ...c };
 						});
-					} else {
-						comments = [...comments];
 					}
 				} else {
-					// TODO: add/remove the reaction to/from the proposal
+					if (action.payload) {
+						reactions = [ ...action.payload ];
+					}
 				}
 
-				// add new comment to existingProposal.comments
+				// add updated comment to existingProposal.comments,
+				// and updated reactions list to existingProposal
 				return {
 					...state,
 					[action.meta.proposalKey]: {
 						...existingProposal,
 						loading: action.type === actions.CREATE_PROPOSAL_REACTION_REQUESTED,
 						error: action.error,
-						comments
+						comments,
+						reactions
 					}
 				};
 

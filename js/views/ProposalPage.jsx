@@ -14,6 +14,8 @@ import auth from '../models/auth';
 import DiffMap from '../components/DiffMap.jsx';
 import Comment from '../components/Comment.jsx';
 
+const PROPOSAL_VOTE_KEY = 'proposal';
+
 class ProposalPage extends React.Component {
 
 	constructor (props) {
@@ -70,12 +72,14 @@ class ProposalPage extends React.Component {
 			// TODO: this works only because we rely on this function being called
 			// once for CREATE_PROPOSAL_REACTION_REQUESTED, and again for CREATE_PROPOSAL_REACTION_RESPONDED.
 			// Design a more robust solution that looks for specific changes in the store.
-			
+
 			// comment vote request has returned successfully
 			delete this.commentVotePending;
 		}
 
+		//
 		// TODO: same thing for revision creation
+		//
 
 	}
 
@@ -108,10 +112,9 @@ class ProposalPage extends React.Component {
 			comment = comments.find(c => c.id === commentId),
 			viewerId = get(viewer, 'login');
 
-		if (!comment) return;
-
-		// author cannot vote on own comments.
+		// author cannot vote on own proposals nor own comments.
 		// already enforced in render(); this is just a safety check.
+		if (viewerId === get(proposal, 'user.login')) return;
 		if (viewerId === get(comment, 'user.login')) return;
 
 		this.commentVotePending = {
@@ -119,12 +122,14 @@ class ProposalPage extends React.Component {
 			reaction: val,
 			tickCount: 0
 		};
-		this.props.actions.createProposalReaction(val, this.props.params.projectId, this.props.params.proposalId, viewerId, commentId);
 
-		//
-		// TODO: how to set up componentWillReceiveProps check to know when response comes through?
-		// something like this.commentWithPendingReaction = commentId, but use special key for reaction on proposal
-		// 
+		this.props.actions.createProposalReaction(
+			val,
+			this.props.params.projectId,
+			this.props.params.proposalId,
+			viewerId,
+			commentId === PROPOSAL_VOTE_KEY ? null : commentId
+		);
 
 	}
 
@@ -150,8 +155,13 @@ class ProposalPage extends React.Component {
 
 		let revisions = get(proposal, 'commits') || [],
 			comments = get(proposal, 'comments') || [],
+			reactions = get(proposal, 'reactions') || [],
 			commentIsBeingSubmitted = typeof this.previousNumComments !== 'undefined',
-			revisionIsBeingSubmitted = typeof this.previousNumRevisions !== 'undefined';
+			revisionIsBeingSubmitted = typeof this.previousNumRevisions !== 'undefined',
+			viewerIsProposalAuthor = get(proposal, 'user.login') && get(proposal, 'user.login') === get(viewer, 'login'),
+			proposalVoteIsPending = this.commentVotePending && this.commentVotePending.commentId === PROPOSAL_VOTE_KEY,
+			proposalUpvotes = reactions.filter(r => r.content === '+1').length,
+			proposalDownvotes = reactions.filter(r => r.content === '-1').length;
 
 		return (
 			<div className='page proposal-page'>
@@ -169,7 +179,16 @@ class ProposalPage extends React.Component {
 						<Link to={ `/${ this.props.params.owner }/${ this.props.params.projectId }` }>{ get(projectMetadata, 'name') || '' }</Link>
 						<p className='body' dangerouslySetInnerHTML={{ __html: body }} />
 						{ proposalIsLoading ? null : <div className='created-date'>{ moment(proposal.created_at).format('MMM D YYYY') }</div> }
-						<div className='footer'>{/* consider making this a functional component, with social share icons, and thumbs up/down as its own component */}</div>
+						<div className='footer'>
+							<div className={ `up votes${ !viewerIsProposalAuthor ? ' enabled' : '' }` }>
+								<i className='em em---1' onClick={ () => this.onCommentVote(PROPOSAL_VOTE_KEY, '+1') }></i>
+									{ proposalVoteIsPending ? <i className='pending'></i> : proposalUpvotes || 0 }
+							</div>
+							<div className={ `down votes${ !viewerIsProposalAuthor ? ' enabled' : '' }` }>
+								<i className='em em--1' onClick={ () => this.onCommentVote(PROPOSAL_VOTE_KEY, '-1') }></i>
+									{ proposalVoteIsPending ? <i className='pending'></i> : proposalDownvotes || 0 }
+							</div>
+						</div>
 					</div>
 					<div className='comments'>
 						<h3>Comments</h3>

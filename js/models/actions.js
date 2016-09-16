@@ -186,6 +186,7 @@ export default function (store, transport) {
 			.then(response => {
 
 				proposal = { ...response };
+
 				return transport.request(proposal.commits_url, this.parseProposal, headers);
 
 			})
@@ -193,13 +194,21 @@ export default function (store, transport) {
 
 				proposal.commits = response;
 
-				
 				return transport.request(proposal.comments_url, this.parseProposal, headers);
 				
 			})
 			.then(response => {
+
 				proposal.comments = response;
+
+				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/issues/${ proposalId }/reactions`;
+				return transport.request(url, this.parseProposal, headers);
 				
+			})
+			.then(response => {
+
+				proposal.reactions = response;
+
 				store.dispatch({
 					type: PROPOSAL_RESPONDED,
 					meta: { proposalKey },
@@ -601,13 +610,10 @@ export default function (store, transport) {
 
 		createProposalReaction (reaction, projectId, proposalId, viewerId, commentId) {
 
-			//
-			// TODO: implement voting on the proposal itself
-			// POST /repos/:owner/:repo/issues/:number/reactions
-			// 
-			
 			let proposalKey = deriveProposalId(githubOrgName, projectId, proposalId),
-				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/issues/comments/${ commentId }/reactions`;
+				url = commentId ? 
+					`https://api.github.com/repos/${ githubOrgName }/${ projectId }/issues/comments/${ commentId }/reactions` :
+					`https://api.github.com/repos/${ githubOrgName }/${ projectId }/issues/${ proposalId }/reactions`;
 
 			store.dispatch({
 				type: CREATE_PROPOSAL_REACTION_REQUESTED,
@@ -643,7 +649,9 @@ export default function (store, transport) {
 				} else {
 
 					// reaction doesn't yet exist; create it
-					url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/issues/comments/${ commentId }/reactions`;
+					url = commentId ? 
+						`https://api.github.com/repos/${ githubOrgName }/${ projectId }/issues/comments/${ commentId }/reactions` :
+						`https://api.github.com/repos/${ githubOrgName }/${ projectId }/issues/${ proposalId }/reactions`;
 					return transport.request(url, null, {
 						...headers,
 						method: 'POST',
@@ -656,9 +664,11 @@ export default function (store, transport) {
 			.then(response => {
 
 				// get the end result from the server so we're sure to be in sync,
-				// whether we just created or deleted a response.
+				// whether we just created or deleted a reaction.
 				// (Unfortunately, Reactions API doesn't return the whole context, just the single reaction.)
-				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/issues/comments/${ commentId }`;
+				url = commentId ? 
+					`https://api.github.com/repos/${ githubOrgName }/${ projectId }/issues/comments/${ commentId }` :
+					`https://api.github.com/repos/${ githubOrgName }/${ projectId }/issues/${ proposalId }/reactions`
 				return transport.request(url, null, {
 					...headers,
 					expiration: 0	// never persist this response in the cache; always fetch it fresh.
@@ -673,6 +683,8 @@ export default function (store, transport) {
 						proposalKey,
 						commentId
 					},
+					// If reaction is on a comment, payload is the updated comment;
+					// if reaction is on a proposal, payload is the reactions list on that proposal.
 					payload: response
 				});
 
