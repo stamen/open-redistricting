@@ -170,6 +170,32 @@ a:active {
       height: 3.25rem;
       padding-top: 1rem;
       border-top: 1px solid #f6f6f6; }
+  .proposal-page .votes {
+    display: inline-block;
+    width: 4rem; }
+    .proposal-page .votes .em {
+      width: 1.5rem;
+      height: 1.5rem;
+      margin-right: 0.5rem;
+      -webkit-filter: saturate(0%) contrast(300%) invert(100%);
+      filter: saturate(0%) contrast(300%) invert(100%);
+      opacity: 0.25; }
+    .proposal-page .votes.enabled .em {
+      opacity: 1.0;
+      cursor: pointer; }
+      .proposal-page .votes.enabled .em:active {
+        -webkit-filter: saturate(0%) contrast(300%) invert(0%);
+        filter: saturate(0%) contrast(300%) invert(0%); }
+    .proposal-page .votes .pending {
+      background-image: url("img/loader-32.gif");
+      width: 1.5rem;
+      height: 1.5rem;
+      display: inline-block;
+      vertical-align: middle;
+      opacity: 0.5;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: contain; }
   .proposal-page .comments {
     width: 100%;
     padding: 1rem;
@@ -213,6 +239,9 @@ a:active {
       border-radius: 10px;
       text-align: center;
       cursor: pointer; }
+      .proposal-page .comment-input .comment-button.disabled {
+        opacity: 0.5;
+        cursor: auto; }
 
 #header {
   position: relative;
@@ -386,15 +415,28 @@ a:active {
     right: 0;
     color: #cccccc; }
   .comment .votes {
-    display: inline-block; }
+    display: inline-block;
+    width: 4rem; }
     .comment .votes .em {
       width: 1.5rem;
       height: 1.5rem;
       margin-right: 0.5rem;
-      filter: saturate(0%) contrast(300%) invert(100%); }
-    .comment .votes.active .em {
+      -webkit-filter: saturate(0%) contrast(300%) invert(100%);
+      filter: saturate(0%) contrast(300%) invert(100%);
+      opacity: 0.25; }
+    .comment .votes.enabled .em {
+      opacity: 1.0;
       cursor: pointer; }
-      .comment .votes.active .em:active {
+      .comment .votes.enabled .em:active {
+        -webkit-filter: saturate(0%) contrast(300%) invert(0%);
         filter: saturate(0%) contrast(300%) invert(0%); }
-    .comment .votes.up {
-      margin-right: 1.5rem; }
+    .comment .votes .pending {
+      background-image: url("img/loader-32.gif");
+      width: 1.5rem;
+      height: 1.5rem;
+      display: inline-block;
+      vertical-align: middle;
+      opacity: 0.5;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: contain; }
