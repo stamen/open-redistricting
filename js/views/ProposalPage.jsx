@@ -191,16 +191,17 @@ class ProposalPage extends React.Component {
 								<i className='em em--1' onClick={ () => this.onCommentVote(PROPOSAL_VOTE_KEY, '-1') }></i>
 									{ proposalVoteIsPending ? <i className='pending'></i> : proposalDownvotes || 0 }
 							</div>
+							{ !isSignedIn ? <a className='signin-cta' onClick={ this.login }>Sign in to vote.</a> : null }
 						</div>
 					</div>
 					<div className='comments'>
 						<h3>Comments</h3>
-						{ isSignedIn ?
+						{ isSignedIn ?	
 							<div className='comment-input'>
 								<textarea ref='commentInput' placeholder='Add comment' />
 								<div className={ `comment-button${ commentIsBeingSubmitted ? ' disabled' : '' }` } onClick={ () => this.submitComment() }>Comment</div>
 							</div> :
-							<div className='signin-cta' onClick={ this.login }>Sign in to add a comment.</div>
+							<a className='signin-cta' onClick={ this.login }>Sign in to add a comment.</a>
 						}
 						<ul>
 							{ comments

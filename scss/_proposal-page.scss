@@ -195,6 +195,7 @@ $cell-spacing: 1rem;
 	}
 
 	.signin-cta {
-		// TODO
+		display: inline-block;
+		cursor: pointer;
 	}
 }
