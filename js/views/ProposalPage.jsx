@@ -236,6 +236,7 @@ class ProposalPage extends React.Component {
 					</div>
 					<ul>
 						{ revisions
+							.slice(1)								// don't show the initial commit
 							.filter(revision => !!revision.commit)	// be defensive, only display valid revisions
 							.map(revision => {
 								return <li key={ revision.sha }>
