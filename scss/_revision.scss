@@ -1,3 +1,22 @@
+$revision-font-size: 0.8rem;
 .revision {
-	
+	position: relative;
+	min-height: 5 * $revision-font-size;
+
+	font-size: $revision-font-size;
+	text-overflow: clip;
+	overflow-y: hidden;
+
+	border-bottom: 1px solid $cell-border-color;
+
+	.desc {
+		float: left;
+		margin: $revision-font-size 0;
+	}
+
+	.date {
+		margin-top: $revision-font-size/2;
+		float: right;
+		color: $text-secondary-color;
+	}
 }

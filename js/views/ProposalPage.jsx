@@ -13,6 +13,7 @@ import {
 import auth from '../models/auth';
 import DiffMap from '../components/DiffMap.jsx';
 import Comment from '../components/Comment.jsx';
+import Revision from '../components/Revision.jsx';
 
 const PROPOSAL_VOTE_KEY = 'proposal';
 
@@ -229,6 +230,24 @@ class ProposalPage extends React.Component {
 					</div>
 				</div>
 				<div className='sidebar'>
+					<div className='revisions-header'>
+						<h3>Revisions</h3>
+						<div className='add-revision'>+ Add</div>
+					</div>
+					<ul>
+						{ revisions
+							.filter(revision => !!revision.commit)	// be defensive, only display valid revisions
+							.map(revision => {
+								return <li key={ revision.sha }>
+									<Revision
+										sha={ revision.sha }
+										desc={ revision.commit.message }
+										date={ moment(revision.commit.author.date).format('MMM D YYYY') }
+									/>
+								</li>;
+							})
+						}
+					</ul>
 				</div>
 			</div>
 		);

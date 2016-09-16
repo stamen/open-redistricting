@@ -473,8 +473,7 @@ export default function (store, transport) {
 				mapPath = appConfig.mapFilename;
 
 			store.dispatch({
-				type: CREATE_PROPOSAL_REQUESTED,
-				meta: { projectKey }
+				type: CREATE_PROPOSAL_REQUESTED
 			});
 
 			// 1. Get the SHA of `master`
@@ -549,7 +548,6 @@ export default function (store, transport) {
 				store.dispatch({
 					type: CREATE_PROPOSAL_RESPONDED,
 					meta: {
-						projectKey,
 						proposalKey
 					},
 					payload: response
@@ -563,7 +561,45 @@ export default function (store, transport) {
 				
 				store.dispatch({
 					type: CREATE_PROPOSAL_RESPONDED,
-					meta: { projectKey },
+					meta: { proposalKey },
+					error: error
+				});
+				throw error;
+
+			});
+
+		},
+
+		createProposalRevision (description, base64MapFile, projectId, proposalId) {
+
+			// TODO: how to get branchName?
+			// TODO: how to get mapBlobSHA?
+			
+			const proposalKey = deriveProposalId(githubOrgName, projectId, proposalId);
+				mapPath = appConfig.mapFilename;
+
+			let url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents/${ mapPath }`;
+			return transport.request(url, null, {
+				...this.buildAuthHeader(),
+				method: 'PUT',
+				body: JSON.stringify({
+					path: mapPath,
+					message: description,
+					content: base64MapFile,
+					branch: branchName,
+					sha: mapBlobSHA
+				})
+			})
+			.then(response => {
+
+				//
+
+			})
+			.catch(error => {
+
+				store.dispatch({
+					type: CREATE_COMMENT_RESPONDED,
+					meta: { proposalKey },
 					error: error
 				});
 				throw error;

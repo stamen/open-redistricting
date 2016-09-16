@@ -49,7 +49,7 @@ let reduced = {
 			case actions.CREATE_PROJECT_RESPONDED:
 				return {
 					...state,
-					loading: action.type === actions.PROJECT_LIST_REQUESTED,
+					loading: action.type === actions.CREATE_PROJECT_REQUESTED,
 					error: action.error,
 					data: action.payload ? (state.data || []).concat([action.payload]) : state.data
 				};
@@ -150,7 +150,7 @@ let reduced = {
 					...state,
 					[action.meta.proposalKey]: {
 						...existingProposal,
-						loading: action.type === actions.CREATE_PROPOSAL_REQUESTED,
+						loading: action.type === actions.CREATE_COMMENT_REQUESTED,
 						error: action.error,
 						comments
 					}
