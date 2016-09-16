@@ -133,12 +133,36 @@ a:active {
     flex: 0 1 50rem;
     margin-top: 3rem; }
   .proposal-page .sidebar {
+    position: relative;
     flex: 1 0 16rem;
-    height: 25rem;
     margin: 3rem 0 0 1rem;
     padding: 1rem;
     background-color: #ffffff;
     border: 1px solid #f6f6f6; }
+    .proposal-page .sidebar .revisions-header {
+      position: relative;
+      height: 3rem;
+      border-bottom: 1px solid #f6f6f6; }
+      .proposal-page .sidebar .revisions-header h3 {
+        margin: 0;
+        padding-top: 0.5rem;
+        font-weight: bold; }
+    .proposal-page .sidebar ul {
+      margin: 0;
+      padding: 0; }
+    .proposal-page .sidebar li {
+      list-style-type: none; }
+  .proposal-page .add-revision {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 6rem;
+    padding: 0.5rem;
+    color: #ffffff;
+    background-color: #2dade0;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer; }
   .proposal-page .map {
     width: 100%;
     height: 25rem;
@@ -235,6 +259,7 @@ a:active {
       bottom: 0;
       width: 10rem;
       padding: 0.5rem;
+      color: #ffffff;
       background-color: #2dade0;
       border-radius: 10px;
       text-align: center;
@@ -344,6 +369,7 @@ a:active {
     display: inline-block;
     width: 10rem;
     padding: 0.5rem;
+    color: #ffffff;
     background-color: #f2f2f2;
     border-radius: 10px;
     text-align: center;
@@ -443,3 +469,18 @@ a:active {
       background-position: center;
       background-repeat: no-repeat;
       background-size: contain; }
+
+.revision {
+  position: relative;
+  min-height: 4rem;
+  font-size: 0.8rem;
+  text-overflow: clip;
+  overflow-y: hidden;
+  border-bottom: 1px solid #f6f6f6; }
+  .revision .desc {
+    float: left;
+    margin: 0.8rem 0; }
+  .revision .date {
+    margin-top: 0.4rem;
+    float: right;
+    color: #cccccc; }
