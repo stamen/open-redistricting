@@ -242,6 +242,9 @@ a:active {
       .proposal-page .comment-input .comment-button.disabled {
         opacity: 0.5;
         cursor: auto; }
+  .proposal-page .signin-cta {
+    display: inline-block;
+    cursor: pointer; }
 
 #header {
   position: relative;
