@@ -22,11 +22,13 @@
 
 	.votes {
 		display: inline-block;
+		width: 4rem;
+		
 		.em {
 			width: 1.5rem;
 			height: 1.5rem;
 			margin-right: 0.5rem;
-			
+
 			-webkit-filter: saturate(0%) contrast(300%) invert(100%);
 			filter: saturate(0%) contrast(300%) invert(100%);
 			opacity: 0.25;
@@ -43,11 +45,24 @@
 		}
 
 		&.up {
-			margin-right: 1.5rem;
+			//
 		}
 
 		&.down {
 			//
+		}
+
+		.pending {
+			background-image: url('img/loader-32.gif');
+			width: 1.5rem;
+			height: 1.5rem;
+			display: inline-block;
+			vertical-align: middle;
+			opacity: 0.5;
+
+			background-position: center;
+			background-repeat: no-repeat;
+			background-size: contain;
 		}
 	}
 }

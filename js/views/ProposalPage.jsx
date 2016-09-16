@@ -66,6 +66,15 @@ class ProposalPage extends React.Component {
 
 		}
 
+		if (this.commentVotePending && ++this.commentVotePending.tickCount >= 2) {
+			// TODO: this works only because we rely on this function being called
+			// once for CREATE_PROPOSAL_REACTION_REQUESTED, and again for CREATE_PROPOSAL_REACTION_RESPONDED.
+			// Design a more robust solution that looks for specific changes in the store.
+			
+			// comment vote request has returned successfully
+			delete this.commentVotePending;
+		}
+
 		// TODO: same thing for revision creation
 
 	}
@@ -73,6 +82,19 @@ class ProposalPage extends React.Component {
 	login () {
 
 		auth.authorize(this.props.location.pathname);
+
+	}
+
+	submitComment () {
+
+		// bail if already in the process of submitting a comment
+		if (typeof this.previousNumComments !== 'undefined') return;
+
+		const { proposal } = this.getStoreState();
+		let comments = get(proposal, 'comments') || [];
+
+		this.previousNumComments = comments.length;
+		this.props.actions.createProposalComment(this.refs.commentInput.value, this.props.params.projectId, this.props.params.proposalId);
 
 	}
 
@@ -92,26 +114,17 @@ class ProposalPage extends React.Component {
 		// already enforced in render(); this is just a safety check.
 		if (viewerId === get(comment, 'user.login')) return;
 
-		console.log(">>>>> onCommentVote:", commentId);
+		this.commentVotePending = {
+			commentId,
+			reaction: val,
+			tickCount: 0
+		};
 		this.props.actions.createProposalReaction(val, this.props.params.projectId, this.props.params.proposalId, viewerId, commentId);
 
 		//
 		// TODO: how to set up componentWillReceiveProps check to know when response comes through?
 		// something like this.commentWithPendingReaction = commentId, but use special key for reaction on proposal
 		// 
-
-	}
-
-	submitComment () {
-
-		// bail if already in the process of submitting a comment
-		if (typeof this.previousNumComments !== 'undefined') return;
-
-		const { proposal } = this.getStoreState();
-		let comments = get(proposal, 'comments') || [];
-
-		this.previousNumComments = comments.length;
-		this.props.actions.createProposalComment(this.refs.commentInput.value, this.props.params.projectId, this.props.params.proposalId);
 
 	}
 
@@ -169,23 +182,25 @@ class ProposalPage extends React.Component {
 						}
 						<ul>
 							{ comments
-								.filter(c => !!c.id)	// be defensive, only display valid comments
+								.filter(comment => !!comment.id)	// be defensive, only display valid comments
 								.map(comment => {
-								let viewerIsAuthor = get(viewer, 'login') === get(comment, 'user.login'),
-									canVote = isSignedIn && !viewerIsAuthor;
+									let viewerIsAuthor = get(viewer, 'login') === get(comment, 'user.login'),
+										canVote = isSignedIn && !viewerIsAuthor,
+										voteIsPending = get(this.commentVotePending, 'commentId') === comment.id;
 
-								return <li key={ comment.id }>
-									<Comment
-										id={ comment.id }
-										body= { comment.body }
-										authorName= { comment.user.login }
-										date= { moment(comment.updated_at).format('MMM D YYYY h:mma') }
-										upvotes= { get(comment, 'reactions["+1"]') || 0 }
-										downvotes= { get(comment, 'reactions["-1"]') || 0 }
-										canVote={ canVote }
-										onVote={ canVote ? this.onCommentVote : undefined }
-									/>
-								</li>;
+									return <li key={ comment.id }>
+										<Comment
+											id={ comment.id }
+											body= { comment.body }
+											authorName= { comment.user.login }
+											date= { moment(comment.updated_at).format('MMM D YYYY h:mma') }
+											upvotes= { get(comment, 'reactions["+1"]') || 0 }
+											downvotes= { get(comment, 'reactions["-1"]') || 0 }
+											canVote={ canVote }
+											onVote={ canVote ? this.onCommentVote : undefined }
+											voteIsPending={ voteIsPending }
+										/>
+									</li>;
 							}) }
 						</ul>
 					</div>

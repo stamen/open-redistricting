@@ -8,7 +8,8 @@ const Comment = ({
 	upvotes,
 	downvotes,
 	canVote,
-	onVote }) => {
+	onVote,
+	voteIsPending }) => {
 
 	return (
 		<div className='comment'>
@@ -16,10 +17,10 @@ const Comment = ({
 			<div className='created-date'>{ date }</div>
 			<p>{ body }</p>
 			<div className={ `up votes${ canVote ? ' enabled' : '' }` }>
-				<i className='em em---1' onClick={ () => onVote(id, '+1') }></i>{ upvotes }
+				<i className='em em---1' onClick={ () => onVote(id, '+1') }></i>{ voteIsPending ? <i className='pending'></i> : upvotes }
 			</div>
 			<div className={ `down votes${ canVote ? ' enabled' : '' }` }>
-				<i className='em em--1' onClick={ () => onVote(id, '-1') }></i>{ downvotes }
+				<i className='em em--1' onClick={ () => onVote(id, '-1') }></i>{ voteIsPending ? <i className='pending'></i> : downvotes }
 			</div>
 		</div>
 	);
@@ -33,7 +34,8 @@ Comment.propTypes = {
 	upvotes: PropTypes.number,
 	downvotes: PropTypes.number,
 	canVote: PropTypes.bool,
-	onVote: PropTypes.func
+	onVote: PropTypes.func,
+	voteIsPending: PropTypes.bool,
 };
 
 Comment.defaultProps = {
