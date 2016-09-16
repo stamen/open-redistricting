@@ -92,6 +92,7 @@ class ProposalPage extends React.Component {
 		// already enforced in render(); this is just a safety check.
 		if (viewerId === get(comment, 'user.login')) return;
 
+		console.log(">>>>> onCommentVote:", commentId);
 		this.props.actions.createProposalReaction(val, this.props.params.projectId, this.props.params.proposalId, viewerId, commentId);
 
 		//

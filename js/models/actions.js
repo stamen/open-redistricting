@@ -621,7 +621,10 @@ export default function (store, transport) {
 			headers.append('Accept', 'application/vnd.github.squirrel-girl-preview');
 			headers = { headers };
 			
-			return transport.request(url, null, headers)
+			return transport.request(url, null, {
+				...headers,
+				expiration: 0	// never persist this response in the cache; always fetch it fresh.
+			})
 			.then(response => {
 
 				// Either create a new reaction or, if this reaction already exists

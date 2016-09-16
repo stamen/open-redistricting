@@ -26,6 +26,8 @@
 			width: 1.5rem;
 			height: 1.5rem;
 			margin-right: 0.5rem;
+			
+			-webkit-filter: saturate(0%) contrast(300%) invert(100%);
 			filter: saturate(0%) contrast(300%) invert(100%);
 			opacity: 0.25;
 		}
@@ -35,6 +37,7 @@
 			cursor: pointer;
 
 			&:active {
+				-webkit-filter: saturate(0%) contrast(300%) invert(0%);
 				filter: saturate(0%) contrast(300%) invert(0%);
 			}
 		}
