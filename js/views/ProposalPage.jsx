@@ -196,9 +196,11 @@ class ProposalPage extends React.Component {
 
 		let body = sanitizeHtml((get(proposal, 'body') || '').replace(/\n/g, '<br>'));
 
-		let diffPaths;
+		let diffPaths,
+			currentRevisionSha;
+
 		if (!proposalIsLoading) {
-			let currentRevisionSha = this.state.currentRevisionSha || proposal.head.sha;
+			currentRevisionSha = this.state.currentRevisionSha || proposal.head.sha;
 			diffPaths = [
 				`https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ proposal.base.sha }/${ mapFilename }`,
 				`https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ currentRevisionSha }/${ mapFilename }`
@@ -283,20 +285,7 @@ class ProposalPage extends React.Component {
 						{ viewerIsProposalAuthor ? <div className='add-revision' onClick={ this.openRevisionModal }>+ Add</div> : null }
 					</div>
 					<ul>
-						{ revisions
-							.slice(1)								// don't show the initial commit
-							.filter(revision => !!revision.commit)	// be defensive, only display valid revisions
-							.map(revision => {
-								return <li key={ revision.sha || revision.commit.sha }>
-									<Revision
-										sha={ revision.sha || revision.commit.sha }
-										desc={ revision.commit.message }
-										date={ moment(revision.commit.author.date).format('MMM D YYYY') }
-										onView={ this.onViewRevision }
-									/>
-								</li>;
-							})
-						}
+						{ this.renderRevisions(revisions, currentRevisionSha) }
 					</ul>
 				</div>
 				<AddItemModal
@@ -308,6 +297,33 @@ class ProposalPage extends React.Component {
 				/>
 			</div>
 		);
+
+	}
+
+	renderRevisions (revisions, currentRevisionSha) {
+
+		let isAfterCurrentRevision = false;
+
+		return revisions
+			.slice(1)								// don't show the initial commit
+			.filter(revision => !!revision.commit)	// be defensive, only display valid revisions
+			.map(revision => {
+
+				let sha = revision.sha || revision.commit.sha,
+					item = <li className={ isAfterCurrentRevision ? 'darken' : null } key={ revision.sha || revision.commit.sha }>
+						<Revision
+							sha={ sha }
+							desc={ revision.commit.message }
+							date={ moment(revision.commit.author.date).format('MMM D YYYY') }
+							onView={ this.onViewRevision }
+						/>
+					</li>;
+
+				if (sha === currentRevisionSha) isAfterCurrentRevision = true;
+				
+				return item;
+
+			});
 
 	}
 
