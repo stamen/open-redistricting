@@ -14,6 +14,7 @@ import auth from '../models/auth';
 import DiffMap from '../components/DiffMap.jsx';
 import Comment from '../components/Comment.jsx';
 import Revision from '../components/Revision.jsx';
+import AddItemModal from '../components/AddItemModal.jsx';
 
 const PROPOSAL_VOTE_KEY = 'proposal';
 
@@ -23,8 +24,12 @@ class ProposalPage extends React.Component {
 
 		super(props);
 		this.login = this.login.bind(this);
+		this.openModal = this.openModal.bind(this);
+		this.onModalClose = this.onModalClose.bind(this);
 		this.onCommentVote = this.onCommentVote.bind(this);
 		this.submitComment = this.submitComment.bind(this);
+
+		this.state = {};
 
 	}
 
@@ -57,7 +62,7 @@ class ProposalPage extends React.Component {
 
 		const { proposal } = this.getStoreState();
 		let comments = get(proposal, 'comments') || [],
-			revisions = get(proposal, 'revisions') || [];
+			revisions = get(proposal, 'commits') || [];
 
 		if (typeof this.previousNumComments !== 'undefined' && this.previousNumComments !== comments.length) {
 			// new store state coming in with just-created comment,
@@ -78,9 +83,44 @@ class ProposalPage extends React.Component {
 			delete this.commentVotePending;
 		}
 
-		//
-		// TODO: same thing for revision creation
-		//
+		if (typeof this.previousNumRevisions !== 'undefined' && this.previousNumRevisions !== revisions.length) {
+			// new store state coming in with just-created revision,
+			// so close the modal
+			delete this.previousNumRevisions;
+			this.setState({ modalIsOpen: false });
+		}
+
+	}
+
+	openModal () {
+
+		this.setState({ modalIsOpen: true });
+
+	}
+
+	onModalClose (values) {
+
+		if (!values) {
+			this.setState({ modalIsOpen: false });
+		} else {
+
+			const { proposal } = this.getStoreState();
+			this.previousNumRevisions = proposal.commits.length;
+
+			let reader = new FileReader();
+			reader.addEventListener('load', event => {
+				let fileBase64 = reader.result.split(',')[1];
+				this.props.actions.createProposalRevision(
+					values.desc,
+					fileBase64,
+					this.props.params.projectId,
+					this.props.params.proposalId,
+					proposal
+				);
+			});
+			reader.readAsDataURL(values.file);
+
+		}
 
 	}
 
@@ -232,16 +272,16 @@ class ProposalPage extends React.Component {
 				<div className='sidebar'>
 					<div className='revisions-header'>
 						<h3>Revisions</h3>
-						<div className='add-revision'>+ Add</div>
+						{ viewerIsProposalAuthor ? <div className='add-revision' onClick={ this.openModal }>+ Add</div> : null }
 					</div>
 					<ul>
 						{ revisions
 							.slice(1)								// don't show the initial commit
 							.filter(revision => !!revision.commit)	// be defensive, only display valid revisions
 							.map(revision => {
-								return <li key={ revision.sha }>
+								return <li key={ revision.sha || revision.commit.sha }>
 									<Revision
-										sha={ revision.sha }
+										sha={ revision.sha || revision.commit.sha }
 										desc={ revision.commit.message }
 										date={ moment(revision.commit.author.date).format('MMM D YYYY') }
 									/>
@@ -250,6 +290,13 @@ class ProposalPage extends React.Component {
 						}
 					</ul>
 				</div>
+				<AddItemModal
+					type='revision'
+					desc={ `Create a new revision to this proposal.\u000AUpload a revision to the proposal's map file.` }
+					isOpen={ this.state.modalIsOpen }
+					onClose={ this.onModalClose }
+					className='add-item-modal'
+				/>
 			</div>
 		);
 

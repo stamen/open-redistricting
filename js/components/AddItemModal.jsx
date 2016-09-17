@@ -7,7 +7,7 @@ import Modal from 'react-modal';
 export default class AddItemModal extends React.Component {
 
 	static propTypes = {
-		type: PropTypes.string.isRequired,	// 'Project', 'Proposal'
+		type: PropTypes.string.isRequired,	// 'project', 'proposal', 'revision'
 		desc: PropTypes.string,
 		isOpen: PropTypes.bool,
 		onClose: PropTypes.func
@@ -86,7 +86,7 @@ export default class AddItemModal extends React.Component {
 
 		this.props.onClose && this.props.onClose(confirmed ? {
 			file: this.state.selectedFile,
-			name: this.refs.nameInput.value,
+			name: this.refs.nameInput ? this.refs.nameInput.value : null,
 			desc: this.refs.descInput.value
 		} : null);
 
@@ -100,7 +100,7 @@ export default class AddItemModal extends React.Component {
 			cappedType = this.props.type.slice(0, 1).toUpperCase() + this.props.type.slice(1),
 			confirmEnabled =
 				this.state.selectedFile
-				&& (this.refs.nameInput && this.refs.nameInput.value)
+				&& (this.props.type === 'revision' || (this.refs.nameInput && this.refs.nameInput.value))
 				&& (this.refs.descInput && this.refs.descInput.value);
 
 		return (
@@ -118,7 +118,10 @@ export default class AddItemModal extends React.Component {
 						<h2>{ title }</h2>
 						<p className='modal-desc'>{ this.props.desc || '' }</p>
 						<form>
-							<input className='name' ref='nameInput' placeholder={ `${ cappedType } name` } />
+							{ this.props.type !== 'revision' ?
+								<input className='name' ref='nameInput' placeholder={ `${ cappedType } name` } />
+								: null
+							}
 							<textarea className='desc' ref='descInput' placeholder={ `${ cappedType } description` } />
 						</form>
 

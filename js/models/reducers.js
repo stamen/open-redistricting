@@ -136,6 +136,26 @@ let reduced = {
 					}
 				};
 
+			case actions.CREATE_PROPOSAL_REVISION_REQUESTED:
+			case actions.CREATE_PROPOSAL_REVISION_RESPONDED:
+				if (!action.meta.proposalKey) return { ...state };
+				existingProposal = { ...state[action.meta.proposalKey] };
+				if (!existingProposal) return { ...state };
+
+				let commits = existingProposal.commits;
+				if (action.payload) commits.push(action.payload);
+
+				// add new comment to existingProposal.commits
+				return {
+					...state,
+					[action.meta.proposalKey]: {
+						...existingProposal,
+						loading: action.type === actions.CREATE_PROPOSAL_REVISION_REQUESTED,
+						error: action.error,
+						commits
+					}
+				};
+
 			case actions.CREATE_COMMENT_REQUESTED:
 			case actions.CREATE_COMMENT_RESPONDED:
 				if (!action.meta.proposalKey) return { ...state };

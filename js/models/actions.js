@@ -23,6 +23,8 @@ export const CREATE_PROJECT_REQUESTED = 'CREATE_PROJECT_REQUESTED';
 export const CREATE_PROJECT_RESPONDED = 'CREATE_PROJECT_RESPONDED';
 export const CREATE_PROPOSAL_REQUESTED = 'CREATE_PROPOSAL_REQUESTED';
 export const CREATE_PROPOSAL_RESPONDED = 'CREATE_PROPOSAL_RESPONDED';
+export const CREATE_PROPOSAL_REVISION_REQUESTED = 'CREATE_PROPOSAL_REVISION_REQUESTED';
+export const CREATE_PROPOSAL_REVISION_RESPONDED = 'CREATE_PROPOSAL_REVISION_RESPONDED';
 export const CREATE_COMMENT_REQUESTED = 'CREATE_COMMENT_REQUESTED';
 export const CREATE_COMMENT_RESPONDED = 'CREATE_COMMENT_RESPONDED';
 export const CREATE_PROPOSAL_REACTION_REQUESTED = 'CREATE_PROPOSAL_REACTION_REQUESTED';
@@ -570,29 +572,46 @@ export default function (store, transport) {
 
 		},
 
-		createProposalRevision (description, base64MapFile, projectId, proposalId) {
+		createProposalRevision (description, base64MapFile, projectId, proposalId, proposal) {
 
-			// TODO: how to get branchName?
-			// TODO: how to get mapBlobSHA?
-			
-			const proposalKey = deriveProposalId(githubOrgName, projectId, proposalId);
+			const proposalHeadSHA = proposal.commits[0].commit.tree.sha,
+				branchName = proposal.head.ref,
+				proposalKey = deriveProposalId(githubOrgName, projectId, proposalId),
 				mapPath = appConfig.mapFilename;
 
-			let url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents/${ mapPath }`;
-			return transport.request(url, null, {
-				...this.buildAuthHeader(),
-				method: 'PUT',
-				body: JSON.stringify({
-					path: mapPath,
-					message: description,
-					content: base64MapFile,
-					branch: branchName,
-					sha: mapBlobSHA
-				})
+			store.dispatch({
+				type: CREATE_PROPOSAL_REVISION_REQUESTED,
+				meta: { proposalKey }
+			});
+
+			// First, get the SHA of the map file at the head of this branch
+			let url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents/${ mapPath }?ref=${ branchName }`;
+			return transport.request(url, null, this.buildAuthHeader())
+			.then(response => {
+
+				// Then, commit the revised map file to this branch.
+				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents/${ mapPath }`;
+				return transport.request(url, null, {
+					...this.buildAuthHeader(),
+					method: 'PUT',
+					body: JSON.stringify({
+						path: mapPath,
+						message: description,
+						content: base64MapFile,
+						branch: branchName,
+						sha: response.sha
+					})
+				});
+
 			})
 			.then(response => {
 
-				//
+				// Revision complete.
+				store.dispatch({
+					type: CREATE_PROPOSAL_REVISION_RESPONDED,
+					meta: { proposalKey },
+					payload: response
+				});
 
 			})
 			.catch(error => {
