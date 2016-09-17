@@ -69,6 +69,8 @@ class DiffMap extends React.Component {
 
 				try {
 
+					// TODO: this unioning seems necessary to perform JSTS operations between the two GeoJSON objects,
+					// but causes boundaries between features to be erased. Find a better solution.
 					p1 = p1.features.reduce((acc, f, i) => {
 						if (i === 0) return f.geometry;
 						if (acc.geometries) return acc.union(f.geometry);
@@ -86,6 +88,9 @@ class DiffMap extends React.Component {
 				}
 
 				try {
+
+					// BUG: if one of the two GeoJSON objects has multiple features and the other has only one feature,
+					// these operations will fail. How to work around / fix this?
 					diff = {
 						type: 'Feature',
 						properties: {},
@@ -97,6 +102,7 @@ class DiffMap extends React.Component {
 						properties: {},
 						geometry: new jsts.io.GeoJSONWriter().write(p1.intersection(p2))
 					};
+
 				} catch (error) {
 					throw new Error(`Could not calculate diff from ${ path1 } and ${ path2 }: ${ error.message }`);
 				}
