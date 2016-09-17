@@ -1,7 +1,6 @@
 import React, { PropTypes } from 'react';
 import {
 	Map,
-	GeoJson,
 	TileLayer
 } from 'react-leaflet';
 import leaflet from 'leaflet';
@@ -10,6 +9,7 @@ import leaflet from 'leaflet';
 // import jsts from 'jsts';
 
 import appConfig from '../../static/appConfig.json';
+import GeoJsonUpdatable from './GeoJsonUpdatable.jsx';
 
 class DiffMap extends React.Component {
 
@@ -30,12 +30,32 @@ class DiffMap extends React.Component {
 
 	componentWillMount () {
 
-		let jsts = require('jsts'),
-			{ path1, path2 } = this.props;
+		this.calculateGeometry(this.props);
+
+	}
+
+	componentWillReceiveProps (nextProps) {
+
+		// only recalculate geometry if we have a new path
+		if (this.props.path1 !== nextProps.path1 || this.props.path2 !== nextProps.path2) {
+			this.calculateGeometry(nextProps);
+		}
+
+	}
+
+	shouldComponentUpdate (nextProps, nextState) {
+
+		return this.state !== nextState;
+
+	}
+
+	calculateGeometry ({ path1, path2, fetchJSON }) {
+
+		let jsts = require('jsts');
 
 		Promise.all([
-			this.props.fetchJSON(path1),
-			this.props.fetchJSON(path2)
+			fetchJSON(path1),
+			fetchJSON(path2)
 		])
 		.then(
 
@@ -43,7 +63,9 @@ class DiffMap extends React.Component {
 				
 				let reader = new jsts.io.GeoJSONReader(),
 					p1 = reader.read(responses[0]),
-					p2 = reader.read(responses[1]);
+					p2 = reader.read(responses[1]),
+					diff,
+					intersection;
 
 				try {
 
@@ -60,41 +82,45 @@ class DiffMap extends React.Component {
 					});
 
 				} catch (error) {
-					this.setState({
-						diffError: `Could not parse GeoJSON from ${ path1 } and ${ path2 }`
-					});
+					throw new Error(`Could not parse GeoJSON from ${ path1 } and ${ path2 }: ${ error.message }`);
 				}
 
-				let diff = {
+				try {
+					diff = {
 						type: 'Feature',
 						properties: {},
 						geometry: new jsts.io.GeoJSONWriter().write(p1.symDifference(p2))
-					},
+					};
+
 					intersection = {
 						type: 'Feature',
 						properties: {},
 						geometry: new jsts.io.GeoJSONWriter().write(p1.intersection(p2))
 					};
+				} catch (error) {
+					throw new Error(`Could not calculate diff from ${ path1 } and ${ path2 }: ${ error.message }`);
+				}
+
 				this.setState({
+					diffError: null,
 					diff,
 					intersection
 				});
 			},
 
 			error => {
-				this.setState({
-					diffError: `Could not fetch/read GeoJSON from ${ path1 } and ${ path2 }`
-				});
+				throw new Error(`Could not fetch/read GeoJSON from ${ path1 } and ${ path2 }: ${ error.message }`);
 			}
 
-		);
+		)
+		.catch(error => {
 
-	}
+			this.setState({
+				diffError: error.message
+			});
 
-	shouuldComponentUpdate (nextProps, nextState) {
+		});
 
-		return this.props.path1 !== nextProps.path1 || this.props.path2 !== nextProps.path2;
-		
 	}
 
 	render () {
@@ -112,8 +138,8 @@ class DiffMap extends React.Component {
 			body = (
 				<Map { ...mapConfig } ref='leafletMap' className='map-container' onLayeradd={ this.onMapLayerAdd }>
 					{ this.renderTileLayers() }
-					<GeoJson className='diff' data={ this.state.diff } />
-					<GeoJson className='intersection' data={ this.state.intersection } />
+					<GeoJsonUpdatable className='diff' data={ this.state.diff } />
+					<GeoJsonUpdatable className='intersection' data={ this.state.intersection } />
 				</Map>
 			);
 

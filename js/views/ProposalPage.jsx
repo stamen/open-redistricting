@@ -24,8 +24,9 @@ class ProposalPage extends React.Component {
 
 		super(props);
 		this.login = this.login.bind(this);
-		this.openModal = this.openModal.bind(this);
-		this.onModalClose = this.onModalClose.bind(this);
+		this.onViewRevision = this.onViewRevision.bind(this);
+		this.openRevisionModal = this.openRevisionModal.bind(this);
+		this.onRevisionModalClose = this.onRevisionModalClose.bind(this);
 		this.onCommentVote = this.onCommentVote.bind(this);
 		this.submitComment = this.submitComment.bind(this);
 
@@ -92,13 +93,19 @@ class ProposalPage extends React.Component {
 
 	}
 
-	openModal () {
+	onViewRevision (sha) {
+
+		this.setState({ currentRevisionSha: sha });
+
+	}
+
+	openRevisionModal () {
 
 		this.setState({ modalIsOpen: true });
 
 	}
 
-	onModalClose (values) {
+	onRevisionModalClose (values) {
 
 		if (!values) {
 			this.setState({ modalIsOpen: false });
@@ -191,9 +198,10 @@ class ProposalPage extends React.Component {
 
 		let diffPaths;
 		if (!proposalIsLoading) {
+			let currentRevisionSha = this.state.currentRevisionSha || proposal.head.sha;
 			diffPaths = [
 				`https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ proposal.base.sha }/${ mapFilename }`,
-				`https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ proposal.head.sha }/${ mapFilename }`
+				`https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ currentRevisionSha }/${ mapFilename }`
 			];
 		}
 
@@ -272,7 +280,7 @@ class ProposalPage extends React.Component {
 				<div className='sidebar'>
 					<div className='revisions-header'>
 						<h3>Revisions</h3>
-						{ viewerIsProposalAuthor ? <div className='add-revision' onClick={ this.openModal }>+ Add</div> : null }
+						{ viewerIsProposalAuthor ? <div className='add-revision' onClick={ this.openRevisionModal }>+ Add</div> : null }
 					</div>
 					<ul>
 						{ revisions
@@ -284,6 +292,7 @@ class ProposalPage extends React.Component {
 										sha={ revision.sha || revision.commit.sha }
 										desc={ revision.commit.message }
 										date={ moment(revision.commit.author.date).format('MMM D YYYY') }
+										onView={ this.onViewRevision }
 									/>
 								</li>;
 							})
@@ -294,7 +303,7 @@ class ProposalPage extends React.Component {
 					type='revision'
 					desc={ `Create a new revision to this proposal.\u000AUpload a revision to the proposal's map file.` }
 					isOpen={ this.state.modalIsOpen }
-					onClose={ this.onModalClose }
+					onClose={ this.onRevisionModalClose }
 					className='add-item-modal'
 				/>
 			</div>
