@@ -52,7 +52,7 @@ class ProposalPage extends React.Component {
 		}
 
 		let { viewer } = this.props.store.getState();
-		if (typeof(viewer.isMember === 'undefined') && !viewer.loading) {
+		if (typeof(viewer.isSignedIn === 'undefined') && !viewer.loading) {
 			// get viewer info if not already available
 			this.props.actions.getViewer();
 		}

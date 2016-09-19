@@ -55,11 +55,16 @@ export default function (options) {
 				.then(response => this.cacheResponse(cacheKey, response, isWrite))
 				.catch(error => {
 
+					// Retry request if the server did not return a valid error message
+					// and we're not yet out of retries
 					let numTries = this.cacheError(cacheKey, error);
-					if (numTries < this.MAX_NUM_RETRIES) {
+					if (!error.response && numTries < this.MAX_NUM_RETRIES) {
 						// try again...
 						console.warn(`Request failed on attempt ${ numTries } of ${ this.MAX_NUM_RETRIES } [url: ${ url } ]`);
-						return this.request(url, parser, requestOptions);
+						return this.request(url, parser, {
+							...requestOptions,
+							isRetry: true
+						});
 					} else {
 						// i give up!
 
@@ -103,9 +108,10 @@ export default function (options) {
 		retrieveOrFetch: function (url, requestOptions, cacheKey) {
 
 			let cached = this.cache[cacheKey],
-				methodIsGet = !requestOptions || !requestOptions.method || requestOptions.method === 'GET';
+				methodIsGet = !requestOptions || !requestOptions.method || requestOptions.method === 'GET',
+				{ isRetry } = requestOptions;
 
-			if (cached && methodIsGet && performance.now() - cached.time < requestOptions.expiration) {
+			if (!isRetry && cached && methodIsGet && performance.now() - cached.time < requestOptions.expiration) {
 
 				// return cached value immediately if it's not past the expiration date.
 				// return cached value only for GET requests.
@@ -136,13 +142,13 @@ export default function (options) {
 			} else {
 
 				let error = new Error(`${ response.status } (${ response.statusText })`);
-				error.response = response;
 
 				// extract any error response and pass along to error handler
 				return response.json()
 				.then(
 					rsp => {
 						if (rsp.message) error = new Error(`${ response.status } (${ response.statusText }): ${ rsp.message }`);
+						error.response = rsp;
 						throw error;
 					},
 					err => {
