@@ -60,7 +60,8 @@ export default function (store, transport) {
 					});
 				},
 				error => {
-					// Fail loudly on error
+					this.handleError(error);
+
 					store.dispatch({
 						type: PROJECT_LIST_RESPONDED,
 						error: error
@@ -117,7 +118,7 @@ export default function (store, transport) {
 					});
 				},
 				error => {
-					// Fail loudly on error
+					this.handleError(error);
 					store.dispatch({
 						type: PROJECT_RESPONDED,
 						meta: { projectKey },
@@ -219,7 +220,7 @@ export default function (store, transport) {
 
 			})
 			.catch(error => {
-				// Fail loudly on error
+				this.handleError(error);
 				store.dispatch({
 					type: PROPOSAL_RESPONDED,
 					meta: { proposalKey },
@@ -288,10 +289,9 @@ export default function (store, transport) {
 					});
 				},
 				error => {
-					// NOTE: we could get here if the access token expired, so need to handle this case
-					// (possibly by redirecting to /login).
-					// TODO: handle with general need-to-login redirect when implemented.
+
 					console.error("Error getting authed user: ", error);
+					this.handleError(error);
 					store.dispatch({
 						type: VIEWER_INFO_RESPONDED,
 						payload: {
@@ -299,6 +299,7 @@ export default function (store, transport) {
 							isMember: false
 						}
 					});
+
 				}
 			)
 			.then(
@@ -323,6 +324,8 @@ export default function (store, transport) {
 					}
 				},
 				error => {
+
+					this.handleError(error);
 					store.dispatch({
 						type: VIEWER_INFO_RESPONDED,
 						payload: {
@@ -331,6 +334,7 @@ export default function (store, transport) {
 							isMember: false
 						}
 					});
+
 				}
 			)
 			.catch(error => {
@@ -404,9 +408,7 @@ export default function (store, transport) {
 					});
 				},
 				error => {
-					// NOTE: we could get here if the access token expired, so need to handle this case
-					// (possibly by redirecting to /login).
-					// TODO: handle with general need-to-login redirect when implemented.
+					this.handleError(error);
 					throw new Error("Error creating project (repository): " + error.message);
 				}
 			)
@@ -425,6 +427,7 @@ export default function (store, transport) {
 					});
 				},
 				error => {
+					this.handleError(error);
 					throw new Error("Error committing README: " + error.message);
 				}
 			)
@@ -436,6 +439,7 @@ export default function (store, transport) {
 					});
 				},
 				error => {
+					this.handleError(error);
 					throw new Error("Error committing map.geojson: " + error.message);
 				}
 			)
@@ -560,9 +564,7 @@ export default function (store, transport) {
 			})
 			.catch(error => {
 
-				// TODO: handle authentication error differently from others,
-				// 		 by redirecting to / suggesting login.
-				
+				this.handleError(error);
 				store.dispatch({
 					type: CREATE_PROPOSAL_RESPONDED,
 					error: error
@@ -617,6 +619,7 @@ export default function (store, transport) {
 			})
 			.catch(error => {
 
+				this.handleError(error);
 				store.dispatch({
 					type: CREATE_COMMENT_RESPONDED,
 					meta: { proposalKey },
@@ -653,6 +656,7 @@ export default function (store, transport) {
 			})
 			.catch(error => {
 
+				this.handleError(error);
 				store.dispatch({
 					type: CREATE_COMMENT_RESPONDED,
 					meta: { proposalKey },
@@ -747,6 +751,7 @@ export default function (store, transport) {
 			})
 			.catch(error => {
 
+				this.handleError(error);
 				store.dispatch({
 					type: CREATE_PROPOSAL_REACTION_RESPONDED,
 					meta: {
@@ -778,7 +783,6 @@ export default function (store, transport) {
 			return transport.request(url)//, null, this.buildAuthHeader())
 			.then(
 				response => {
-					debugger;
 					let openRedistApp = response.find(authedApp => authedApp.app.client_id === clientId);
 
 					if (!openRedistApp) throw new Error('User is not currently authed.');
@@ -795,27 +799,16 @@ export default function (store, transport) {
 							}
 						});
 					}
-				},
-				error => {
-					// NOTE: we could get here if the access token expired, so need to handle this case
-					// (possibly by redirecting to /login).
-					// TODO: handle with general need-to-login redirect when implemented.
-					console.error("Error getting existing authorizations:", error);
-					throw error;
 				}
 			)
 			.then(
 				response => {
-					debugger;
 					return { userHasWriteAccess: true };
-				},
-				error => {
-					console.error("Error adding write access:", error);
-					throw error;
 				}
 			)
 			.catch(error => {
 				// fail loudly if the application errors further down the promise chain.
+				this.handleError(error);
 				throw error;
 			});
 
@@ -840,6 +833,21 @@ export default function (store, transport) {
 			if (token) headers.append('Authorization', `token ${ token }`);
 
 			return { headers };
+
+		},
+
+		handleError (error) {
+
+			if (!error || !error.message) return;
+
+			// If we've hit a rate limit, throw up the info modal and login CTA.
+
+			if (~error.message.indexOf('401')) {
+				// If 401 Unauthorized, assume the stored OAuth access token is stale.
+				// Dump the token and refresh.
+				auth.logout();
+				window.location.reload(true);
+			}
 
 		}
 
