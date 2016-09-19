@@ -83,7 +83,7 @@ export default class LoginModal extends React.Component {
 				overlayClassName='login-modal-overlay'
 			>
 				<div>
-					{/* <h2>{ title }</h2> */}
+					{ title ? <h2>{ title }</h2> : null }
 					<p className='modal-desc' dangerouslySetInnerHTML={ { __html: message } }></p>
 					<div className='button login' onClick={ () => this.closeModal(true) }>Log in / Sign up</div>
 					<div className='button cancel' onClick={ () => this.closeModal(false) }>Continue</div>

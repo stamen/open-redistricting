@@ -20,12 +20,18 @@ class HomePage extends React.Component {
 
 		this.state = {
 			loginModalIsOpen: false,
+			rateLimitModalIsOpen: false,
 			addProjectModalIsOpen: false
 		};
 
 	}
 
 	componentWillMount () {
+
+		if (~window.location.search.indexOf('rateLimit')) {
+			this.setState({ rateLimitModalIsOpen: true });
+			return;
+		}
 
 		this.props.actions.requestProjectList();
 
@@ -107,52 +113,69 @@ class HomePage extends React.Component {
 		const storeState = this.props.store.getState(),
 			projectList = storeState.projectList && storeState.projectList.data || [];
 
+		if (this.state.rateLimitModalIsOpen) {
+			return this.renderRateLimitModal();
+		} else {
+
+			return (
+				<div className='home-page page'>
+					<h2 className='section-title'>All Projects</h2>
+					<ul className='section recent-projects'>
+						{ projectList.map(project => {
+							return <li key={ project.id }>
+								<ProjectThumb
+									{ ...project }
+									mapPath={ `https://raw.githubusercontent.com/${ githubOrgName }/${ project.name }/master/${ mapFilename }` }
+									fetchJSON={ this.props.actions.fetchJSON }
+								/>
+							</li>;
+						}) }
+						{ storeState.viewer.isMember ? 
+							<li key='add-project'>
+								<div className='add-project' onClick={ this.openAddProjectModal }>
+									<span className='plus'>+</span>add project
+								</div>
+							</li>
+							: null
+						}
+					</ul>
+					<AddItemModal
+						type='project'
+						desc='Create a new Open Redistricting project. A project contains a single district map, and one or more proposals to revise it.'
+						isOpen={ this.state.addProjectModalIsOpen }
+						onClose={ this.onAddProjectModalClose }
+						className='add-item-modal'
+					/>
+					<LoginModal
+						message={
+							`This is Open Redistricting, a project that allows the public to participate in the state’s legislative redistricting process.<br>
+							<br>
+							Here you can review existing district maps, changes proposed to those districts, comment publicly about district boundaries and proposed changes, and make your own proposed modifications to districts.<br>
+							<br>
+							To participate fully on Open Redistricting, log in or sign up with GitHub below or at anytime via the link at the top of the page.<br>
+							<br>
+							<br>
+							<br>
+							<span style="font-weight: bold;">Note: </span><span style="font-style:italic">The site is currently in sandbox mode, and the projects here are not actual redistricting efforts.</span>`
+						}
+						buttonLabel='Log in / Sign up'
+						isOpen={ this.state.loginModalIsOpen }
+						onClose={ this.onLoginModalClose }
+					/>
+				</div>
+			);
+
+		}
+
+	}
+
+	renderRateLimitModal () {
+
 		return (
-			<div className='home-page page'>
-				<h2 className='section-title'>All Projects</h2>
-				<ul className='section recent-projects'>
-					{ projectList.map(project => {
-						return <li key={ project.id }>
-							<ProjectThumb
-								{ ...project }
-								mapPath={ `https://raw.githubusercontent.com/${ githubOrgName }/${ project.name }/master/${ mapFilename }` }
-								fetchJSON={ this.props.actions.fetchJSON }
-							/>
-						</li>;
-					}) }
-					{ storeState.viewer.isMember ? 
-						<li key='add-project'>
-							<div className='add-project' onClick={ this.openAddProjectModal }>
-								<span className='plus'>+</span>add project
-							</div>
-						</li>
-						: null
-					}
-				</ul>
-				<AddItemModal
-					type='project'
-					desc='Create a new Open Redistricting project. A project contains a single district map, and one or more proposals to revise it.'
-					isOpen={ this.state.addProjectModalIsOpen }
-					onClose={ this.onAddProjectModalClose }
-					className='add-item-modal'
-				/>
-				<LoginModal
-					title='Welcome'
-					message={
-						`This is Open Redistricting, a project that allows the public to participate in the state’s legislative redistricting process.<br>
-						<br>
-						Here you can review existing district maps, changes proposed to those districts, comment publicly about district boundaries and proposed changes, and make your own proposed modifications to districts.<br>
-						<br>
-						To participate fully on Open Redistricting, log in or sign up with GitHub below or at anytime via the link at the top of the page.<br>
-						<br>
-						<br>
-						<br>
-						<span style="font-weight: bold;">Note: </span><span style="font-style:italic">The site is currently in sandbox mode, and the projects here are not actual redistricting efforts.</span>`
-					}
-					buttonLabel='Log in / Sign up'
-					isOpen={ this.state.loginModalIsOpen }
-					onClose={ this.onLoginModalClose }
-				/>
+			<div className='rate-limit-message'>
+				<h2>Sorry!</h2>
+				<p>In order to continue, you must either log in / sign up, or wait one hour. Unfortunately, our back end (GitHub) imposes a rate limit on unauthenticated API calls.</p>
+				<div className='button login' onClick={ () => auth.authorize(null, [ 'public_repo' ]) }>Log in / Sign up</div>
 			</div>
 		);
 

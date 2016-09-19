@@ -840,13 +840,23 @@ export default function (store, transport) {
 
 			if (!error || !error.message) return;
 
-			// If we've hit a rate limit, throw up the info modal and login CTA.
-
 			if (~error.message.indexOf('401')) {
+
 				// If 401 Unauthorized, assume the stored OAuth access token is stale.
 				// Dump the token and refresh.
 				auth.logout();
 				window.location.reload(true);
+
+			} else if (~error.message.indexOf('403')) {
+
+				if (~error.message.indexOf('rate limit')) {
+					// If we've hit a rate limit, throw up the info modal and login CTA.
+					// (As long as we're not already handling this case!)
+					if (!window.location.search || window.location.search.indexOf('rateLimit') === -1) {
+						window.location = window.location.origin + window.location.pathname + '?rateLimit=true';
+					}
+				}
+
 			}
 
 		}

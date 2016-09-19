@@ -46,3 +46,21 @@
 		}
 	}
 }
+
+.rate-limit-message {
+	padding: 2rem 20%;
+
+	.button {
+		width: 50%;
+		margin: 2rem auto;
+		padding: 1rem 2rem;
+
+		color: $background-color;
+		background-color: $text-link-color;
+		font-size: 1.5rem;
+		text-align: center;
+
+		border-radius: 10px;
+		cursor: pointer;
+	}
+}
