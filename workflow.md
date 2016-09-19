@@ -126,4 +126,7 @@ Once you have collected sufficient feedback and have iterated your proposal to t
 - [MapShaper](http://www.mapshaper.org/): Shapefile converter
 - [JSTS](https://github.com/bjornharrtell/jsts) JavaScript port of [JTS](https://github.com/dr-jts/jts), used for geo-diffing on Open Redistricting
 - [TopoJSON.io](https://bl.ocks.org/enjalot/fe2a8ee0ad59a58ce295f035419d9e63) TopoJSON viewer
-- 
+
+## Basic assumptions of the Open Redistricting project
+
+See [this issue](https://github.com/stamen/usopendata/issues/8) for a list of assumptions fundamental to the project in its current form (as of initial launch in September 2016).
