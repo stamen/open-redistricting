@@ -1,0 +1,61 @@
+//
+// TODO: DRY this out, it's largely add-item-modal copypasta
+//
+ 
+$modal-padding: 2rem;
+.login-modal {
+	position: absolute;
+	left: 30%;
+	right: 30%;
+	top: 20%;
+	bottom: 40%;
+	min-height: 25rem;
+
+	padding: $modal-padding;
+	background-color: $background-color;
+    border: 1px solid $form-background-color;
+
+    overflow: auto;
+    -webkit-overflow-scrolling: auto;
+    outline: none;
+
+    h2 {
+    	margin-top: 0.5rem;
+    }
+
+    .modal-desc {
+    	margin-bottom: $modal-padding;
+    }
+
+	.button {
+		width: 50%;
+		margin: 2 * $modal-padding auto 0 auto;
+		padding: 1rem $modal-padding;
+
+		background-color: $form-background-color;
+		font-size: 1.5rem;
+		text-align: center;
+
+		border-radius: 10px;
+		cursor: pointer;
+	}
+
+	.cancel {
+		margin-top: 1rem;
+		font-size: 1rem;
+	}
+
+	.login {
+		color: $background-color;
+		background-color: $text-link-color;
+	}
+}
+
+.login-modal-overlay {
+	position: fixed;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+}

@@ -41,7 +41,7 @@ class Header extends React.Component {
 				<div className='login-options'>
 					{ auth.loggedIn() ? 
 						<div onClick={ this.logout }>Log out</div> :
-						<div onClick={ this.login }>Login / Signup</div>
+						<div onClick={ this.login }>Log in / Sign up</div>
 					}
 				</div>
 			</div>

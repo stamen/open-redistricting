@@ -28,7 +28,6 @@ $modal-padding: 1rem;
 		width: 10rem;
 		padding: 0.5rem;
 
-		color: $background-color;
 		background-color: $form-background-color;
 		border-radius: 10px;
 		text-align: center;
@@ -47,6 +46,7 @@ $modal-padding: 1rem;
 
 	.confirm {
 		margin-left: 1rem;
+		color: $background-color;
 		background-color: $text-link-color;
 
 		&.disabled {

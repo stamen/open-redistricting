@@ -2,7 +2,9 @@ import React from 'react';
 import { withRouter } from 'react-router';
 
 import { githubOrgName, mapFilename } from '../../static/appConfig.json';
+import auth from '../models/auth';
 import ProjectThumb from '../components/ProjectThumb.jsx';
+import LoginModal from '../components/LoginModal.jsx';
 import AddItemModal from '../components/AddItemModal.jsx';
 
 class HomePage extends React.Component {
@@ -11,10 +13,15 @@ class HomePage extends React.Component {
 
 		super(props);
 
-		this.openModal = this.openModal.bind(this);
-		this.onModalClose = this.onModalClose.bind(this);
+		this.openLoginModal = this.openLoginModal.bind(this);
+		this.onLoginModalClose = this.onLoginModalClose.bind(this);
+		this.openAddProjectModal = this.openAddProjectModal.bind(this);
+		this.onAddProjectModalClose = this.onAddProjectModalClose.bind(this);
 
-		this.state = {};
+		this.state = {
+			loginModalIsOpen: false,
+			addProjectModalIsOpen: false
+		};
 
 	}
 
@@ -25,6 +32,16 @@ class HomePage extends React.Component {
 		let { viewer } = this.props.store.getState();
 		if (typeof(viewer.isMember === 'undefined') && !viewer.loading) {
 			this.props.actions.getViewer();
+		}
+
+		// If first time visiting site this session,
+		// and not logged in, display intro + login CTA
+		let sessionStorage = window.sessionStorage;
+		if (!auth.loggedIn() && (!sessionStorage || !sessionStorage['has-viewed-intro'])) {
+			if (sessionStorage) window.sessionStorage['has-viewed-intro'] = true;
+			window.setTimeout(() => {
+				this.setState({ loginModalIsOpen: true });
+			}, 1000);
 		}
 
 	}
@@ -38,21 +55,36 @@ class HomePage extends React.Component {
 			// new store state coming in with just-created project,
 			// so close the modal
 			delete this.previousNumProjects;
-			this.setState({ modalIsOpen: false });
+			this.setState({ addProjectModalIsOpen: false });
 		}
 
 	}
 
-	openModal () {
+	openLoginModal () {
 
-		this.setState({ modalIsOpen: true });
+		this.setState({ loginModalIsOpen: true });
 
 	}
 
-	onModalClose (values) {
+	onLoginModalClose (confirmed) {
+
+		this.setState({ loginModalIsOpen: false });
+		if (confirmed) {
+			auth.authorize(this.props.location.pathname);
+		}
+
+	}
+
+	openAddProjectModal () {
+
+		this.setState({ addProjectModalIsOpen: true });
+
+	}
+
+	onAddProjectModalClose (values) {
 
 		if (!values) {
-			this.setState({ modalIsOpen: false });
+			this.setState({ addProjectModalIsOpen: false });
 		} else {
 
 			const storeState = this.props.store.getState(),
@@ -90,7 +122,7 @@ class HomePage extends React.Component {
 					}) }
 					{ storeState.viewer.isMember ? 
 						<li key='add-project'>
-							<div className='add-project' onClick={ this.openModal }>
+							<div className='add-project' onClick={ this.openAddProjectModal }>
 								<span className='plus'>+</span>add project
 							</div>
 						</li>
@@ -100,9 +132,26 @@ class HomePage extends React.Component {
 				<AddItemModal
 					type='project'
 					desc='Create a new Open Redistricting project. A project contains a single district map, and one or more proposals to revise it.'
-					isOpen={ this.state.modalIsOpen }
-					onClose={ this.onModalClose }
+					isOpen={ this.state.addProjectModalIsOpen }
+					onClose={ this.onAddProjectModalClose }
 					className='add-item-modal'
+				/>
+				<LoginModal
+					title='Welcome'
+					message={
+						`This is Open Redistricting, a project that allows the public to participate in the state’s legislative redistricting process.<br>
+						<br>
+						Here you can review existing district maps, changes proposed to those districts, comment publicly about district boundaries and proposed changes, and make your own proposed modifications to districts.<br>
+						<br>
+						To participate fully on Open Redistricting, log in or sign up with GitHub below or at anytime via the link at the top of the page.<br>
+						<br>
+						<br>
+						<br>
+						<span style="font-weight: bold;">Note: </span><span style="font-style:italic">The site is currently in sandbox mode, and the projects here are not actual redistricting efforts.</span>`
+					}
+					buttonLabel='Log in / Sign up'
+					isOpen={ this.state.loginModalIsOpen }
+					onClose={ this.onLoginModalClose }
 				/>
 			</div>
 		);
