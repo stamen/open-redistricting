@@ -121,6 +121,9 @@ Once you have collected sufficient feedback and have iterated your proposal to t
 - [GitHub Desktop client](https://desktop.github.com/)
 - [MapBox's GeoJSON Hint](https://www.mapbox.com/geojsonhint/): GeoJSON validator
 - [GeoJSON.io](http://geojson.io/): GeoJSON web viewer
-- TODO: add tools for generating district maps
-- TODO: add tools for generating geojson from other formats
-
+- [How to convert shapefiles to geojson](http://ben.balter.com/2013/06/26/how-to-convert-shapefiles-to-geojson-for-use-on-github/)
+- [Ogre](https://ogre.adc4gis.com/): Shapefile converter
+- [MapShaper](http://www.mapshaper.org/): Shapefile converter
+- [JSTS](https://github.com/bjornharrtell/jsts) JavaScript port of [JTS](https://github.com/dr-jts/jts), used for geo-diffing on Open Redistricting
+- [TopoJSON.io](https://bl.ocks.org/enjalot/fe2a8ee0ad59a58ce295f035419d9e63) TopoJSON viewer
+- 
