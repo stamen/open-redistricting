@@ -70,7 +70,7 @@ class HomePage extends React.Component {
 
 		this.setState({ loginModalIsOpen: false });
 		if (confirmed) {
-			auth.authorize(this.props.location.pathname);
+			auth.authorize(this.props.location.pathname, [ 'public_repo' ]);
 		}
 
 	}

@@ -20,7 +20,7 @@ class Header extends React.Component {
 
 	login () {
 
-		auth.authorize(this.props.location.pathname);
+		auth.authorize(this.props.location.pathname, [ 'public_repo' ]);
 
 	}
 

@@ -326,6 +326,7 @@ export default function (store, transport) {
 					store.dispatch({
 						type: VIEWER_INFO_RESPONDED,
 						payload: {
+							...user,
 							isSignedIn: true,
 							isMember: false
 						}
