@@ -32,7 +32,7 @@ We now have a working repository in place. We'll use this to store proposals in 
 
 Create your district map with the tool of your choice, and export it as a `.geojson` file.
 
-_TODO: examples of using ESRI/other industry-standard tools to output geojson_
+[Look here](https://github.com/stamen/usopendata/issues/3) for a partial list of examples of using ESRI or other industry-standard tools to output geojson.
 
 Note: if you've made any changes by hand, you might want to validate the `.geojson` file with a tool like [MapBox's GeoJSON Hint](https://www.mapbox.com/geojsonhint/) or [GeoJSONLint](http://geojsonlint.com/). Invalid GeoJSON will prevent the next steps from working correctly.
 
