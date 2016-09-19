@@ -28,7 +28,7 @@ class ProjectPage extends React.Component {
 		this.props.actions.requestProject(this.props.params.projectId);
 
 		let { viewer } = this.props.store.getState();
-		if (typeof(viewer.isSignedIn === 'undefined') && !viewer.loading) {
+		if (typeof(viewer.isMember === 'undefined') && !viewer.loading) {
 			this.props.actions.getViewer();
 		}
 
@@ -109,7 +109,7 @@ class ProjectPage extends React.Component {
 								</li>
 							);
 						}) }
-						{ storeState.viewer.isSignedIn ? 
+						{ storeState.viewer.isMember ? 
 							<li key='add-project'>
 								<div className='add-project' onClick={ this.openModal }>
 									<span className='plus'>+</span>add proposal
@@ -126,7 +126,7 @@ class ProjectPage extends React.Component {
 					<div>
 						No proposals created yet.
 						<ul>
-							{ storeState.viewer.isSignedIn ? 
+							{ storeState.viewer.isMember ? 
 								<li key='add-project'>
 									<div className='add-project' onClick={ this.openModal }>
 										<span className='plus'>+</span>add proposal
