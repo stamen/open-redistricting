@@ -551,6 +551,7 @@ export default function (store, transport) {
 				store.dispatch({
 					type: CREATE_PROPOSAL_RESPONDED,
 					meta: {
+						projectKey,
 						proposalKey
 					},
 					payload: response
@@ -564,7 +565,6 @@ export default function (store, transport) {
 				
 				store.dispatch({
 					type: CREATE_PROPOSAL_RESPONDED,
-					meta: { proposalKey },
 					error: error
 				});
 				throw error;

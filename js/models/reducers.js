@@ -1,7 +1,7 @@
 import { LOCATION_CHANGE } from 'react-router-redux';
+import get from 'lodash.get';
 
 import * as actions from './actions';
-// import appConfig from '../static/appConfig.json';
 
 let reduced = {
 
@@ -79,7 +79,7 @@ let reduced = {
 
 			case actions.CREATE_PROPOSAL_REQUESTED:
 			case actions.CREATE_PROPOSAL_RESPONDED:
-				if (!action.meta || !action.meta.projectKey) return { ...state };
+				if (!get(action, 'meta.projectKey')) return { ...state };
 				let existingProject = state[action.meta.projectKey];
 				if (!existingProject) return { ...state };
 
@@ -125,7 +125,7 @@ let reduced = {
 
 			case actions.CREATE_PROPOSAL_REQUESTED:
 			case actions.CREATE_PROPOSAL_RESPONDED:
-				if (!action.meta.proposalKey) return { ...state };
+				if (!get(action, 'meta.proposalKey')) return { ...state };
 				
 				return {
 					...state,
@@ -138,7 +138,7 @@ let reduced = {
 
 			case actions.CREATE_PROPOSAL_REVISION_REQUESTED:
 			case actions.CREATE_PROPOSAL_REVISION_RESPONDED:
-				if (!action.meta.proposalKey) return { ...state };
+				if (!get(action, 'meta.proposalKey')) return { ...state };
 				existingProposal = { ...state[action.meta.proposalKey] };
 				if (!existingProposal) return { ...state };
 
@@ -158,7 +158,7 @@ let reduced = {
 
 			case actions.CREATE_COMMENT_REQUESTED:
 			case actions.CREATE_COMMENT_RESPONDED:
-				if (!action.meta.proposalKey) return { ...state };
+				if (!get(action, 'meta.proposalKey')) return { ...state };
 				existingProposal = { ...state[action.meta.proposalKey] };
 				if (!existingProposal) return { ...state };
 
@@ -178,7 +178,7 @@ let reduced = {
 
 			case actions.CREATE_PROPOSAL_REACTION_REQUESTED:
 			case actions.CREATE_PROPOSAL_REACTION_RESPONDED:
-				if (!action.meta.proposalKey) return { ...state };
+				if (!get(action, 'meta.proposalKey')) return { ...state };
 				existingProposal = { ...state[action.meta.proposalKey] };
 				if (!existingProposal) return { ...state };
 
