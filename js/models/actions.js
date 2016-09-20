@@ -648,7 +648,7 @@ export default function (store, transport) {
 
 		},
 
-		createProposalRevision (description, base64MapFile, projectId, proposalId, proposal) {
+		createProposalRevision (description, base64MapFile, projectId, proposalId, viewerId, proposal) {
 
 			const proposalHeadSHA = proposal.commits[0].commit.tree.sha,
 				branchName = proposal.head.ref,
@@ -661,12 +661,15 @@ export default function (store, transport) {
 			});
 
 			// First, get the SHA of the map file at the head of this branch
-			let url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents/${ mapPath }?ref=${ branchName }`;
+			let url = `https://api.github.com/repos/${ viewerId }/${ projectId }/contents/?ref=${ branchName }`;
 			return transport.request(url, null, this.buildAuthHeader())
 			.then(response => {
 
+				let mapFileDescriptor = response.find(f => f.name === mapPath);
+				if (!mapFileDescriptor) throw new Error(`Map file "${ mapPath }" not present in ${ viewerId }/${ projectId }:${ branchName }`);
+				
 				// Then, commit the revised map file to this branch.
-				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents/${ mapPath }`;
+				url = `https://api.github.com/repos/${ viewerId }/${ projectId }/contents/${ mapPath }`;
 				return transport.request(url, null, {
 					...this.buildAuthHeader(),
 					method: 'PUT',
@@ -675,7 +678,7 @@ export default function (store, transport) {
 						message: description,
 						content: base64MapFile,
 						branch: branchName,
-						sha: response.sha
+						sha: mapFileDescriptor.sha
 					})
 				});
 

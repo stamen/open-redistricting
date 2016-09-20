@@ -111,7 +111,10 @@ class ProposalPage extends React.Component {
 			this.setState({ modalIsOpen: false });
 		} else {
 
-			const { proposal } = this.getStoreState();
+			const {
+				proposal,
+				viewer
+			} = this.getStoreState();
 			this.previousNumRevisions = proposal.commits.length;
 
 			let reader = new FileReader();
@@ -122,6 +125,7 @@ class ProposalPage extends React.Component {
 					fileBase64,
 					this.props.params.projectId,
 					this.props.params.proposalId,
+					get(viewer, 'login'),
 					proposal
 				);
 			});
@@ -302,8 +306,16 @@ class ProposalPage extends React.Component {
 
 	renderRevisions (revisions, currentRevisionSha) {
 
-		if (!revisions || !revisions.length || revisions.length <= 1) return null;
-		
+		if (!revisions || !revisions.length || revisions.length <= 1) {
+			return (
+				<li>
+					<div className='revision'>
+						<div className='desc'>No revisions yet.</div>
+					</div>
+				</li>
+			);
+		}
+
 		let isAfterCurrentRevision = false;
 
 		return revisions
