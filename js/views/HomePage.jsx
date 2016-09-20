@@ -33,6 +33,9 @@ class HomePage extends React.Component {
 			return;
 		}
 
+		// Don't fetch any data when rendering Auth route.
+		if (window.location.hash.slice(0, 6) === '#/auth') return;
+
 		this.props.actions.requestProjectList();
 
 		let { viewer } = this.props.store.getState();
