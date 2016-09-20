@@ -1,12 +1,22 @@
 $modal-padding: 1rem;
+$modal-padding-mobile: 0.5rem;
 .add-item-modal {
 	position: absolute;
-	left: 30%;
-	right: 30%;
-	top: 20%;
-	min-height: 25rem;
 
-	padding: $modal-padding;
+	left: 5%;
+	right: 5%;
+	top: 5%;
+	min-height: 25rem;
+	padding: $modal-padding-mobile;
+
+	@media (#{$bp-larger-than-mobile}) {
+		left: 30%;
+		right: 30%;
+		top: 20%;
+		min-height: 25rem;
+		padding: $modal-padding;
+	}
+
 	background-color: $background-color;
     border: 1px solid $form-background-color;
 
@@ -35,8 +45,13 @@ $modal-padding: 1rem;
 
 	.button-container {
 		position: absolute;
-		right: $modal-padding;
-		bottom: $modal-padding;
+		right: $modal-padding-mobile;
+		bottom: $modal-padding-mobile;
+
+		@media (#{$bp-larger-than-mobile}) {
+			right: $modal-padding;
+			bottom: $modal-padding;
+		}
 	}
 
 	.upload {
