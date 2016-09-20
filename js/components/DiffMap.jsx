@@ -67,7 +67,8 @@ class DiffMap extends React.Component {
 					unionP1,
 					unionP2,
 					diff,
-					intersection;
+					intersection,
+					startTime = performance.now();
 
 				try {
 
@@ -78,12 +79,16 @@ class DiffMap extends React.Component {
 						if (acc.factory) return acc.union(f.geometry);
 						return acc.geometry.union(f.geometry);
 					});
+					console.info(`union one complete in ${ ((performance.now() - startTime) / 1000).toFixed(3) }s`);
+					startTime = performance.now();
 
 					unionP2 = p2.features.reduce((acc, f, i) => {
 						if (i === 0) return f.geometry;
 						if (acc.factory) return acc.union(f.geometry);
 						return acc.geometry.union(f.geometry);
 					});
+					console.info(`union two complete in ${ ((performance.now() - startTime) / 1000).toFixed(3) }s`);
+					startTime = performance.now();
 
 				} catch (error) {
 					throw new Error(`Could not parse GeoJSON from ${ path1 } and ${ path2 }: ${ error.message }`);
@@ -98,12 +103,16 @@ class DiffMap extends React.Component {
 						properties: {},
 						geometry: new jsts.io.GeoJSONWriter().write(unionP1.symDifference(unionP2))
 					};
+					console.info(`diff complete in ${ ((performance.now() - startTime) / 1000).toFixed(3) }s`);
+					startTime = performance.now();
 
 					intersection = {
 						type: 'Feature',
 						properties: {},
 						geometry: new jsts.io.GeoJSONWriter().write(unionP1.intersection(unionP2))
 					};
+					console.info(`intersection complete in ${ ((performance.now() - startTime) / 1000).toFixed(3) }s`);
+					startTime = performance.now();
 
 				} catch (error) {
 					throw new Error(`Could not calculate diff from ${ path1 } and ${ path2 }: ${ error.message }`);
@@ -163,6 +172,13 @@ class DiffMap extends React.Component {
 				</div>
 			);
 
+		} else {
+
+			body = (
+				<div className='is-processing'>
+					Processing...
+				</div>
+			);
 		}
 
 		return (
