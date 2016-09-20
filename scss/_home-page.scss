@@ -51,7 +51,10 @@
 	padding: 2rem 20%;
 
 	.button {
-		width: 50%;
+		width: 80%;
+		@media (#{$bp-larger-than-mobile}) {
+			width: 50%;
+		}
 		margin: 2rem auto;
 		padding: 1rem 2rem;
 

@@ -12,6 +12,10 @@ $form-background-color: #f2f2f2;
 
 // layout
 $page-horiz-padding: 6rem;
+$page-horiz-padding-mobile: 1rem;
 $horiz-spacing: 1rem;
 $thumb-width: 20rem;
 $thumb-height: 11.25rem;
+
+// responsive
+$bp-larger-than-mobile: 'min-width: 768px';

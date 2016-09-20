@@ -44,13 +44,21 @@ a:active {
 
 #app {
 	position: relative;
-	margin: 1rem auto;
+	margin: 0 auto;
 	max-width: 80rem;
 
 	color: $text-color;
 	background-color: $app-background-color;
+
+	@media (#{$bp-larger-than-mobile}) {
+		margin: 1rem auto;
+	}
 }
 
 .page {
-	padding: 0 $page-horiz-padding;
+	padding: 0 $page-horiz-padding-mobile;
+
+	@media (#{$bp-larger-than-mobile}) {
+		padding: 0 $page-horiz-padding;
+	}
 }

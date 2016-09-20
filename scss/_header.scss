@@ -7,9 +7,14 @@
 	align-items: baseline;
 
 	width: 100%;
-	margin-top: 3rem;
-	padding: 0 $page-horiz-padding;
+	margin-top: 1rem;
+	padding: 0 $page-horiz-padding-mobile;
 	background-color: $background-color;
+
+	@media (#{$bp-larger-than-mobile}) {
+		margin-top: 3rem;
+		padding: 0 $page-horiz-padding;
+	}
 
 	h1 {
 		margin: 0;
