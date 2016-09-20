@@ -64,6 +64,8 @@ class DiffMap extends React.Component {
 				let reader = new jsts.io.GeoJSONReader(),
 					p1 = reader.read(responses[0]),
 					p2 = reader.read(responses[1]),
+					unionP1,
+					unionP2,
 					diff,
 					intersection;
 
@@ -71,15 +73,15 @@ class DiffMap extends React.Component {
 
 					// TODO: this unioning seems necessary to perform JSTS operations between the two GeoJSON objects,
 					// but causes boundaries between features to be erased. Find a better solution.
-					p1 = p1.features.reduce((acc, f, i) => {
+					unionP1 = p1.features.reduce((acc, f, i) => {
 						if (i === 0) return f.geometry;
-						if (acc.geometries) return acc.union(f.geometry);
+						if (acc.factory) return acc.union(f.geometry);
 						return acc.geometry.union(f.geometry);
 					});
 
-					p2 = p2.features.reduce((acc, f, i) => {
+					unionP2 = p2.features.reduce((acc, f, i) => {
 						if (i === 0) return f.geometry;
-						if (acc.geometries) return acc.union(f.geometry);
+						if (acc.factory) return acc.union(f.geometry);
 						return acc.geometry.union(f.geometry);
 					});
 
@@ -94,13 +96,13 @@ class DiffMap extends React.Component {
 					diff = {
 						type: 'Feature',
 						properties: {},
-						geometry: new jsts.io.GeoJSONWriter().write(p1.symDifference(p2))
+						geometry: new jsts.io.GeoJSONWriter().write(unionP1.symDifference(unionP2))
 					};
 
 					intersection = {
 						type: 'Feature',
 						properties: {},
-						geometry: new jsts.io.GeoJSONWriter().write(p1.intersection(p2))
+						geometry: new jsts.io.GeoJSONWriter().write(unionP1.intersection(unionP2))
 					};
 
 				} catch (error) {
@@ -109,6 +111,8 @@ class DiffMap extends React.Component {
 
 				this.setState({
 					diffError: null,
+					base: p1,
+					head: p2,
 					diff,
 					intersection
 				});
@@ -130,6 +134,8 @@ class DiffMap extends React.Component {
 	}
 
 	render () {
+
+		// TODO: render base/head as necessary to display original, non-unioned feature boundaries
 
 		let body = '';
 
