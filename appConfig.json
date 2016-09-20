@@ -11,7 +11,7 @@
 		},
 		prod: {
 			githubAPIClientId: "b59bd6802b8a36f7613d",
-			redirectURL: "https://openredist.org/",
+			redirectURL: "http://openredist.org/",
 			gatekeeperAccessTokenURL: "https://open-redistricting-auth-prod.herokuapp.com/authenticate/",
 			tokenName: "github-auth"
 		}
