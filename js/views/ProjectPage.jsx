@@ -62,14 +62,18 @@ class ProjectPage extends React.Component {
 		} else {
 
 			const storeState = this.props.store.getState(),
-				project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)];
+				project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)],
+				viewerId = get(storeState, 'viewer.login');
+
+			if (!project || !viewerId) return;
+
 			let proposals = get(project, 'proposals') || {};
 			this.previousNumProposals = Object.keys(proposals).length;
 
 			let reader = new FileReader();
 			reader.addEventListener('load', event => {
 				let fileBase64 = reader.result.split(',')[1];
-				this.props.actions.createProposal(values.name, values.desc, fileBase64, this.props.params.projectId);
+				this.props.actions.createProposal(values.name, values.desc, fileBase64, this.props.params.projectId, viewerId);
 			});
 			reader.readAsDataURL(values.file);
 

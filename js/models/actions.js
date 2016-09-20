@@ -358,7 +358,7 @@ export default function (store, transport) {
 		// ================================================
 
 		/**
-		 * Three steps to creating a new project (repository):
+		 * Steps to creating a new project (repository):
 		 * 1. Create a new repository in the open-redist org
 		 * 2. Commit a README file containing the project description
 		 * 3. Commit a .geojson map
@@ -456,7 +456,7 @@ export default function (store, transport) {
 		},
 
 		/**
-		 * Three steps to creating a new proposal (pull request):
+		 * Steps to creating a new proposal (pull request):
 		 * 1. Get the SHA of `master`
 		 * 2. Get the blob SHA for master/map.geojson
 		 * 3. Create a new branch from `master`
@@ -467,9 +467,108 @@ export default function (store, transport) {
 		 * @param  {String} description   Text description of the project
 		 * @param  {String} base64MapFile Base64-encoded .geojson file
 		 * @param  {String} projectId     Project id for which to add a proposal
+		 * @param  {String} viewerId      id of the current user
 		 */
-		createProposal (name, description, base64MapFile, projectId) {
+		createProposal (name, description, base64MapFile, projectId, viewerId) {
 
+			// 1a. Get the forks of the project /repos/:owner/:repo/forks and check if the current user has already forked this repo
+			// 1b. If not, create a fork. /repos/:owner/:repo/forks Since forks are created asynchronously, have to poll until it's ready.
+			// Once the fork is available:
+			// 2. Get the SHA of the fork/`master`
+			// 3. Get the blob SHA for fork/master/map.geojson
+			// 4. Create a new branch from fork/`master`
+			// 5. Commit the updated .geojson map
+			// 6. Create a pull request back to the `open-redist` repo with the specified name and description (For cross-repository pull requests in the same network, namespace head with a user like this: username:branch.)
+
+			let branchName = slug(name).toLowerCase(),
+				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/forks`,
+				masterSHA,
+				mapBlobSHA;
+
+			const projectKey = deriveProjectId(githubOrgName, projectId),
+				mapCommitMessage = `Update geojson map for new proposal ${ branchName }`,
+				mapPath = appConfig.mapFilename;
+
+			store.dispatch({
+				type: CREATE_PROPOSAL_REQUESTED
+			});
+
+			// 1. Get the existing forks of the project
+			return transport.request(url, null, this.buildAuthHeader())
+			.then(response => {
+
+				// Check if the current user has already forked this repo
+				let existingFork = response.find(f => f.owner.login === viewerId);
+				if (existingFork) {
+					// 1a. If a fork already exists, proceed.
+					return Promise.resolve(response);
+				} else {
+					// 1b. If not, create a fork.
+					return transport.request(url, null, {
+						...this.buildAuthHeader(),
+						method: 'POST'
+					});
+				}
+			})
+			.then(response => {
+
+				url = `https://api.github.com/repos/${ viewerId }/${ projectId }/git/refs/heads`;
+				let getMasterSHA = () => {
+					return transport.request(url, null, this.buildAuthHeader())
+					.then(
+						rsp => {
+							debugger;
+							let master = rsp.find(r => r.ref === 'refs/heads/master');
+							if (!master) throw new Error('No `master` ref returned.');
+							masterSHA = master.object.sha;
+							return Promise.resolve(rsp);
+						},
+						err => {
+							debugger;
+							// New fork is not yet ready.
+							// Poll until it is, and return Promise that resolves with the response.
+							return new Promise((resolve, reject) => {
+								setTimeout(() => {
+									getMasterSHA()
+									.then(
+										rsp => resolve(rsp),
+										err => reject(err)
+									);
+								}, 1000)
+							});
+						}
+					);
+				}
+
+				return getMasterSHA();
+
+			})
+			.then(response => {
+
+				debugger;
+				console.log(">>>>> Fork available! response:", response);
+
+			})
+			.catch(error => {
+
+				this.handleError(error);
+				store.dispatch({
+					type: CREATE_PROPOSAL_RESPONDED,
+					error: error
+				});
+				throw error;
+
+			});
+
+
+
+			//
+			//
+			return;
+			//
+			//
+
+			/*
 			let branchName = slug(name).toLowerCase(),
 				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/git/refs/heads`,
 				masterSHA,
@@ -572,6 +671,7 @@ export default function (store, transport) {
 				throw error;
 
 			});
+			*/
 
 		},
 
