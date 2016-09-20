@@ -50,6 +50,21 @@ export default class LoginModal extends React.Component {
 
 	}
 
+	componentDidUpdate () {
+
+		if (this.overlayClickHandlerInited || !this.state.isOpen) return;
+
+		// Give modal overlay time to open
+		setTimeout(() => {
+			let overlay = document.querySelector('.login-modal-overlay');
+			if (!overlay) return;
+
+			overlay.addEventListener('click', () => this.closeModal(false));
+			this.overlayClickHandlerInited = true;
+		}, 100);
+
+	}
+
 	onKeyDown (event) {
 
 		switch (event.keyCode) {

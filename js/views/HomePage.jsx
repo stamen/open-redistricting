@@ -45,7 +45,7 @@ class HomePage extends React.Component {
 
 		// If first time visiting site this session,
 		// and not logged in, display intro + login CTA
-		let sessionStorage = window.sessionStorage;
+		// let sessionStorage = window.sessionStorage;
 		if (!auth.loggedIn() && (!sessionStorage || !sessionStorage['has-viewed-intro'])) {
 			if (sessionStorage) window.sessionStorage['has-viewed-intro'] = true;
 			window.setTimeout(() => {
@@ -156,9 +156,7 @@ class HomePage extends React.Component {
 							Here you can review existing district maps, changes proposed to those districts, comment publicly about district boundaries and proposed changes, and make your own proposed modifications to districts.<br>
 							<br>
 							To participate fully on Open Redistricting, log in or sign up with GitHub below or at anytime via the link at the top of the page.<br>
-							<br>
-							<br>
-							<br>
+							<div class="note-spacer"></div>
 							<span style="font-weight: bold;">Note: </span><span style="font-style:italic">The site is currently in sandbox mode, and the projects here are not actual redistricting efforts.</span>`
 						}
 						buttonLabel='Log in / Sign up'
