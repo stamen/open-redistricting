@@ -302,6 +302,8 @@ class ProposalPage extends React.Component {
 
 	renderRevisions (revisions, currentRevisionSha) {
 
+		if (!revisions || !revisions.length || revisions.length <= 1) return null;
+		
 		let isAfterCurrentRevision = false;
 
 		return revisions

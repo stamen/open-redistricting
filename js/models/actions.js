@@ -473,12 +473,11 @@ export default function (store, transport) {
 
 			// 1a. Get the forks of the project /repos/:owner/:repo/forks and check if the current user has already forked this repo
 			// 1b. If not, create a fork. /repos/:owner/:repo/forks Since forks are created asynchronously, have to poll until it's ready.
-			// Once the fork is available:
-			// 2. Get the SHA of the fork/`master`
+			// 2. Get a reference to the HEAD of master on the new fork once it is available
 			// 3. Get the blob SHA for fork/master/map.geojson
 			// 4. Create a new branch from fork/`master`
 			// 5. Commit the updated .geojson map
-			// 6. Create a pull request back to the `open-redist` repo with the specified name and description (For cross-repository pull requests in the same network, namespace head with a user like this: username:branch.)
+			// 6. Create a pull request back to the `open-redist` repo with the specified name and description
 
 			let branchName = slug(name).toLowerCase(),
 				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/forks`,
@@ -512,96 +511,71 @@ export default function (store, transport) {
 			})
 			.then(response => {
 
+				// 2. Get a reference to the HEAD of master on the new fork.
+				// Creating a fork runs as an asynchronous task on the backend,
+				// so the ref may not be available immediately.
+				// In that case, we poll for a valid ref and proceed once it is available.
+				
+				const startTime = new Date().getTime(),
+					POLL_INTERVAL = 5000,
+					MINUTES_TO_WAIT = 1;
+
+				// TODO: this code could probably use a once-over by a Promise Master.
+				// I am but a lowly Promise Acolyte.
 				url = `https://api.github.com/repos/${ viewerId }/${ projectId }/git/refs/heads`;
-				let getMasterSHA = () => {
-					return transport.request(url, null, this.buildAuthHeader())
-					.then(
-						rsp => {
-							debugger;
-							let master = rsp.find(r => r.ref === 'refs/heads/master');
-							if (!master) throw new Error('No `master` ref returned.');
-							masterSHA = master.object.sha;
-							return Promise.resolve(rsp);
-						},
-						err => {
-							debugger;
-							// New fork is not yet ready.
-							// Poll until it is, and return Promise that resolves with the response.
-							return new Promise((resolve, reject) => {
-								setTimeout(() => {
-									getMasterSHA()
-									.then(
-										rsp => resolve(rsp),
-										err => reject(err)
-									);
-								}, 1000)
-							});
-						}
-					);
+				let getMasterHeadRef = () => {
+					return new Promise((resolve, reject) => {
+
+						transport.request(url, null, this.buildAuthHeader())
+						.then(
+							rsp => {
+								resolve(rsp);
+							},
+							err => {
+								// New fork is not yet ready.
+								// Poll until it is, and resolve with a Promise that will resolve with the response.
+								// However, if we've waited too long, reject.
+								if (new Date().getTime() - startTime > MINUTES_TO_WAIT * 60 * 1000) {
+									reject(new Error(`Creation of new fork timed out after ${ MINUTES_TO_WAIT } minutes.`));
+								} else {
+									resolve(new Promise((res, rej) => {
+										setTimeout(() => {
+											getMasterHeadRef()
+											.then(
+												rsp => res(rsp),
+												err => rej(err)
+											);
+										}, POLL_INTERVAL)
+									}));
+								}
+							}
+						);
+
+					});
 				}
 
-				return getMasterSHA();
+				return getMasterHeadRef();
 
 			})
 			.then(response => {
 
-				debugger;
-				console.log(">>>>> Fork available! response:", response);
-
-			})
-			.catch(error => {
-
-				this.handleError(error);
-				store.dispatch({
-					type: CREATE_PROPOSAL_RESPONDED,
-					error: error
-				});
-				throw error;
-
-			});
-
-
-
-			//
-			//
-			return;
-			//
-			//
-
-			/*
-			let branchName = slug(name).toLowerCase(),
-				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/git/refs/heads`,
-				masterSHA,
-				mapBlobSHA;
-
-			const projectKey = deriveProjectId(githubOrgName, projectId),
-				mapCommitMessage = `Update geojson map for new proposal ${ branchName }`,
-				mapPath = appConfig.mapFilename;
-
-			store.dispatch({
-				type: CREATE_PROPOSAL_REQUESTED
-			});
-
-			// 1. Get the SHA of `master`
-			return transport.request(url, null, this.buildAuthHeader())
-			.then(response => {
-
-				// 2. Get the blob SHA for master/map.geojson
+				// 3. Store the SHA for master on the new fork and 
+				// get the blob SHA for master/map.geojson on the new fork
 				let master = response.find(r => r.ref === 'refs/heads/master');
 				if (!master) throw new Error('No `master` ref returned.');
 				masterSHA = master.object.sha;
 
-				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents/`;
+				url = `https://api.github.com/repos/${ viewerId }/${ projectId }/contents/`;
 				return transport.request(url, null, this.buildAuthHeader());
 
 			})
 			.then(response => {
 
-				// 3. Create a new branch from `master`
+				// 4. Create a new branch from `master`
 				let mapFileDescriptor = response.find(f => f.name === mapPath);
 				mapBlobSHA = mapFileDescriptor ? mapFileDescriptor.sha : '';	// if map is not found, the following API call will be a
 																				// create instead of update, which is unexpected but ok.
-				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/git/refs`;
+				url = `https://api.github.com/repos/${ viewerId }/${ projectId }/git/refs`;
 				return transport.request(url, null, {
 					...this.buildAuthHeader(),
 					method: 'POST',
@@ -614,8 +588,8 @@ export default function (store, transport) {
 			})
 			.then(response => {
 
-				// 4. Commit the updated .geojson map
-				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/contents/${ mapPath }`;
+				// 5. Commit the updated .geojson map
+				url = `https://api.github.com/repos/${ viewerId }/${ projectId }/contents/${ mapPath }`;
 				return transport.request(url, null, {
 					...this.buildAuthHeader(),
 					method: 'PUT',
@@ -631,7 +605,7 @@ export default function (store, transport) {
 			})
 			.then(response => {
 
-				// 5. Create a pull request with the specified name and description
+				// 6. Create a pull request back to the `open-redist` repo with the specified name and description
 				url = `https://api.github.com/repos/${ githubOrgName }/${ projectId }/pulls`;
 				return transport.request(url, null, {
 					...this.buildAuthHeader(),
@@ -639,7 +613,7 @@ export default function (store, transport) {
 					body: JSON.stringify({
 						title: name,
 						body: description,
-						head: branchName,
+						head: `${ viewerId }:${ branchName }`,
 						base: 'master'
 					})
 				});
@@ -647,7 +621,7 @@ export default function (store, transport) {
 			})
 			.then(response => {
 
-				// Proposal complete!
+				// Proposal complete! Update the store.
 				let proposalId = response.number,
 					proposalKey = deriveProposalId(githubOrgName, projectId, proposalId);
 
@@ -671,7 +645,6 @@ export default function (store, transport) {
 				throw error;
 
 			});
-			*/
 
 		},
 
