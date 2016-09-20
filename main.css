@@ -90,6 +90,19 @@ a:active {
     font-size: 7rem;
     font-weight: bold; }
 
+.rate-limit-message {
+  padding: 2rem 20%; }
+  .rate-limit-message .button {
+    width: 50%;
+    margin: 2rem auto;
+    padding: 1rem 2rem;
+    color: #ffffff;
+    background-color: #2dade0;
+    font-size: 1.5rem;
+    text-align: center;
+    border-radius: 10px;
+    cursor: pointer; }
+
 .project-page ul {
   display: flex;
   flex-direction: row;
@@ -353,12 +366,52 @@ a:active {
     fill: #ff9933;
     fill-opacity: 0.2; }
 
+.login-modal {
+  position: absolute;
+  left: 30%;
+  right: 30%;
+  top: 20%;
+  min-height: 25rem;
+  padding: 2rem;
+  background-color: #ffffff;
+  border: 1px solid #f2f2f2;
+  overflow: auto;
+  -webkit-overflow-scrolling: auto;
+  outline: none; }
+  .login-modal h2 {
+    margin-top: 0.5rem; }
+  .login-modal .modal-desc {
+    margin-bottom: 2rem; }
+  .login-modal .button {
+    width: 50%;
+    margin: 4rem auto 0 auto;
+    padding: 1rem 2rem;
+    background-color: #f2f2f2;
+    font-size: 1.5rem;
+    text-align: center;
+    border-radius: 10px;
+    cursor: pointer; }
+  .login-modal .cancel {
+    margin-top: 1rem;
+    padding: 0.5rem;
+    font-size: 1rem; }
+  .login-modal .login {
+    color: #ffffff;
+    background-color: #2dade0; }
+
+.login-modal-overlay {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); }
+
 .add-item-modal {
   position: absolute;
   left: 30%;
   right: 30%;
   top: 20%;
-  bottom: 40%;
   min-height: 25rem;
   padding: 1rem;
   background-color: #ffffff;
@@ -374,7 +427,6 @@ a:active {
     display: inline-block;
     width: 10rem;
     padding: 0.5rem;
-    color: #ffffff;
     background-color: #f2f2f2;
     border-radius: 10px;
     text-align: center;
@@ -387,6 +439,7 @@ a:active {
     width: 15rem; }
   .add-item-modal .confirm {
     margin-left: 1rem;
+    color: #ffffff;
     background-color: #2dade0; }
     .add-item-modal .confirm.disabled {
       opacity: 0.5;
