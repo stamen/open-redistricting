@@ -49,13 +49,19 @@ a:active {
 
 #app {
   position: relative;
-  margin: 1rem auto;
+  margin: 0 auto;
   max-width: 80rem;
   color: #333333;
   background-color: #fafafa; }
+  @media (min-width: 768px) {
+    #app {
+      margin: 1rem auto; } }
 
 .page {
-  padding: 0 6rem; }
+  padding: 0 1rem; }
+  @media (min-width: 768px) {
+    .page {
+      padding: 0 6rem; } }
 
 .home-page ul {
   display: flex;
@@ -93,7 +99,7 @@ a:active {
 .rate-limit-message {
   padding: 2rem 20%; }
   .rate-limit-message .button {
-    width: 50%;
+    width: 80%;
     margin: 2rem auto;
     padding: 1rem 2rem;
     color: #ffffff;
@@ -102,6 +108,9 @@ a:active {
     text-align: center;
     border-radius: 10px;
     cursor: pointer; }
+    @media (min-width: 768px) {
+      .rate-limit-message .button {
+        width: 50%; } }
 
 .project-page ul {
   display: flex;
@@ -143,15 +152,21 @@ a:active {
   justify-content: space-between;
   align-items: flex-start; }
   .proposal-page .main {
-    flex: 0 1 50rem;
     margin-top: 3rem; }
+    @media (min-width: 768px) {
+      .proposal-page .main {
+        flex: 0 1 50rem; } }
   .proposal-page .sidebar {
+    display: none;
     position: relative;
     flex: 1 0 16rem;
     margin: 3rem 0 0 1rem;
     padding-top: 1rem;
     background-color: #ffffff;
     border: 1px solid #f6f6f6; }
+    @media (min-width: 768px) {
+      .proposal-page .sidebar {
+        display: block; } }
     .proposal-page .sidebar .revisions-header {
       position: relative;
       height: 3rem;
@@ -183,9 +198,12 @@ a:active {
     cursor: pointer; }
   .proposal-page .map {
     width: 100%;
+    max-width: calc(100vw - 2rem);
     height: 25rem;
     background-color: #9ecfde;
     border: 1px solid #f6f6f6; }
+  .proposal-page .diff-map {
+    max-width: calc(100vw - 2rem); }
   .proposal-page .info {
     position: relative;
     width: 100%;
@@ -296,9 +314,13 @@ a:active {
   justify-content: space-between;
   align-items: baseline;
   width: 100%;
-  margin-top: 3rem;
-  padding: 0 6rem;
+  margin-top: 1rem;
+  padding: 0 1rem;
   background-color: #ffffff; }
+  @media (min-width: 768px) {
+    #header {
+      margin-top: 3rem;
+      padding: 0 6rem; } }
   #header h1 {
     margin: 0;
     color: #333333; }
@@ -349,6 +371,14 @@ a:active {
     stroke-opacity: 0.5;
     fill: #ff9933;
     fill-opacity: 0.2; }
+  .diff-map .is-processing {
+    width: 100%;
+    margin-top: 2rem;
+    font-size: 1.5rem;
+    text-align: center; }
+  .diff-map .diff-error {
+    margin: 1rem;
+    overflow-y: hidden; }
 
 .geojson-map {
   width: 20rem;
@@ -368,29 +398,49 @@ a:active {
 
 .login-modal {
   position: absolute;
-  left: 30%;
-  right: 30%;
-  top: 20%;
+  left: 5%;
+  right: 5%;
+  top: 5%;
   min-height: 25rem;
-  padding: 2rem;
+  padding: 0.5rem;
   background-color: #ffffff;
   border: 1px solid #f2f2f2;
   overflow: auto;
   -webkit-overflow-scrolling: auto;
   outline: none; }
+  @media (min-width: 768px) {
+    .login-modal {
+      left: 30%;
+      right: 30%;
+      top: 20%;
+      min-height: 25rem;
+      padding: 2rem; } }
   .login-modal h2 {
     margin-top: 0.5rem; }
   .login-modal .modal-desc {
-    margin-bottom: 2rem; }
+    margin-bottom: 0.5rem; }
+    @media (min-width: 768px) {
+      .login-modal .modal-desc {
+        margin-bottom: 2rem; } }
+  .login-modal .note-spacer {
+    height: 1rem; }
+    @media (min-width: 768px) {
+      .login-modal .note-spacer {
+        height: 4rem; } }
   .login-modal .button {
-    width: 50%;
-    margin: 4rem auto 0 auto;
-    padding: 1rem 2rem;
+    width: 80%;
+    margin: 1rem auto 0 auto;
+    padding: 1rem 0.5rem;
     background-color: #f2f2f2;
     font-size: 1.5rem;
     text-align: center;
     border-radius: 10px;
     cursor: pointer; }
+    @media (min-width: 768px) {
+      .login-modal .button {
+        width: 50%;
+        margin: 4rem auto 0 auto;
+        padding: 1rem 2rem; } }
   .login-modal .cancel {
     margin-top: 1rem;
     padding: 0.5rem;
@@ -409,16 +459,23 @@ a:active {
 
 .add-item-modal {
   position: absolute;
-  left: 30%;
-  right: 30%;
-  top: 20%;
+  left: 5%;
+  right: 5%;
+  top: 5%;
   min-height: 25rem;
-  padding: 1rem;
+  padding: 0.5rem;
   background-color: #ffffff;
   border: 1px solid #f2f2f2;
   overflow: auto;
   -webkit-overflow-scrolling: auto;
   outline: none; }
+  @media (min-width: 768px) {
+    .add-item-modal {
+      left: 30%;
+      right: 30%;
+      top: 20%;
+      min-height: 25rem;
+      padding: 1rem; } }
   .add-item-modal h2 {
     margin-top: 0.5rem; }
   .add-item-modal .modal-desc {
@@ -433,8 +490,12 @@ a:active {
     cursor: pointer; }
   .add-item-modal .button-container {
     position: absolute;
-    right: 1rem;
-    bottom: 1rem; }
+    right: 0.5rem;
+    bottom: 0.5rem; }
+    @media (min-width: 768px) {
+      .add-item-modal .button-container {
+        right: 1rem;
+        bottom: 1rem; } }
   .add-item-modal .upload {
     width: 15rem; }
   .add-item-modal .confirm {
