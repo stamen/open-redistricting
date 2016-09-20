@@ -12,10 +12,26 @@ Open Redistricting repurposes core GitHub/Git features for the context of drawin
 | -------------------- | ------------------- |
 | Repository           | Project             |
 | Pull Request/Branch  | Proposal            |
-| Branch commit        | Proposal iteration  |
+| Branch commit        | Proposal revision   |
 
 
 ## Resources
 
-- The [Open Redistricting website](#) is available for use by legislative redistricting staff and interested members of the public.
+- The [Open Redistricting website](http://openredist.org/) is available for use by legislative redistricting staff and interested members of the public.
 - The [workflow documentation](./workflow.md) outlines the GitHub/Git workflow facilitated by the website, without use of the website itself. Users may wish to roll their own implementation of the Open Redistricting tool to their own specifications, following these guidelines.
+
+
+## Running / Deploying
+
+To run locally, you'll want to:
+- install [NVM](http://nvm.sh) to manage your Node.js version
+- `git clone` this repository
+- and then:
+
+```
+nvm use
+npm install
+npm start
+```
+
+Deploying is as simple as `npm run gh-deploy`.
