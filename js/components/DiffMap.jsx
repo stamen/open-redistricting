@@ -4,6 +4,7 @@ import {
 	TileLayer
 } from 'react-leaflet';
 import leaflet from 'leaflet';
+import simplifyGeoJSON from 'simplify-geojson';
 
 // JSTS doesn't bundle properly....why not?
 // import jsts from 'jsts';
@@ -25,7 +26,8 @@ class DiffMap extends React.Component {
 		path1: PropTypes.string.isRequired,
 		path2: PropTypes.string.isRequired,
 		fetchJSON: PropTypes.func.isRequired,
-		mapOptions: PropTypes.object
+		mapOptions: PropTypes.object,
+		simplify: PropTypes.number
 	}
 
 	componentWillMount () {
@@ -60,15 +62,24 @@ class DiffMap extends React.Component {
 		.then(
 
 			responses => {
+
+				let p1 = responses[0],
+					p2 = responses[1];
+
+				// If specified, simplify GeoJSON to speed processing.
+				if (this.props.simplify) {
+					p1 = simplifyGeoJSON(p1, this.props.simplify);
+					p2 = simplifyGeoJSON(p2, this.props.simplify);
+				}
 				
 				let reader = new jsts.io.GeoJSONReader(),
-					p1 = reader.read(responses[0]),
-					p2 = reader.read(responses[1]),
 					unionP1,
 					unionP2,
 					diff,
 					intersection,
 					startTime = performance.now();
+				p1 = reader.read(p1);
+				p2 = reader.read(p2);
 
 				try {
 

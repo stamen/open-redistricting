@@ -46,6 +46,7 @@
     "react-router-redux": "^4.0.5",
     "redux": "^3.5.2",
     "sanitize-html": "^1.13.0",
+    "simplify-geojson": "^1.0.2",
     "slug": "^0.9.1"
   },
   "browserify": {

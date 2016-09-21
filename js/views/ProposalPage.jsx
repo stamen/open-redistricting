@@ -229,6 +229,7 @@ class ProposalPage extends React.Component {
 							path1={ diffPaths[0] }
 							path2={ diffPaths[1] }
 							fetchJSON={ this.props.actions.fetchJSON }
+							simplify={ 0.001 }
 						/>
 						: null
 					}
