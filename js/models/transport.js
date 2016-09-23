@@ -46,7 +46,8 @@ export default function (options) {
 					requestOptions.method === 'DELETE' ||
 					requestOptions.method === 'PATCH';
 
-			if (returnVal instanceof Promise) {
+			// duck-type instead of instanceof, to avoid problems with polyfills
+			if (returnVal.then) {
 
 				// fetching; return fetch+parse Promise chain
 				return returnVal
