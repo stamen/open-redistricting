@@ -61,7 +61,7 @@ export default class AddItemModal extends React.Component {
 			let overlay = document.querySelector('.add-item-modal-overlay');
 			if (!overlay) return;
 
-			overlay.addEventListener('click', () => this.closeModal(false));
+			overlay.addEventListener('click', this.onOverlayClicked.bind(this));
 			this.overlayClickHandlerInited = true;
 		}, 100);
 
@@ -78,6 +78,13 @@ export default class AddItemModal extends React.Component {
 				break;
 		}
 
+	}
+
+	onOverlayClicked (event) {
+
+		let overlay = document.querySelector('.add-item-modal-overlay')
+		if (event.target === overlay) this.closeModal(false);
+		
 	}
 
 	uploadMap () {
@@ -123,6 +130,7 @@ export default class AddItemModal extends React.Component {
 				isOpen={ this.state.isOpen }
 				className='add-item-modal'
 				overlayClassName='add-item-modal-overlay'
+				contentLabel={ title || 'Add a new item' }
 			>
 				{ this.state.isClosing ? 
 					<div className='loader'>

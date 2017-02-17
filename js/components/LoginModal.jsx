@@ -59,7 +59,7 @@ export default class LoginModal extends React.Component {
 			let overlay = document.querySelector('.login-modal-overlay');
 			if (!overlay) return;
 
-			overlay.addEventListener('click', () => this.closeModal(false));
+			overlay.addEventListener('click', this.onOverlayClicked.bind(this));
 			this.overlayClickHandlerInited = true;
 		}, 100);
 
@@ -76,6 +76,13 @@ export default class LoginModal extends React.Component {
 				break;
 		}
 
+	}
+
+	onOverlayClicked (event) {
+
+		let overlay = document.querySelector('.add-item-modal-overlay')
+		if (event.target === overlay) this.closeModal(false);
+		
 	}
 
 	closeModal (confirmed) {
@@ -96,6 +103,7 @@ export default class LoginModal extends React.Component {
 				isOpen={ this.state.isOpen }
 				className='login-modal'
 				overlayClassName='login-modal-overlay'
+				contentLabel={ title || 'Login' }
 			>
 				<div>
 					{ title ? <h2>{ title }</h2> : null }
