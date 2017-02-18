@@ -15,6 +15,7 @@ import DiffMap from '../components/DiffMap.jsx';
 import Comment from '../components/Comment.jsx';
 import Revision from '../components/Revision.jsx';
 import AddItemModal from '../components/AddItemModal.jsx';
+import GeoJsonMap from '../components/GeoJsonMap.jsx';
 
 const PROPOSAL_VOTE_KEY = 'proposal';
 
@@ -224,6 +225,27 @@ class ProposalPage extends React.Component {
 		return (
 			<div className='page proposal-page'>
 				<div className='main'>
+					{ diffPaths ?
+						<div className='current-and-proposed'>
+							<figure className='current'>
+								<GeoJsonMap
+									path={ diffPaths[0] }
+									fetchJSON={ this.props.actions.fetchJSON }
+								/>
+								{/* <figcaption>{ title }</figcaption> */}
+								<figcaption>Current</figcaption>
+							</figure>
+							<figure className='proposed'>
+								<GeoJsonMap
+									path={ diffPaths[1] }
+									fetchJSON={ this.props.actions.fetchJSON }
+								/>
+								{/* <figcaption>{ title }</figcaption> */}
+								<figcaption>Proposed</figcaption>
+							</figure>
+						</div>
+						: null
+					}
 					{ diffPaths ?
 						<DiffMap
 							path1={ diffPaths[0] }

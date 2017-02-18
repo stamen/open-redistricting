@@ -70,6 +70,8 @@ class DiffMap extends React.Component {
 					intersection,
 					startTime = performance.now();
 
+				console.info(`comparing ${ p1.features.length } previous districts against ${ p2.features.length } proposed districts...`);
+
 				try {
 
 					// TODO: this unioning seems necessary to perform JSTS operations between the two GeoJSON objects,

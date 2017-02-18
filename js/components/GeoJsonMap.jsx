@@ -25,13 +25,28 @@ class GeoJsonMap extends React.Component {
 
 	componentWillMount () {
 
-		let { path } = this.props;
+		this.fetchGeoJson(this.props.path);
+
+	}
+
+	componentWillReceiveProps (nextProps) {
+
+		// once loaded, update on a path change.
+		if (this.geojsonLoadState === 'loaded') {
+			if (this.props.path !== nextProps.path) {
+				this.fetchGeoJson(nextProps.path);
+			}
+		}
+
+	}
+
+	fetchGeoJson (path) {
 
 		this.props.fetchJSON(path)
 		.then(
 
 			response => {
-				
+				this.geojsonLoadState = null;				
 				this.setState({
 					geoJson: response
 				});
@@ -49,26 +64,37 @@ class GeoJsonMap extends React.Component {
 
 	componentDidUpdate () {
 
+		const layerClassName = 'geojson-layer';
+
 		let map = this.refs.leafletMap && this.refs.leafletMap.leafletElement;
 		if (map && !this.geojsonLoadState) {
 
 			this.geojsonLoadState = 'loading';
 
+			// remove any existing layers
+			map.eachLayer(layer => {
+				if (layer.options.className === layerClassName) map.removeLayer(layer);
+			});
+
+			// fit bounds of loaded features
 			let numFeatures = this.state.geoJson.features.length,
 				numFeaturesLoaded = 0,
 				geojsonLayer = L.geoJson(null, {
 					onEachFeature: (feature, layer) => {
 
 						if (++numFeaturesLoaded >= numFeatures) {
-							map.fitBounds(geojsonLayer.getBounds(), {
-								animate: false,
-								padding: [20, 20]
-							});
+							let bounds = geojsonLayer.getBounds();
+							if (bounds.isValid()) {
+								map.fitBounds(bounds, {
+									animate: false,
+									padding: [20, 20]
+								});
+							}
 							this.geojsonLoadState = 'loaded';
 						}
 
 					},
-					className: 'geojson-layer'
+					className: layerClassName
 				}).addTo(map);
 
 			// add geojson after setting up handlers to ensure layer is available

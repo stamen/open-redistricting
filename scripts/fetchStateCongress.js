@@ -23,6 +23,6 @@ var download = function(url, dest, cb) {
 };
 
 
-var url = "https://stuartlynn.carto.com/api/v2/sql?filename=district_json&q=SELECT+ST_SIMPLIFY(the_geom, 0.001)as the_geom, lewis_dist district, turnout, vote_share, victory_margin, winner, year+FROM+stuartlynn. levi_districts_since_1948+%0D%0Awhere+state_name = '" + process.argv[2] + "'+and+congress=" + process.argv[3] + "&format=geojson";
+var url = "https://stuartlynn.carto.com/api/v2/sql?filename=district_json&q=SELECT+ST_MAKEVALID(ST_SIMPLIFY(the_geom, 0.001))as the_geom, lewis_dist district, turnout, vote_share, victory_margin, winner, year+FROM+stuartlynn. levi_districts_since_1948+%0D%0Awhere+state_name = '" + process.argv[2] + "'+and+congress=" + process.argv[3] + "&format=geojson";
 var dest = process.argv[2] + "-" + process.argv[3] + ".geojson";
 download(url, dest);

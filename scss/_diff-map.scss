@@ -1,6 +1,7 @@
+$diff-map-height: 25rem;
 .diff-map {
 	width: 100%;
-	height: $map-height;
+	height: $diff-map-height;
 
 	background-color: $thumb-background-color;
 	border: 1px solid $cell-border-color;
