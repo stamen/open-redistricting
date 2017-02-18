@@ -231,6 +231,13 @@ class ProposalPage extends React.Component {
 								<GeoJsonMap
 									path={ diffPaths[0] }
 									fetchJSON={ this.props.actions.fetchJSON }
+									mapOptions={ {
+										dragging: true,
+										touchZoom: true,
+										scrollWheelZoom: true,
+										doubleClickZoom: true,
+										boxZoom: true
+									} }
 								/>
 								{/* <figcaption>{ title }</figcaption> */}
 								<figcaption>Current</figcaption>
@@ -239,6 +246,13 @@ class ProposalPage extends React.Component {
 								<GeoJsonMap
 									path={ diffPaths[1] }
 									fetchJSON={ this.props.actions.fetchJSON }
+									mapOptions={ {
+										dragging: true,
+										touchZoom: true,
+										scrollWheelZoom: true,
+										doubleClickZoom: true,
+										boxZoom: true
+									} }
 								/>
 								{/* <figcaption>{ title }</figcaption> */}
 								<figcaption>Proposed</figcaption>

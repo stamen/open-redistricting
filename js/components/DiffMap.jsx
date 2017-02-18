@@ -155,6 +155,7 @@ class DiffMap extends React.Component {
 			let mapConfig = {
 				zoom: 8,
 				center: [0, 0],
+				zoomSnap: 0,
 				...(this.props.mapOptions || {})
 			};
 

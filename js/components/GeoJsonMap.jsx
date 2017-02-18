@@ -113,6 +113,7 @@ class GeoJsonMap extends React.Component {
 			let mapConfig = {
 				zoom: 8,
 				center: [0, 0],
+				zoomSnap: 0,
 				zoomControl: false,
 				attributionControl: false,
 				keyboard: false,
