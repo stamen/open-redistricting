@@ -196,12 +196,26 @@ a:active {
     border-radius: 10px;
     text-align: center;
     cursor: pointer; }
-  .proposal-page .map {
+  .proposal-page .current-and-proposed {
+    position: relative;
     width: 100%;
+    height: 15rem;
     max-width: calc(100vw - 2rem);
-    height: 25rem;
-    background-color: #9ecfde;
-    border: 1px solid #f6f6f6; }
+    margin-bottom: 2.5rem; }
+    .proposal-page .current-and-proposed > figure {
+      position: absolute;
+      width: 47.5%;
+      height: 100%;
+      left: 0;
+      margin: 0; }
+      .proposal-page .current-and-proposed > figure:last-child {
+        left: auto;
+        right: 0; }
+    .proposal-page .current-and-proposed figcaption {
+      font-size: 1rem; }
+    .proposal-page .current-and-proposed .geojson-map {
+      width: 100%;
+      height: 100%; }
   .proposal-page .diff-map {
     max-width: calc(100vw - 2rem); }
   .proposal-page .info {
