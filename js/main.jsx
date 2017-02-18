@@ -41,7 +41,7 @@ const actions = actionCreator(store, transport({
 // set up hash history without querystring cruft (e.g. ?_k=xi50sh)
 // from: https://github.com/reactjs/react-router/blob/master/upgrade-guides/v2.0.0.md#using-custom-histories
 const appHistory = useRouterHistory(createHashHistory)({
-	queryKey: false
+	// queryKey: false	// deprecated in 
 });
 syncHistoryWithStore(appHistory, store);
 

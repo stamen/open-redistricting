@@ -1,7 +1,11 @@
 import React from 'react';
-import { GeoJson }  from 'react-leaflet';
+import { GeoJSON } from 'react-leaflet';
 
-export default class GeoJsonUpdatable extends GeoJson {
+export default class GeoJsonUpdatable extends GeoJSON {
+
+    constructor (props) {
+        super(props);
+    }
 
     static propTypes = {
         data: React.PropTypes.object.isRequired
@@ -18,5 +22,5 @@ export default class GeoJsonUpdatable extends GeoJson {
             this.leafletElement.addData(this.props.data);
         }
     }
-}
 
+}
