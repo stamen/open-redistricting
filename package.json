@@ -1,22 +1,29 @@
 {
   "name": "open-redistricting",
   "version": "0.0.1",
-  "description": "Moving the redistricting process into the open. A US Open Data + Stamen joint.",
+  "description": "Moving the redistricting process out into the open. A US Open Data + Stamen joint.",
+  "author": "ericsoco",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:stamen/open-redistricting.git"
+  },
+  "engines": {
+    "yarn": "^1.12.3"
+  },
   "scripts": {
-    "start": "npm run sass && npm run watch & npm run serve",
-    "dist": "npm run js && npm run sass && npm run static",
-    "watch": "npm run js:watch & npm run sass:watch & npm run static:watch",
+    "start": "yarn sass && yarn run-p watch serve",
+    "dist": "yarn js && yarn sass && yarn static",
+    "watch": "yarn js:watch & yarn sass:watch & yarn static:watch",
     "serve": "serve dist",
-    "gh-deploy": "npm run dist && git-directory-deploy --directory dist/",
+    "gh-deploy": "yarn dist && git-directory-deploy --directory dist/",
     "js": "browserify js/main.jsx -t [ loose-envify --NODE_ENV production ] > dist/bundle.js",
     "js:watch": "watchify js/main.jsx -o dist/bundle.js -dv",
     "sass": "node-sass --include-path scss scss/main.scss dist/main.css",
     "sass:watch": "node-sass -w --include-path scss scss/main.scss dist/main.css",
     "static": "cp -R static/ dist/",
-    "static:watch": "nodemon -w static -e html,json,csv,gif,jpg,png,svg -x \"npm run static\""
+    "static:watch": "nodemon -w static -e html,json,csv,gif,jpg,png,svg -x \"yarn static\""
   },
-  "author": "ericsoco",
-  "license": "ISC",
   "devDependencies": {
     "babel-plugin-transform-object-assign": "^6.8.0",
     "babel-plugin-transform-react-jsx": "^6.8.0",
@@ -26,8 +33,9 @@
     "browserify": "^13.1.0",
     "git-directory-deploy": "^1.5.0",
     "loose-envify": "^1.2.0",
-    "node-sass": "^3.8.0",
+    "node-sass": "^4.11.0",
     "nodemon": "^1.10.0",
+    "npm-run-all": "^4.1.5",
     "serve": "^1.4.0",
     "watchify": "^3.7.0"
   },
