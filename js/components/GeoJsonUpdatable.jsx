@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { GeoJSON } from 'react-leaflet';
 
+// TODO: `react-leaflet` bump broke inheritance in this module
 export default class GeoJsonUpdatable extends GeoJSON {
 
     constructor (props) {

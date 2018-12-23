@@ -3119,10 +3119,10 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.10.0"
 
-jsts@^1.2.1:
-  version "1.6.2"
-  resolved "https://registry.yarnpkg.com/jsts/-/jsts-1.6.2.tgz#c0efc885edae06ae84f78cbf2a0110ba929c5925"
-  integrity sha512-JNfDQk/fo5MeXx4xefvCyHZD22/DHowHr5K07FdgCJ81MEqn02HsDV5FQvYTz60ZIOv/+hhGbsVzXX5cuDWWlA==
+jsts@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/jsts/-/jsts-2.0.3.tgz#30f421ae6d888ff5d3d855bee5c70d28b9cd25bc"
+  integrity sha512-wlRQolftLo2x98Cjtq7VshICr9oVhOrOZx/qUXUssVKXgZLHv8qItSUwiYEpdm5R2+Ja4jHQHnCCZGX14aSjHw==
 
 kind-of@^3.0.2, kind-of@^3.0.3, kind-of@^3.2.0:
   version "3.2.2"
@@ -4488,7 +4488,7 @@ safe-regex@^1.1.0:
   resolved "https://registry.yarnpkg.com/safer-buffer/-/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
   integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
 
-sanitize-html@^1.13.0:
+sanitize-html@^1.20.0:
   version "1.20.0"
   resolved "https://registry.yarnpkg.com/sanitize-html/-/sanitize-html-1.20.0.tgz#9a602beb1c9faf960fb31f9890f61911cc4d9156"
   integrity sha512-BpxXkBoAG+uKCHjoXFmox6kCSYpnulABoGcZ/R3QyY9ndXbIM5S94eOr1IqnzTG8TnbmXaxWoDDzKC5eJv7fEQ==
@@ -4659,7 +4659,7 @@ simple-concat@^1.0.0:
   resolved "https://registry.yarnpkg.com/simple-concat/-/simple-concat-1.0.0.tgz#7344cbb8b6e26fb27d66b2fc86f9f6d5997521c6"
   integrity sha1-c0TLuLbib7J9ZrL8hvn21Zl1IcY=
 
-slug@^0.9.1:
+slug@^0.9.3:
   version "0.9.3"
   resolved "https://registry.yarnpkg.com/slug/-/slug-0.9.3.tgz#8c9c773d79367c0188733316cf49fd2b8db40f6a"
   integrity sha512-DddSQQnUdAofjFOKRT+zsMNrdzdte04G5DUA+NeaUJlPAqR1bWQ22qVfayRxHFiRGR3bUV0wt5VSj4849pGKSw==

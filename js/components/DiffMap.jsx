@@ -2,11 +2,12 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import {Map, TileLayer} from 'react-leaflet';
 import leaflet from 'leaflet';
-
-// JSTS doesn't bundle properly....why not?
-// import jsts from 'jsts';
+import jsts from 'jsts';
 
 import appConfig from '../../static/appConfig.json';
+
+// TODO: `react-leaflet` bump broke inheritance in this module.
+// Fix and uncomment.
 // import GeoJsonUpdatable from './GeoJsonUpdatable.jsx';
 
 class DiffMap extends React.Component {
@@ -44,8 +45,6 @@ class DiffMap extends React.Component {
 	}
 
     calculateGeometry ({ path1, path2, fetchJSON }) {
-
-		let jsts = require('jsts');
 
 		Promise.all([
 			fetchJSON(path1),
