@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import { GeoJSON } from 'react-leaflet';
 
@@ -8,7 +9,7 @@ export default class GeoJsonUpdatable extends GeoJSON {
     }
 
     static propTypes = {
-        data: React.PropTypes.object.isRequired
+        data: PropTypes.object.isRequired
     }
 
     componentWillReceiveProps (prevProps) {
