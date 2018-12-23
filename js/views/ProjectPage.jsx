@@ -11,19 +11,13 @@ import AddItemModal from '../components/AddItemModal.jsx';
 
 
 class ProjectPage extends React.Component {
+    constructor (props) {
+        super(props);
 
-	constructor (props) {
+        this.state = {};
+    }
 
-		super(props);
-
-		this.openModal = this.openModal.bind(this);
-		this.onModalClose = this.onModalClose.bind(this);
-
-		this.state = {};
-
-	}
-
-	UNSAFE_componentWillMount () {
+    UNSAFE_componentWillMount () {
 
 		this.props.actions.requestProject(this.props.params.projectId);
 
@@ -34,7 +28,7 @@ class ProjectPage extends React.Component {
 
 	}
 
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
 
 		const storeState = this.props.store.getState(),
 			project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)];
@@ -49,13 +43,13 @@ class ProjectPage extends React.Component {
 
 	}
 
-	openModal () {
+    openModal = () => {
 
 		this.setState({ modalIsOpen: true });
 
-	}
+	};
 
-	onModalClose (values) {
+    onModalClose = values => {
 
 		if (!values) {
 			this.setState({ modalIsOpen: false });
@@ -79,9 +73,9 @@ class ProjectPage extends React.Component {
 
 		}
 
-	}
+	};
 
-	render () {
+    render () {
 
 		const storeState = this.props.store.getState(),
 			project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)];
@@ -161,7 +155,6 @@ class ProjectPage extends React.Component {
 		);
 
 	}
-
 }
 
 export default withRouter(ProjectPage);

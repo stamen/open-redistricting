@@ -5,36 +5,26 @@ import { Link, withRouter } from 'react-router'
 import auth from '../models/auth';
 
 class Header extends React.Component {
-
-	static propTypes = {
+    static propTypes = {
 		//
 	}
 
-	constructor (props) {
-
-		super(props);
-
-		this.login = this.login.bind(this);
-		this.logout = this.logout.bind(this);
-
-	}
-
-	login () {
+    login = () => {
 
 		auth.authorize(this.props.location.pathname, [ 'public_repo' ]);
 
-	}
+	};
 
-	logout () {
+    logout = () => {
 
 		auth.logout(() => {
 			// hard refresh/redirect to app root
 			window.location = window.location.origin + window.location.pathname;
 		});
 
-	}
+	};
 
-	render () {
+    render () {
 
 		let out = (
 			<div id='header'>
@@ -51,7 +41,6 @@ class Header extends React.Component {
 		return out;
 
 	}
-
 }
 
 export default withRouter(Header);

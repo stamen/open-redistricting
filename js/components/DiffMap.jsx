@@ -1,41 +1,34 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import {
-	Map,
-	TileLayer
-} from 'react-leaflet';
+import {Map, TileLayer} from 'react-leaflet';
 import leaflet from 'leaflet';
 
 // JSTS doesn't bundle properly....why not?
 // import jsts from 'jsts';
 
 import appConfig from '../../static/appConfig.json';
-import GeoJsonUpdatable from './GeoJsonUpdatable.jsx';
+// import GeoJsonUpdatable from './GeoJsonUpdatable.jsx';
 
 class DiffMap extends React.Component {
+    constructor (props) {
+        super(props);
+        this.state = {};
+    }
 
-	constructor (props) {
-
-		super(props);
-		this.state = {};
-		this.onMapLayerAdd = this.onMapLayerAdd.bind(this);
-
-	}
-
-	static propTypes = {
+    static propTypes = {
 		path1: PropTypes.string.isRequired,
 		path2: PropTypes.string.isRequired,
 		fetchJSON: PropTypes.func.isRequired,
 		mapOptions: PropTypes.object
 	}
 
-	UNSAFE_componentWillMount () {
+    UNSAFE_componentWillMount () {
 
 		this.calculateGeometry(this.props);
 
 	}
 
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
 
 		// only recalculate geometry if we have a new path
 		if (this.props.path1 !== nextProps.path1 || this.props.path2 !== nextProps.path2) {
@@ -44,13 +37,13 @@ class DiffMap extends React.Component {
 
 	}
 
-	shouldComponentUpdate (nextProps, nextState) {
+    shouldComponentUpdate (nextProps, nextState) {
 
 		return this.state !== nextState;
 
 	}
 
-	calculateGeometry ({ path1, path2, fetchJSON }) {
+    calculateGeometry ({ path1, path2, fetchJSON }) {
 
 		let jsts = require('jsts');
 
@@ -145,7 +138,7 @@ class DiffMap extends React.Component {
 
 	}
 
-	render () {
+    render () {
 
 		// TODO: render base/head as necessary to display original, non-unioned feature boundaries
 
@@ -163,8 +156,10 @@ class DiffMap extends React.Component {
 			body = (
 				<Map { ...mapConfig } ref='leafletMap' className='map-container' onLayeradd={ this.onMapLayerAdd }>
 					{ this.renderTileLayers() }
+					{/*
 					<GeoJsonUpdatable className='diff' data={ this.state.diff } />
 					<GeoJsonUpdatable className='intersection' data={ this.state.intersection } />
+					*/}
 				</Map>
 			);
 
@@ -193,7 +188,7 @@ class DiffMap extends React.Component {
 
 	}
 
-	renderTileLayers () {
+    renderTileLayers () {
 
 		let layers = [];
 
@@ -212,7 +207,7 @@ class DiffMap extends React.Component {
 
 	}
 
-	onMapLayerAdd (event) {
+    onMapLayerAdd = event => {
 
 		if (event.layer.feature) {
 
@@ -225,8 +220,7 @@ class DiffMap extends React.Component {
 
 		}
 
-	}
-
+	};
 }
 
 export default DiffMap;

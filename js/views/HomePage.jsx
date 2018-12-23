@@ -8,25 +8,17 @@ import LoginModal from '../components/LoginModal.jsx';
 import AddItemModal from '../components/AddItemModal.jsx';
 
 class HomePage extends React.Component {
+    constructor (props) {
+        super(props);
 
-	constructor (props) {
-
-		super(props);
-
-		this.openLoginModal = this.openLoginModal.bind(this);
-		this.onLoginModalClose = this.onLoginModalClose.bind(this);
-		this.openAddProjectModal = this.openAddProjectModal.bind(this);
-		this.onAddProjectModalClose = this.onAddProjectModalClose.bind(this);
-
-		this.state = {
+        this.state = {
 			loginModalIsOpen: false,
 			rateLimitModalIsOpen: false,
 			addProjectModalIsOpen: false
 		};
+    }
 
-	}
-
-	UNSAFE_componentWillMount () {
+    UNSAFE_componentWillMount () {
 
 		if (~window.location.search.indexOf('rateLimit')) {
 			this.setState({ rateLimitModalIsOpen: true });
@@ -55,7 +47,7 @@ class HomePage extends React.Component {
 
 	}
 
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
 
 		const storeState = nextProps.store.getState(),
 			projectList = storeState.projectList && storeState.projectList.data || [];
@@ -69,28 +61,28 @@ class HomePage extends React.Component {
 
 	}
 
-	openLoginModal () {
+    openLoginModal = () => {
 
 		this.setState({ loginModalIsOpen: true });
 
-	}
+	};
 
-	onLoginModalClose (confirmed) {
+    onLoginModalClose = confirmed => {
 
 		this.setState({ loginModalIsOpen: false });
 		if (confirmed) {
 			auth.authorize(this.props.location.pathname, [ 'public_repo' ]);
 		}
 
-	}
+	};
 
-	openAddProjectModal () {
+    openAddProjectModal = () => {
 
 		this.setState({ addProjectModalIsOpen: true });
 
-	}
+	};
 
-	onAddProjectModalClose (values) {
+    onAddProjectModalClose = values => {
 
 		if (!values) {
 			this.setState({ addProjectModalIsOpen: false });
@@ -109,9 +101,9 @@ class HomePage extends React.Component {
 
 		}
 
-	}
+	};
 
-	render () {
+    render () {
 
 		const storeState = this.props.store.getState(),
 			projectList = storeState.projectList && storeState.projectList.data || [];
@@ -170,7 +162,7 @@ class HomePage extends React.Component {
 
 	}
 
-	renderRateLimitModal () {
+    renderRateLimitModal () {
 
 		return (
 			<div className='rate-limit-message'>
@@ -181,7 +173,6 @@ class HomePage extends React.Component {
 		);
 
 	}
-
 }
 
 export default withRouter(HomePage);

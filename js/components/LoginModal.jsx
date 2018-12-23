@@ -6,8 +6,7 @@ import Modal from 'react-modal';
  * Modal with message and optional login/signup button
  */
 export default class LoginModal extends React.Component {
-
-	static propTypes = {
+    static propTypes = {
 		title: PropTypes.string,
 		message: PropTypes.string,
 		buttonLabel: PropTypes.string,
@@ -15,21 +14,16 @@ export default class LoginModal extends React.Component {
 		onClose: PropTypes.func
 	}
 
-	static defaultProps = {
+    static defaultProps = {
 		onClose: () => {}
 	}
 
-	constructor (props) {
+    constructor (props) {
+        super(props);
+        this.state = {};
+    }
 
-		super(props);
-		this.state = {};
-
-		this.onKeyDown = this.onKeyDown.bind(this);
-		this.closeModal = this.closeModal.bind(this);
-
-	}
-
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
 
 		if (nextProps.isOpen === true) {
 			window.addEventListener('keydown', this.onKeyDown);
@@ -51,7 +45,7 @@ export default class LoginModal extends React.Component {
 
 	}
 
-	componentDidUpdate () {
+    componentDidUpdate () {
 
 		if (this.overlayClickHandlerInited || !this.state.isOpen) return;
 
@@ -66,7 +60,7 @@ export default class LoginModal extends React.Component {
 
 	}
 
-	onKeyDown (event) {
+    onKeyDown = event => {
 
 		switch (event.keyCode) {
 			case 13:	// enter
@@ -77,22 +71,22 @@ export default class LoginModal extends React.Component {
 				break;
 		}
 
-	}
+	};
 
-	onOverlayClicked (event) {
+    onOverlayClicked (event) {
 
 		let overlay = document.querySelector('.add-item-modal-overlay')
 		if (event.target === overlay) this.closeModal(false);
 		
 	}
 
-	closeModal (confirmed) {
+    closeModal = confirmed => {
 
 		this.props.onClose && this.props.onClose(confirmed);
 
-	}
+	};
 
-	render () {
+    render () {
 
 		const {
 			title,
@@ -115,5 +109,4 @@ export default class LoginModal extends React.Component {
 			</Modal>
 		);
 	}
-
 }

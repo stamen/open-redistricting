@@ -1,10 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import {
-	Map,
-	GeoJson,
-	TileLayer
-} from 'react-leaflet';
+import {Map, TileLayer} from 'react-leaflet';
 import leaflet from 'leaflet';
 
 import appConfig from '../../static/appConfig.json';

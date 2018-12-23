@@ -20,22 +20,13 @@ import GeoJsonMap from '../components/GeoJsonMap.jsx';
 const PROPOSAL_VOTE_KEY = 'proposal';
 
 class ProposalPage extends React.Component {
+    constructor (props) {
+        super(props);
 
-	constructor (props) {
+        this.state = {};
+    }
 
-		super(props);
-		this.login = this.login.bind(this);
-		this.onViewRevision = this.onViewRevision.bind(this);
-		this.openRevisionModal = this.openRevisionModal.bind(this);
-		this.onRevisionModalClose = this.onRevisionModalClose.bind(this);
-		this.onCommentVote = this.onCommentVote.bind(this);
-		this.submitComment = this.submitComment.bind(this);
-
-		this.state = {};
-
-	}
-
-	UNSAFE_componentWillMount () {
+    UNSAFE_componentWillMount () {
 
 		const {
 			proposal,
@@ -60,7 +51,7 @@ class ProposalPage extends React.Component {
 
 	}
 
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
 
 		const { proposal } = this.getStoreState();
 		let comments = get(proposal, 'comments') || [],
@@ -94,19 +85,19 @@ class ProposalPage extends React.Component {
 
 	}
 
-	onViewRevision (sha) {
+    onViewRevision = sha => {
 
 		this.setState({ currentRevisionSha: sha });
 
-	}
+	};
 
-	openRevisionModal () {
+    openRevisionModal = () => {
 
 		this.setState({ modalIsOpen: true });
 
-	}
+	};
 
-	onRevisionModalClose (values) {
+    onRevisionModalClose = values => {
 
 		if (!values) {
 			this.setState({ modalIsOpen: false });
@@ -134,15 +125,15 @@ class ProposalPage extends React.Component {
 
 		}
 
-	}
+	};
 
-	login () {
+    login = () => {
 
 		auth.authorize(this.props.location.pathname, [ 'public_repo' ]);
 
-	}
+	};
 
-	submitComment () {
+    submitComment = () => {
 
 		// bail if already in the process of submitting a comment
 		if (typeof this.previousNumComments !== 'undefined') return;
@@ -153,9 +144,9 @@ class ProposalPage extends React.Component {
 		this.previousNumComments = comments.length;
 		this.props.actions.createProposalComment(this.refs.commentInput.value, this.props.params.projectId, this.props.params.proposalId);
 
-	}
+	};
 
-	onCommentVote (commentId, val) {
+    onCommentVote = (commentId, val) => {
 
 		// one vote at a time.
 		if (this.commentVotePending) return;
@@ -187,9 +178,9 @@ class ProposalPage extends React.Component {
 			commentId === PROPOSAL_VOTE_KEY ? null : commentId
 		);
 
-	}
+	};
 
-	render () {
+    render () {
 
 		const {
 				projectMetadata,
@@ -340,7 +331,7 @@ class ProposalPage extends React.Component {
 
 	}
 
-	renderRevisions (revisions, currentRevisionSha) {
+    renderRevisions (revisions, currentRevisionSha) {
 
 		if (!revisions || !revisions.length || revisions.length <= 1) {
 			return (
@@ -377,7 +368,7 @@ class ProposalPage extends React.Component {
 
 	}
 
-	getStoreState () {
+    getStoreState () {
 
 		const storeState = this.props.store.getState(),
 			project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)],
@@ -393,7 +384,6 @@ class ProposalPage extends React.Component {
 		};
 
 	}
-
 }
 
 export default withRouter(ProposalPage);

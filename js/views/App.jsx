@@ -8,32 +8,28 @@ import Header from '../components/Header.jsx';
 
 // main app container
 class App extends React.Component {
+    constructor (props) {
+        super(props);
 
-	constructor (props) {
+        // bind event handlers
+        this.onWindowResize = debounce(this.onWindowResize.bind(this), 250);
 
-		super(props);
+        // subscribe for future state changes
+        props.store.subscribe(this.onAppStateChange);
+    }
 
-		// bind event handlers
-		this.onWindowResize = debounce(this.onWindowResize.bind(this), 250);
-		this.onAppStateChange = this.onAppStateChange.bind(this);
-
-		// subscribe for future state changes
-		props.store.subscribe(this.onAppStateChange);
-
-	}
-
-	onAppStateChange () {
+    onAppStateChange = () => {
 
 		this.forceUpdate();
 
-	}
+	};
 
 
-	// ============================================================ //
-	// React Lifecycle
-	// ============================================================ //
+    // ============================================================ //
+    // React Lifecycle
+    // ============================================================ //
 
-	UNSAFE_componentWillMount () {
+    UNSAFE_componentWillMount () {
 
 		let code = auth.extractOAuthCode();
 		if (code) {
@@ -57,13 +53,13 @@ class App extends React.Component {
 
 	}
 
-	componentDidMount () {
+    componentDidMount () {
 
 		//
 
 	}
 
-	componentWillUnmount () {
+    componentWillUnmount () {
 
 		window.removeEventListener('resize', this.onWindowResize);
 
@@ -71,11 +67,11 @@ class App extends React.Component {
 
 
 
-	// ============================================================ //
-	// Handlers
-	// ============================================================ //
+    // ============================================================ //
+    // Handlers
+    // ============================================================ //
 
-	onWindowResize (event) {
+    onWindowResize (event) {
 
 		this.computeComponentDimensions();
 
@@ -83,19 +79,19 @@ class App extends React.Component {
 
 
 
-	// ============================================================ //
-	// Helpers
-	// ============================================================ //
+    // ============================================================ //
+    // Helpers
+    // ============================================================ //
 
-	//
+    //
 
 
 
-	// ============================================================ //
-	// Render functions
-	// ============================================================ //
+    // ============================================================ //
+    // Render functions
+    // ============================================================ //
 
-	render () {
+    render () {
 		
 		const storeState = this.props.store.getState();
 
@@ -112,7 +108,6 @@ class App extends React.Component {
 		);
 
 	}
-
 }
 
 export default withRouter(App);

@@ -5512,7 +5512,7 @@ warning@^4.0.0, warning@^4.0.1:
   dependencies:
     loose-envify "^1.0.0"
 
-watchify@^3.7.0:
+watchify@^3.11.0:
   version "3.11.0"
   resolved "https://registry.yarnpkg.com/watchify/-/watchify-3.11.0.tgz#03f1355c643955e7ab8dcbf399f624644221330f"
   integrity sha512-7jWG0c3cKKm2hKScnSAMUEUjRJKXUShwMPk0ASVhICycQhwND3IMAdhJYmc1mxxKzBUJTSF5HZizfrKrS6BzkA==

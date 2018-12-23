@@ -6,30 +6,23 @@ import Modal from 'react-modal';
  * Modal with UI for adding a new Project or Proposal
  */
 export default class AddItemModal extends React.Component {
-
-	static propTypes = {
+    static propTypes = {
 		type: PropTypes.string.isRequired,	// 'project', 'proposal', 'revision'
 		desc: PropTypes.string,
 		isOpen: PropTypes.bool,
 		onClose: PropTypes.func
 	}
 
-	static defaultProps = {
+    static defaultProps = {
 		onClose: () => {}
 	}
 
-	constructor (props) {
+    constructor (props) {
+        super(props);
+        this.state = {};
+    }
 
-		super(props);
-		this.state = {};
-
-		this.onKeyDown = this.onKeyDown.bind(this);
-		this.uploadMap = this.uploadMap.bind(this);
-		this.closeModal = this.closeModal.bind(this);
-
-	}
-
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
 
 		if (nextProps.isOpen === true) {
 			window.addEventListener('keydown', this.onKeyDown);
@@ -53,7 +46,7 @@ export default class AddItemModal extends React.Component {
 
 	}
 
-	componentDidUpdate () {
+    componentDidUpdate () {
 
 		if (this.overlayClickHandlerInited || !this.state.isOpen) return;
 
@@ -68,7 +61,7 @@ export default class AddItemModal extends React.Component {
 
 	}
 
-	onKeyDown (event) {
+    onKeyDown = event => {
 
 		switch (event.keyCode) {
 			case 13:	// enter
@@ -79,16 +72,16 @@ export default class AddItemModal extends React.Component {
 				break;
 		}
 
-	}
+	};
 
-	onOverlayClicked (event) {
+    onOverlayClicked (event) {
 
 		let overlay = document.querySelector('.add-item-modal-overlay')
 		if (event.target === overlay) this.closeModal(false);
 		
 	}
 
-	uploadMap () {
+    uploadMap = () => {
 
 		let fileInput = this.refs.uploadInput,
 			onFileSelect = event => {
@@ -100,9 +93,9 @@ export default class AddItemModal extends React.Component {
 		fileInput.addEventListener('change', onFileSelect);
 		fileInput.click();
 
-	}
+	};
 
-	closeModal (confirmed) {
+    closeModal = confirmed => {
 
 		if (this.state.isClosing) return;
 		if (confirmed && !this.state.selectedFile) return;
@@ -115,9 +108,9 @@ export default class AddItemModal extends React.Component {
 
 		if (confirmed) this.setState({ isClosing: true });
 
-	}
+	};
 
-	render () {
+    render () {
 
 		let title = `Create new ${ this.props.type }`,
 			cappedType = this.props.type.slice(0, 1).toUpperCase() + this.props.type.slice(1),
@@ -162,5 +155,4 @@ export default class AddItemModal extends React.Component {
 			</Modal>
 		);
 	}
-
 }
