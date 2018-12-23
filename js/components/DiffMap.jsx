@@ -29,13 +29,13 @@ class DiffMap extends React.Component {
 		mapOptions: PropTypes.object
 	}
 
-	componentWillMount () {
+	UNSAFE_componentWillMount () {
 
 		this.calculateGeometry(this.props);
 
 	}
 
-	componentWillReceiveProps (nextProps) {
+	UNSAFE_componentWillReceiveProps (nextProps) {
 
 		// only recalculate geometry if we have a new path
 		if (this.props.path1 !== nextProps.path1 || this.props.path2 !== nextProps.path2) {

@@ -26,7 +26,7 @@ class HomePage extends React.Component {
 
 	}
 
-	componentWillMount () {
+	UNSAFE_componentWillMount () {
 
 		if (~window.location.search.indexOf('rateLimit')) {
 			this.setState({ rateLimitModalIsOpen: true });
@@ -55,7 +55,7 @@ class HomePage extends React.Component {
 
 	}
 
-	componentWillReceiveProps (nextProps) {
+	UNSAFE_componentWillReceiveProps (nextProps) {
 
 		const storeState = nextProps.store.getState(),
 			projectList = storeState.projectList && storeState.projectList.data || [];

@@ -13,7 +13,7 @@ class Auth extends React.Component {
 
 	}
 
-	componentWillMount () {
+	UNSAFE_componentWillMount () {
 
 		let { code, state } = this.props.location.query,
 			pathname = '/';

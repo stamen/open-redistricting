@@ -24,13 +24,13 @@ class GeoJsonMap extends React.Component {
 		mapOptions: PropTypes.object
 	}
 
-	componentWillMount () {
+	UNSAFE_componentWillMount () {
 
 		this.fetchGeoJson(this.props.path);
 
 	}
 
-	componentWillReceiveProps (nextProps) {
+	UNSAFE_componentWillReceiveProps (nextProps) {
 
 		// once loaded, update on a path change.
 		if (this.geojsonLoadState === 'loaded') {

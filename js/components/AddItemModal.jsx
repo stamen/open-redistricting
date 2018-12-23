@@ -29,7 +29,7 @@ export default class AddItemModal extends React.Component {
 
 	}
 
-	componentWillReceiveProps (nextProps) {
+	UNSAFE_componentWillReceiveProps (nextProps) {
 
 		if (nextProps.isOpen === true) {
 			window.addEventListener('keydown', this.onKeyDown);

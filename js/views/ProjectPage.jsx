@@ -23,7 +23,7 @@ class ProjectPage extends React.Component {
 
 	}
 
-	componentWillMount () {
+	UNSAFE_componentWillMount () {
 
 		this.props.actions.requestProject(this.props.params.projectId);
 
@@ -34,7 +34,7 @@ class ProjectPage extends React.Component {
 
 	}
 
-	componentWillReceiveProps (nextProps) {
+	UNSAFE_componentWillReceiveProps (nextProps) {
 
 		const storeState = this.props.store.getState(),
 			project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)];

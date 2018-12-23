@@ -33,7 +33,7 @@ class App extends React.Component {
 	// React Lifecycle
 	// ============================================================ //
 
-	componentWillMount () {
+	UNSAFE_componentWillMount () {
 
 		let code = auth.extractOAuthCode();
 		if (code) {

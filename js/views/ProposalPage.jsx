@@ -35,7 +35,7 @@ class ProposalPage extends React.Component {
 
 	}
 
-	componentWillMount () {
+	UNSAFE_componentWillMount () {
 
 		const {
 			proposal,
@@ -60,7 +60,7 @@ class ProposalPage extends React.Component {
 
 	}
 
-	componentWillReceiveProps (nextProps) {
+	UNSAFE_componentWillReceiveProps (nextProps) {
 
 		const { proposal } = this.getStoreState();
 		let comments = get(proposal, 'comments') || [],

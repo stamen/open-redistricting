@@ -12,7 +12,7 @@ export default class GeoJsonUpdatable extends GeoJSON {
         data: PropTypes.object.isRequired
     }
 
-    componentWillReceiveProps (prevProps) {
+    UNSAFE_componentWillReceiveProps (prevProps) {
         if (prevProps.data !== this.props.data) {
             this.leafletElement.clearLayers();
         }
