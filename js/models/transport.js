@@ -1,5 +1,8 @@
 import fetch from 'isomorphic-fetch';
 
+// TODO: set this via query param
+const OFFLINE_MODE = true;
+
 export default function (options) {
 
 	options = options || {};
@@ -51,9 +54,14 @@ export default function (options) {
 
 				// fetching; return fetch+parse Promise chain
 				return returnVal
+				.then(this.dumpReqRsp(url))
 				.then(this.checkStatus)
-				.then(response => !requestOptions.statusOnly ? parser(response) : Promise.resolve(response))
-				.then(response => this.cacheResponse(cacheKey, response, isWrite))
+				.then(response => {
+					return !requestOptions.statusOnly ? parser(response) : Promise.resolve(response);
+				})
+				.then(response => {
+					return this.cacheResponse(cacheKey, response, isWrite);
+				})
 				.catch(error => {
 
 					// Retry request if the server did not return a valid error message
@@ -128,10 +136,46 @@ export default function (options) {
 					},
 					time: performance.now()
 				};
+
+
+				//
+				// TESTING OFFLINE PROXY
+				//
+				/*
+				const path = url.split('/');
+				if (path.length > 5 && path[3] === 'orgs' && path[5] === 'repos') {
+					const { offline } = require('./offline/proxy');
+					return offline(url);
+				}
+				else {
+					return fetch(url, requestOptions);
+				}
+				*/
+
+				// mock requests for offline development
+				if (OFFLINE_MODE) {
+					const { offline } = require('./offline/proxy');
+					return offline(url);
+
+					// Dynamic import syntax not working (404s on filename?)
+					/*
+					import('./offline-proxy.js')
+						.then(({offline}) =>
+							fetch(offline(url), requestOptions));
+					*/
+				}
 				return fetch(url, requestOptions);
 
 			}
 
+		},
+
+		dumpReqRsp: function (url) {
+			return function (response) {
+				console.log("\n\nurl:", url);
+				console.log(response);
+				return response;
+			}
 		},
 
 		checkStatus: function (response) {
@@ -168,6 +212,8 @@ export default function (options) {
 		},
 
 		cacheResponse: function (key, value, isWrite) {
+
+			console.log("response body:", JSON.stringify(value));
 
 			this.cache[key] = {
 				value,
