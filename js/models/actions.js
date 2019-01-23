@@ -92,7 +92,7 @@ export default function (store, transport) {
 		 * Request the following for one Open Redistricting project (repository):
 		 * - metadata
 		 * - file list
-		 * - proposal list (A "proposal" is a pull request (defaults to return only open requests) on a GitHub "open-redist" repository)
+		 * - proposal list (A "proposal" is a pull request on a GitHub "open-redist" repository; we fetch all and filter down to open on response)
 		 */
 		requestProject (projectId) {
 
@@ -104,7 +104,7 @@ export default function (store, transport) {
 
 			Promise.all([
 				transport.request(`https://api.github.com/repos/${ githubOrgName }/${ projectId }`, this.parseProjectMetadata, this.buildAuthHeader()),
-				transport.request(`https://api.github.com/repos/${ githubOrgName }/${ projectId }/pulls`, this.parseProjectProposals, this.buildAuthHeader())
+				transport.request(`https://api.github.com/repos/${ githubOrgName }/${ projectId }/pulls?state=all`, this.parseProjectProposals, this.buildAuthHeader())
 			])
 			.then(
 				responses => {
@@ -157,7 +157,11 @@ export default function (store, transport) {
 			// extract only the subset of data needed for this application
 			return response.json()
 			.then(json => json.reduce((acc, proposal) => {
-				acc[proposal.number] = proposal;
+				// Filter down to only open pulls; we can later show closed pulls
+				// and add a UI to reopen if desired.
+				if (proposal.state === 'open') {
+					acc[proposal.number] = proposal;
+				}
 				return acc;
 			}, {}));
 
