@@ -1,4 +1,4 @@
-import { LOCATION_CHANGE } from 'react-router-redux';
+// import { LOCATION_CHANGE } from 'react-router-redux';
 import get from 'lodash.get';
 
 import * as actions from './actions';

@@ -1,10 +1,15 @@
 // import node modules
 import React from 'react';
-import { withRouter } from 'react-router';
+import { Switch, withRouter } from 'react-router';
 import { debounce } from 'lodash';
 
 import auth from '../models/auth';
 import Header from '../components/Header.jsx';
+
+import Auth from './Auth.jsx';
+import HomePage from './HomePage.jsx';
+import ProjectPage from './ProjectPage.jsx';
+import ProposalPage from './ProposalPage.jsx';
 
 // main app container
 class App extends React.Component {
@@ -42,6 +47,21 @@ class App extends React.Component {
 			// to avoid polluting the URL with both a before- and after-hash query string.
 			window.history.replaceState(null, '', window.location.pathname);
 
+			//
+			// TODO NEXT:
+			// what changed in my greenkeeping that now makes this.props.history
+			// undefined instead of a history object, with navigation?
+			// https://github.com/ReactTraining/history/blob/master/README.md#navigation
+			//
+			// only thing i can guess is redux 3.6 -> 4.0.
+			// https://github.com/stamen/open-redistricting/compare/c307d1c99b2b2e6c471a6d0b85fb8a3e1843ca2f...master
+			//
+			// could maybe switch to using `routerMiddleware` to work around?
+			// https://www.npmjs.com/package/react-router-redux#pushlocation--replacelocation--gonumber--goback--goforward
+			//
+			// try checking out older commit, and inspecting with React devtools
+			// to see if/when history is available on props.
+			//
 			this.props.history.replace({
 				pathname: '/auth',
 				query: {
@@ -92,18 +112,24 @@ class App extends React.Component {
     // ============================================================ //
 
     render () {
-		
+		/*
 		const storeState = this.props.store.getState();
 
 		// Clone child to ensure it gets rendered,
 		// even with identical props/state (since we're 
 		// managing state in Redux store, not in React component)
 		let childrenWithProps = React.Children.map(this.props.children, child => React.cloneElement(child, {}));
-
+		*/
 		return (
 			<div className='app-container'>
 				<Header { ...this.props } />
-				{ childrenWithProps }
+				<Switch>
+					<Route exact path={ '/' } component={ HomePage } />
+					<Route path={ '/:owner/:projectId' } component={ ProjectPage } />
+					<Route path={ '/:owner/:projectId/:proposalId' } component={ ProposalPage } />
+					<Route path={ 'auth' } component={ Auth } />
+				</Switch>
+				{ /*childrenWithProps*/ }
 			</div>
 		);
 
