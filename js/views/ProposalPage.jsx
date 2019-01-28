@@ -1,10 +1,11 @@
 // import node modules
 import React from 'react';
-import { Link, withRouter } from 'react-router';
+import { Link } from 'react-router-dom';
 import get from 'lodash.get';
 import moment from 'moment';
 import sanitizeHtml from 'sanitize-html';
 
+import AppContext from '../context';
 import { mapFilename } from '../../static/appConfig.json';
 import {
 	deriveProjectId,
@@ -20,6 +21,8 @@ import GeoJsonMap from '../components/GeoJsonMap.jsx';
 const PROPOSAL_VOTE_KEY = 'proposal';
 
 class ProposalPage extends React.Component {
+	static contextType = AppContext;
+
     constructor (props) {
         super(props);
 
@@ -35,18 +38,18 @@ class ProposalPage extends React.Component {
 
 		if (!project || !Object.keys(project).length) {
 			// only fetch containing project if it's not already in the store
-			this.props.actions.requestProject(this.props.params.projectId);
+			this.context.actions.requestProject(this.props.params.projectId);
 		}
 
 		if (!proposal) {
 			// only fetch proposal if it's not already in the store.
-			this.props.actions.requestProposal(this.props.params.projectId, this.props.params.proposalId);
+			this.context.actions.requestProposal(this.props.params.projectId, this.props.params.proposalId);
 		}
 
-		let { viewer } = this.props.store.getState();
+		let { viewer } = this.context.store.getState();
 		if (typeof(viewer.isSignedIn === 'undefined') && !viewer.loading) {
 			// get viewer info if not already available
-			this.props.actions.getViewer();
+			this.context.actions.getViewer();
 		}
 
 	}
@@ -112,7 +115,7 @@ class ProposalPage extends React.Component {
 			let reader = new FileReader();
 			reader.addEventListener('load', event => {
 				let fileBase64 = reader.result.split(',')[1];
-				this.props.actions.createProposalRevision(
+				this.context.actions.createProposalRevision(
 					values.desc,
 					fileBase64,
 					this.props.params.projectId,
@@ -142,7 +145,7 @@ class ProposalPage extends React.Component {
 		let comments = get(proposal, 'comments') || [];
 
 		this.previousNumComments = comments.length;
-		this.props.actions.createProposalComment(this.refs.commentInput.value, this.props.params.projectId, this.props.params.proposalId);
+		this.context.actions.createProposalComment(this.refs.commentInput.value, this.props.params.projectId, this.props.params.proposalId);
 
 	};
 
@@ -170,7 +173,7 @@ class ProposalPage extends React.Component {
 			tickCount: 0
 		};
 
-		this.props.actions.createProposalReaction(
+		this.context.actions.createProposalReaction(
 			val,
 			this.props.params.projectId,
 			this.props.params.proposalId,
@@ -221,7 +224,7 @@ class ProposalPage extends React.Component {
 							<figure className='current'>
 								<GeoJsonMap
 									path={ diffPaths[0] }
-									fetchJSON={ this.props.actions.fetchJSON }
+									fetchJSON={ this.context.actions.fetchJSON }
 									mapOptions={ {
 										dragging: true,
 										touchZoom: true,
@@ -236,7 +239,7 @@ class ProposalPage extends React.Component {
 							<figure className='proposed'>
 								<GeoJsonMap
 									path={ diffPaths[1] }
-									fetchJSON={ this.props.actions.fetchJSON }
+									fetchJSON={ this.context.actions.fetchJSON }
 									mapOptions={ {
 										dragging: true,
 										touchZoom: true,
@@ -255,7 +258,7 @@ class ProposalPage extends React.Component {
 						<DiffMap
 							path1={ diffPaths[0] }
 							path2={ diffPaths[1] }
-							fetchJSON={ this.props.actions.fetchJSON }
+							fetchJSON={ this.context.actions.fetchJSON }
 						/>
 						: null
 					}
@@ -370,7 +373,7 @@ class ProposalPage extends React.Component {
 
     getStoreState () {
 
-		const storeState = this.props.store.getState(),
+		const storeState = this.context.store.getState(),
 			project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)],
 			projectMetadata = get(project, 'metadata'),
 			proposal = storeState.proposals[deriveProposalId(this.props.params.owner, this.props.params.projectId, this.props.params.proposalId)],
@@ -386,4 +389,4 @@ class ProposalPage extends React.Component {
 	}
 }
 
-export default withRouter(ProposalPage);
+export default ProposalPage;

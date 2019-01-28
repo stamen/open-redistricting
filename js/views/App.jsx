@@ -1,8 +1,9 @@
 // import node modules
-import React from 'react';
-import { Switch, withRouter } from 'react-router';
 import { debounce } from 'lodash';
+import React from 'react';
+import { Route, Switch } from 'react-router-dom';
 
+import AppContext from '../context';
 import auth from '../models/auth';
 import Header from '../components/Header.jsx';
 
@@ -11,8 +12,12 @@ import HomePage from './HomePage.jsx';
 import ProjectPage from './ProjectPage.jsx';
 import ProposalPage from './ProposalPage.jsx';
 
+console.log("AppContext:", AppContext);
+
 // main app container
 class App extends React.Component {
+	static contextType = AppContext;
+
     constructor (props) {
         super(props);
 
@@ -20,7 +25,9 @@ class App extends React.Component {
         this.onWindowResize = debounce(this.onWindowResize.bind(this), 250);
 
         // subscribe for future state changes
-        props.store.subscribe(this.onAppStateChange);
+        // this.context.store.subscribe(this.onAppStateChange);
+
+        this.checkForInboundAuth();
     }
 
     onAppStateChange = () => {
@@ -34,7 +41,41 @@ class App extends React.Component {
     // React Lifecycle
     // ============================================================ //
 
-    UNSAFE_componentWillMount () {
+    componentDidMount () {
+
+        // subscribe for future state changes
+        // TODO: is this necessary now that we're using Context API?
+        // Will a change in context.store trigger a component tree rerender?
+        this.context.store.subscribe(this.onAppStateChange);
+    	
+	}
+
+    componentWillUnmount () {
+
+		window.removeEventListener('resize', this.onWindowResize);
+
+	}
+
+
+
+    // ============================================================ //
+    // Handlers
+    // ============================================================ //
+
+    onWindowResize (event) {
+
+    	// TODO: what is this??
+		// this.computeComponentDimensions();
+
+	}
+
+
+
+    // ============================================================ //
+    // Helpers
+    // ============================================================ //
+
+    checkForInboundAuth () {
 
 		let code = auth.extractOAuthCode();
 		if (code) {
@@ -73,38 +114,6 @@ class App extends React.Component {
 
 	}
 
-    componentDidMount () {
-
-		//
-
-	}
-
-    componentWillUnmount () {
-
-		window.removeEventListener('resize', this.onWindowResize);
-
-	}
-
-
-
-    // ============================================================ //
-    // Handlers
-    // ============================================================ //
-
-    onWindowResize (event) {
-
-		this.computeComponentDimensions();
-
-	}
-
-
-
-    // ============================================================ //
-    // Helpers
-    // ============================================================ //
-
-    //
-
 
 
     // ============================================================ //
@@ -113,21 +122,24 @@ class App extends React.Component {
 
     render () {
 		/*
-		const storeState = this.props.store.getState();
+		const storeState = this.context.store.getState();
 
 		// Clone child to ensure it gets rendered,
 		// even with identical props/state (since we're 
 		// managing state in Redux store, not in React component)
 		let childrenWithProps = React.Children.map(this.props.children, child => React.cloneElement(child, {}));
 		*/
+
+		const { match: { path } } = this.props;
+
 		return (
 			<div className='app-container'>
 				<Header { ...this.props } />
 				<Switch>
-					<Route exact path={ '/' } component={ HomePage } />
-					<Route path={ '/:owner/:projectId' } component={ ProjectPage } />
-					<Route path={ '/:owner/:projectId/:proposalId' } component={ ProposalPage } />
-					<Route path={ 'auth' } component={ Auth } />
+					<Route path={ path } exact component={ HomePage } />
+					<Route path={ `${path}/:owner/:projectId` } component={ ProjectPage } />
+					<Route path={ `${path}/:owner/:projectId/:proposalId` } component={ ProposalPage } />
+					<Route path={ `${path}/auth` } component={ Auth } />
 				</Switch>
 				{ /*childrenWithProps*/ }
 			</div>
@@ -136,4 +148,4 @@ class App extends React.Component {
 	}
 }
 
-export default withRouter(App);
+export default App;

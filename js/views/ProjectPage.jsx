@@ -1,9 +1,9 @@
 // import node modules
 import React from 'react';
-import { withRouter } from 'react-router';
 import get from 'lodash.get';
 import moment from 'moment';
 
+import AppContext from '../context';
 import { mapFilename } from '../../static/appConfig.json';
 import { deriveProjectId } from '../models/reducers';
 import ProposalThumb from '../components/ProposalThumb.jsx';
@@ -11,6 +11,8 @@ import AddItemModal from '../components/AddItemModal.jsx';
 
 
 class ProjectPage extends React.Component {
+	static contextType = AppContext;
+
     constructor (props) {
         super(props);
 
@@ -19,18 +21,18 @@ class ProjectPage extends React.Component {
 
     UNSAFE_componentWillMount () {
 
-		this.props.actions.requestProject(this.props.params.projectId);
+		this.context.actions.requestProject(this.props.params.projectId);
 
-		let { viewer } = this.props.store.getState();
+		let { viewer } = this.context.store.getState();
 		if (typeof(viewer.isSignedIn === 'undefined') && !viewer.loading) {
-			this.props.actions.getViewer();
+			this.context.actions.getViewer();
 		}
 
 	}
 
     UNSAFE_componentWillReceiveProps (nextProps) {
 
-		const storeState = this.props.store.getState(),
+		const storeState = this.context.store.getState(),
 			project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)];
 		let proposals = get(project, 'proposals') || {};
 
@@ -55,7 +57,7 @@ class ProjectPage extends React.Component {
 			this.setState({ modalIsOpen: false });
 		} else {
 
-			const storeState = this.props.store.getState(),
+			const storeState = this.context.store.getState(),
 				project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)],
 				viewerId = get(storeState, 'viewer.login');
 
@@ -67,7 +69,7 @@ class ProjectPage extends React.Component {
 			let reader = new FileReader();
 			reader.addEventListener('load', event => {
 				let fileBase64 = reader.result.split(',')[1];
-				this.props.actions.createProposal(values.name, values.desc, fileBase64, this.props.params.projectId, viewerId);
+				this.context.actions.createProposal(values.name, values.desc, fileBase64, this.props.params.projectId, viewerId);
 			});
 			reader.readAsDataURL(values.file);
 
@@ -77,7 +79,7 @@ class ProjectPage extends React.Component {
 
     render () {
 
-		const storeState = this.props.store.getState(),
+		const storeState = this.context.store.getState(),
 			project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)];
 		let proposals = get(project, 'proposals') || {};
 
@@ -101,7 +103,7 @@ class ProjectPage extends React.Component {
 									<ProposalThumb
 										projectMetadata={ project.metadata }
 										mapPath={ `https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ proposal.head.sha }/${ mapFilename }` }
-										fetchJSON={ this.props.actions.fetchJSON }
+										fetchJSON={ this.context.actions.fetchJSON }
 										{ ...proposal }
 									/>
 								</li>
@@ -157,4 +159,4 @@ class ProjectPage extends React.Component {
 	}
 }
 
-export default withRouter(ProjectPage);
+export default ProjectPage;

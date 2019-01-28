@@ -1,11 +1,12 @@
 // import node modules
 import React from 'react';
-import { withRouter } from 'react-router';
 
+import AppContext from '../context';
 import auth from '../models/auth';
 
 
 class Auth extends React.Component {
+	static contextType = AppContext;
 
 	constructor (props) {
 
