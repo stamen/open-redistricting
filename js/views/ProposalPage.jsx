@@ -38,12 +38,12 @@ class ProposalPage extends React.Component {
 
 		if (!project || !Object.keys(project).length) {
 			// only fetch containing project if it's not already in the store
-			this.context.actions.requestProject(this.props.params.projectId);
+			this.context.actions.requestProject(this.props.match.params.projectId);
 		}
 
 		if (!proposal) {
 			// only fetch proposal if it's not already in the store.
-			this.context.actions.requestProposal(this.props.params.projectId, this.props.params.proposalId);
+			this.context.actions.requestProposal(this.props.match.params.projectId, this.props.match.params.proposalId);
 		}
 
 		let { viewer } = this.context.store.getState();
@@ -118,8 +118,8 @@ class ProposalPage extends React.Component {
 				this.context.actions.createProposalRevision(
 					values.desc,
 					fileBase64,
-					this.props.params.projectId,
-					this.props.params.proposalId,
+					this.props.match.params.projectId,
+					this.props.match.params.proposalId,
 					get(viewer, 'login'),
 					proposal
 				);
@@ -145,7 +145,7 @@ class ProposalPage extends React.Component {
 		let comments = get(proposal, 'comments') || [];
 
 		this.previousNumComments = comments.length;
-		this.context.actions.createProposalComment(this.refs.commentInput.value, this.props.params.projectId, this.props.params.proposalId);
+		this.context.actions.createProposalComment(this.refs.commentInput.value, this.props.match.params.projectId, this.props.match.params.proposalId);
 
 	};
 
@@ -175,8 +175,8 @@ class ProposalPage extends React.Component {
 
 		this.context.actions.createProposalReaction(
 			val,
-			this.props.params.projectId,
-			this.props.params.proposalId,
+			this.props.match.params.projectId,
+			this.props.match.params.proposalId,
 			viewerId,
 			commentId === PROPOSAL_VOTE_KEY ? null : commentId
 		);
@@ -201,8 +201,8 @@ class ProposalPage extends React.Component {
 		if (!proposalIsLoading) {
 			currentRevisionSha = this.state.currentRevisionSha || proposal.head.sha;
 			diffPaths = [
-				`https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ proposal.base.sha }/${ mapFilename }`,
-				`https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ currentRevisionSha }/${ mapFilename }`
+				`https://raw.githubusercontent.com/${ this.props.match.params.owner }/${ this.props.match.params.projectId }/${ proposal.base.sha }/${ mapFilename }`,
+				`https://raw.githubusercontent.com/${ this.props.match.params.owner }/${ this.props.match.params.projectId }/${ currentRevisionSha }/${ mapFilename }`
 			];
 		}
 
@@ -264,7 +264,7 @@ class ProposalPage extends React.Component {
 					}
 					<div className='info'>
 						<h2 className='title'>{ proposalIsLoading ? '' : proposal.title }</h2>
-						<Link to={ `/${ this.props.params.owner }/${ this.props.params.projectId }` }>{ get(projectMetadata, 'name') || '' }</Link>
+						<Link to={ `/${ this.props.match.params.owner }/${ this.props.match.params.projectId }` }>{ get(projectMetadata, 'name') || '' }</Link>
 						<p className='body' dangerouslySetInnerHTML={{ __html: body }} />
 						{ proposalIsLoading ? null : <div className='created-date'>{ moment(proposal.created_at).format('MMM D YYYY') }</div> }
 						<div className='footer'>
@@ -374,9 +374,9 @@ class ProposalPage extends React.Component {
     getStoreState () {
 
 		const storeState = this.context.store.getState(),
-			project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)],
+			project = storeState.projects[deriveProjectId(this.props.match.params.owner, this.props.match.params.projectId)],
 			projectMetadata = get(project, 'metadata'),
-			proposal = storeState.proposals[deriveProposalId(this.props.params.owner, this.props.params.projectId, this.props.params.proposalId)],
+			proposal = storeState.proposals[deriveProposalId(this.props.match.params.owner, this.props.match.params.projectId, this.props.match.params.proposalId)],
 			{ viewer } = storeState;
 
 		return {

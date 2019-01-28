@@ -98,8 +98,8 @@ render((
 	<AppContext.Provider value={ contextValues }>
 		<BrowserRouter>
 			<Switch>
-				<Route path='/' exact component={ App } />
-				<Route path='*' component={ RouteNotFound } />
+				<Route path='/' component={ App } />
+				<Route component={ RouteNotFound } />
 			</Switch>
 		</BrowserRouter>
 	</AppContext.Provider>

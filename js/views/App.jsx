@@ -12,8 +12,6 @@ import HomePage from './HomePage.jsx';
 import ProjectPage from './ProjectPage.jsx';
 import ProposalPage from './ProposalPage.jsx';
 
-console.log("AppContext:", AppContext);
-
 // main app container
 class App extends React.Component {
 	static contextType = AppContext;
@@ -131,15 +129,16 @@ class App extends React.Component {
 		*/
 
 		const { match: { path } } = this.props;
+		console.log(this.props.match);
 
 		return (
 			<div className='app-container'>
 				<Header { ...this.props } />
 				<Switch>
 					<Route path={ path } exact component={ HomePage } />
-					<Route path={ `${path}/:owner/:projectId` } component={ ProjectPage } />
-					<Route path={ `${path}/:owner/:projectId/:proposalId` } component={ ProposalPage } />
-					<Route path={ `${path}/auth` } component={ Auth } />
+					<Route path={ `${path}:owner/:projectId` } component={ ProjectPage } />
+					<Route path={ `${path}:owner/:projectId/:proposalId` } component={ ProposalPage } />
+					<Route path={ `${path}auth` } component={ Auth } />
 				</Switch>
 				{ /*childrenWithProps*/ }
 			</div>

@@ -21,7 +21,7 @@ class ProjectPage extends React.Component {
 
     UNSAFE_componentWillMount () {
 
-		this.context.actions.requestProject(this.props.params.projectId);
+		this.context.actions.requestProject(this.props.match.params.projectId);
 
 		let { viewer } = this.context.store.getState();
 		if (typeof(viewer.isSignedIn === 'undefined') && !viewer.loading) {
@@ -33,7 +33,7 @@ class ProjectPage extends React.Component {
     UNSAFE_componentWillReceiveProps (nextProps) {
 
 		const storeState = this.context.store.getState(),
-			project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)];
+			project = storeState.projects[deriveProjectId(this.props.match.params.owner, this.props.match.params.projectId)];
 		let proposals = get(project, 'proposals') || {};
 
 		if (typeof this.previousNumProposals !== 'undefined' && this.previousNumProposals !== Object.keys(proposals).length) {
@@ -58,7 +58,7 @@ class ProjectPage extends React.Component {
 		} else {
 
 			const storeState = this.context.store.getState(),
-				project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)],
+				project = storeState.projects[deriveProjectId(this.props.match.params.owner, this.props.match.params.projectId)],
 				viewerId = get(storeState, 'viewer.login');
 
 			if (!project || !viewerId) return;
@@ -69,7 +69,7 @@ class ProjectPage extends React.Component {
 			let reader = new FileReader();
 			reader.addEventListener('load', event => {
 				let fileBase64 = reader.result.split(',')[1];
-				this.context.actions.createProposal(values.name, values.desc, fileBase64, this.props.params.projectId, viewerId);
+				this.context.actions.createProposal(values.name, values.desc, fileBase64, this.props.match.params.projectId, viewerId);
 			});
 			reader.readAsDataURL(values.file);
 
@@ -80,7 +80,7 @@ class ProjectPage extends React.Component {
     render () {
 
 		const storeState = this.context.store.getState(),
-			project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)];
+			project = storeState.projects[deriveProjectId(this.props.match.params.owner, this.props.match.params.projectId)];
 		let proposals = get(project, 'proposals') || {};
 
 		proposals = Object.keys(proposals)
@@ -102,7 +102,7 @@ class ProjectPage extends React.Component {
 								<li key={ proposal.id }>
 									<ProposalThumb
 										projectMetadata={ project.metadata }
-										mapPath={ `https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ proposal.head.sha }/${ mapFilename }` }
+										mapPath={ `https://raw.githubusercontent.com/${ this.props.match.params.owner }/${ this.props.match.params.projectId }/${ proposal.head.sha }/${ mapFilename }` }
 										fetchJSON={ this.context.actions.fetchJSON }
 										{ ...proposal }
 									/>
