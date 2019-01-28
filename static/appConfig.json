@@ -1,23 +1,23 @@
 {
-	githubOrgName: "open-redist",
-	mapFilename: "map.geojson",
-	readmeFilename: "README.md",
-	auth: {
-		dev: {
-			githubAPIClientId: "a28dec5e95710eeb18cf",
-			redirectURL: "http://localhost:3000/",
-			gatekeeperAccessTokenURL: "https://open-redistricting-auth-dev.herokuapp.com/authenticate/",
-			tokenName: "github-auth"
+	"githubOrgName": "open-redist",
+	"mapFilename": "map.geojson",
+	"readmeFilename": "README.md",
+	"auth": {
+		"dev": {
+			"githubAPIClientId": "a28dec5e95710eeb18cf",
+			"redirectURL": "http://localhost:3000/",
+			"gatekeeperAccessTokenURL": "https://open-redistricting-auth-dev.herokuapp.com/authenticate/",
+			"tokenName": "github-auth"
 		},
-		prod: {
-			githubAPIClientId: "b59bd6802b8a36f7613d",
-			redirectURL: "http://openredist.org/",
-			gatekeeperAccessTokenURL: "https://open-redistricting-auth-prod.herokuapp.com/authenticate/",
-			tokenName: "github-auth"
+		"prod": {
+			"githubAPIClientId": "b59bd6802b8a36f7613d",
+			"redirectURL": "http://openredist.org/",
+			"gatekeeperAccessTokenURL": "https://open-redistricting-auth-prod.herokuapp.com/authenticate/",
+			"tokenName": "github-auth"
 		}
 	},
-	map: {
-		tileLayers: [
+	"map": {
+		"tileLayers": [
 			{
 				"url": "http://sm.mapstack.stamen.com/toner-lite/{z}/{x}/{y}.png"
 			}

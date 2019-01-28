@@ -1,25 +1,27 @@
-// import node modules
 import React from 'react';
-import { withRouter } from 'react-router';
 
+import AppContext from '../context';
 import auth from '../models/auth';
 
 
 class Auth extends React.Component {
+	static contextType = AppContext;
 
-	constructor (props) {
+	// HACK to avoid setState on unmounted component
+	isMounted = false;
 
-		super(props);
+	componentDidMount () {
 
-	}
+		this.isMounted = true;
 
-	UNSAFE_componentWillMount () {
-
-		let { code, state } = this.props.location.query,
-			pathname = '/';
+		// Extracted from query string in checkForInboundAuth
+		const oAuthState = this.props.location && this.props.location.state;
+		const { code, state } = oAuthState || {};
+		let pathname = '/';
 
 		if (state) {
-			// technically, this is an incorrect use of OAuth2 state,
+			// Check for state passed from auth.js via App.jsx.
+			// Technically, this is an incorrect use of OAuth2 state,
 			// which is supposed to be used for additional security.
 			// But it's also handy for maintaining state across redirects;
 			// we use it here to redirect the user to the
@@ -27,33 +29,33 @@ class Auth extends React.Component {
 			pathname = decodeURIComponent(state);
 		}
 
+		// TODO: move effectful fetchAccessToken logic to reducers
+		// to avoid Promise resolution on unmounted component
 		auth.fetchAccessToken(code,
 			() => {
-				// on success
-				this.props.history.push({
-					pathname
-				});
+				if (this.isMounted) {
+					// on success
+					this.props.history.push({
+						pathname
+					});
+				}
 			},
 			() => {
-				// on error
-				this.props.history.push({
-					pathname: '/',
-					state: { errorResponse: window.location.href }
-				});
+				if (this.isMounted) {
+					// on error
+					this.props.history.push({
+						pathname: '/',
+						state: { errorResponse: window.location.href }
+					});
+				}
 			}
 		);
 
 	}
 
-	componentDidMount () {
-
-		//
-
-	}
-
 	componentWillUnmount () {
 
-		//
+		this.isMounted = false;
 
 	}
 

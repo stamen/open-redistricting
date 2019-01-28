@@ -1,9 +1,9 @@
-// import node modules
 import React from 'react';
-import { withRouter } from 'react-router';
+import { Route } from 'react-router-dom';
 import get from 'lodash.get';
 import moment from 'moment';
 
+import AppContext from '../context';
 import { mapFilename } from '../../static/appConfig.json';
 import { deriveProjectId } from '../models/reducers';
 import ProposalThumb from '../components/ProposalThumb.jsx';
@@ -11,27 +11,27 @@ import AddItemModal from '../components/AddItemModal.jsx';
 
 
 class ProjectPage extends React.Component {
-    constructor (props) {
-        super(props);
+	static contextType = AppContext;
 
-        this.state = {};
-    }
+	state = {
+		modalIsOpen: false
+	};
 
-    UNSAFE_componentWillMount () {
+	componentDidMount () {
 
-		this.props.actions.requestProject(this.props.params.projectId);
+		this.context.actions.requestProject(this.props.match.params.projectId);
 
-		let { viewer } = this.props.store.getState();
+		let { viewer } = this.context.store.getState();
 		if (typeof(viewer.isSignedIn === 'undefined') && !viewer.loading) {
-			this.props.actions.getViewer();
+			this.context.actions.getViewer();
 		}
 
 	}
 
     UNSAFE_componentWillReceiveProps (nextProps) {
 
-		const storeState = this.props.store.getState(),
-			project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)];
+		const storeState = this.context.store.getState(),
+			project = storeState.projects[deriveProjectId(this.props.match.params.owner, this.props.match.params.projectId)];
 		let proposals = get(project, 'proposals') || {};
 
 		if (typeof this.previousNumProposals !== 'undefined' && this.previousNumProposals !== Object.keys(proposals).length) {
@@ -55,8 +55,8 @@ class ProjectPage extends React.Component {
 			this.setState({ modalIsOpen: false });
 		} else {
 
-			const storeState = this.props.store.getState(),
-				project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)],
+			const storeState = this.context.store.getState(),
+				project = storeState.projects[deriveProjectId(this.props.match.params.owner, this.props.match.params.projectId)],
 				viewerId = get(storeState, 'viewer.login');
 
 			if (!project || !viewerId) return;
@@ -67,7 +67,7 @@ class ProjectPage extends React.Component {
 			let reader = new FileReader();
 			reader.addEventListener('load', event => {
 				let fileBase64 = reader.result.split(',')[1];
-				this.props.actions.createProposal(values.name, values.desc, fileBase64, this.props.params.projectId, viewerId);
+				this.context.actions.createProposal(values.name, values.desc, fileBase64, this.props.match.params.projectId, viewerId);
 			});
 			reader.readAsDataURL(values.file);
 
@@ -77,8 +77,8 @@ class ProjectPage extends React.Component {
 
     render () {
 
-		const storeState = this.props.store.getState(),
-			project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)];
+		const storeState = this.context.store.getState(),
+			project = storeState.projects[deriveProjectId(this.props.match.params.owner, this.props.match.params.projectId)];
 		let proposals = get(project, 'proposals') || {};
 
 		proposals = Object.keys(proposals)
@@ -100,8 +100,8 @@ class ProjectPage extends React.Component {
 								<li key={ proposal.id }>
 									<ProposalThumb
 										projectMetadata={ project.metadata }
-										mapPath={ `https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ proposal.head.sha }/${ mapFilename }` }
-										fetchJSON={ this.props.actions.fetchJSON }
+										mapPath={ `https://raw.githubusercontent.com/${ this.props.match.params.owner }/${ this.props.match.params.projectId }/${ proposal.head.sha }/${ mapFilename }` }
+										fetchJSON={ this.context.actions.fetchJSON }
 										{ ...proposal }
 									/>
 								</li>
@@ -157,4 +157,4 @@ class ProjectPage extends React.Component {
 	}
 }
 
-export default withRouter(ProjectPage);
+export default ProjectPage;

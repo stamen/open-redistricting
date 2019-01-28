@@ -1,6 +1,6 @@
 import React from 'react';
-import { withRouter } from 'react-router';
 
+import AppContext from '../context';
 import { githubOrgName, mapFilename } from '../../static/appConfig.json';
 import auth from '../models/auth';
 import ProjectThumb from '../components/ProjectThumb.jsx';
@@ -8,19 +8,17 @@ import LoginModal from '../components/LoginModal.jsx';
 import AddItemModal from '../components/AddItemModal.jsx';
 
 class HomePage extends React.Component {
-    constructor (props) {
-        super(props);
+	static contextType = AppContext;
+	
+	state = {
+		loginModalIsOpen: false,
+		rateLimitModalIsOpen: false,
+		addProjectModalIsOpen: false
+	};
 
-        this.state = {
-			loginModalIsOpen: false,
-			rateLimitModalIsOpen: false,
-			addProjectModalIsOpen: false
-		};
-    }
+    componentDidMount () {
 
-    UNSAFE_componentWillMount () {
-
-		if (~window.location.search.indexOf('rateLimit')) {
+		if (window.location.search.includes('rateLimit')) {
 			this.setState({ rateLimitModalIsOpen: true });
 			return;
 		}
@@ -28,11 +26,11 @@ class HomePage extends React.Component {
 		// Don't fetch any data when rendering Auth route.
 		if (window.location.hash.slice(0, 6) === '#/auth') return;
 
-		this.props.actions.requestProjectList();
+		this.context.actions.requestProjectList();
 
-		let { viewer } = this.props.store.getState();
+		let { viewer } = this.context.store.getState();
 		if (typeof(viewer.isMember === 'undefined') && !viewer.loading) {
-			this.props.actions.getViewer();
+			this.context.actions.getViewer();
 		}
 
 		// If first time visiting site this session,
@@ -40,16 +38,14 @@ class HomePage extends React.Component {
 		// let sessionStorage = window.sessionStorage;
 		if (!auth.loggedIn() && (!sessionStorage || !sessionStorage['has-viewed-intro'])) {
 			if (sessionStorage) window.sessionStorage['has-viewed-intro'] = true;
-			window.setTimeout(() => {
-				this.setState({ loginModalIsOpen: true });
-			}, 1000);
+			this.setState({ loginModalIsOpen: true });
 		}
 
 	}
 
     UNSAFE_componentWillReceiveProps (nextProps) {
 
-		const storeState = nextProps.store.getState(),
+		const storeState = this.context.store.getState(),
 			projectList = storeState.projectList && storeState.projectList.data || [];
 
 		if (typeof this.previousNumProjects !== 'undefined' && this.previousNumProjects !== projectList.length) {
@@ -88,14 +84,14 @@ class HomePage extends React.Component {
 			this.setState({ addProjectModalIsOpen: false });
 		} else {
 
-			const storeState = this.props.store.getState(),
+			const storeState = this.context.store.getState(),
 				projectList = storeState.projectList && storeState.projectList.data || [];
 			this.previousNumProjects = projectList.length;
 
 			let reader = new FileReader();
 			reader.addEventListener('load', event => {
 				let fileBase64 = reader.result.split(',')[1];
-				this.props.actions.createProject(values.name, values.desc, fileBase64);
+				this.context.actions.createProject(values.name, values.desc, fileBase64);
 			});
 			reader.readAsDataURL(values.file);
 
@@ -105,7 +101,7 @@ class HomePage extends React.Component {
 
     render () {
 
-		const storeState = this.props.store.getState(),
+		const storeState = this.context.store.getState(),
 			projectList = storeState.projectList && storeState.projectList.data || [];
 
 		if (this.state.rateLimitModalIsOpen) {
@@ -121,7 +117,7 @@ class HomePage extends React.Component {
 								<ProjectThumb
 									{ ...project }
 									mapPath={ `https://raw.githubusercontent.com/${ githubOrgName }/${ project.name }/master/${ mapFilename }` }
-									fetchJSON={ this.props.actions.fetchJSON }
+									fetchJSON={ this.context.actions.fetchJSON }
 								/>
 							</li>;
 						}) }
@@ -175,4 +171,4 @@ class HomePage extends React.Component {
 	}
 }
 
-export default withRouter(HomePage);
+export default HomePage;

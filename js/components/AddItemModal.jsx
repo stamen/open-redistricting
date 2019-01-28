@@ -2,6 +2,8 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import Modal from 'react-modal';
 
+Modal.setAppElement('#app');
+
 /**
  * Modal with UI for adding a new Project or Proposal
  */

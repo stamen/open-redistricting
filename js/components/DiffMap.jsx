@@ -23,7 +23,7 @@ class DiffMap extends React.Component {
 		mapOptions: PropTypes.object
 	}
 
-    UNSAFE_componentWillMount () {
+    componentDidMount () {
 
 		this.calculateGeometry(this.props);
 

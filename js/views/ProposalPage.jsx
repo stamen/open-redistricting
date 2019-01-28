@@ -1,10 +1,10 @@
-// import node modules
 import React from 'react';
-import { Link, withRouter } from 'react-router';
+import { Link } from 'react-router-dom';
 import get from 'lodash.get';
 import moment from 'moment';
 import sanitizeHtml from 'sanitize-html';
 
+import AppContext from '../context';
 import { mapFilename } from '../../static/appConfig.json';
 import {
 	deriveProjectId,
@@ -20,13 +20,14 @@ import GeoJsonMap from '../components/GeoJsonMap.jsx';
 const PROPOSAL_VOTE_KEY = 'proposal';
 
 class ProposalPage extends React.Component {
-    constructor (props) {
-        super(props);
+	static contextType = AppContext;
 
-        this.state = {};
-    }
+	state = {
+		currentRevisionSha: null,
+		modalIsOpen: false
+	};
 
-    UNSAFE_componentWillMount () {
+    componentDidMount () {
 
 		const {
 			proposal,
@@ -35,18 +36,18 @@ class ProposalPage extends React.Component {
 
 		if (!project || !Object.keys(project).length) {
 			// only fetch containing project if it's not already in the store
-			this.props.actions.requestProject(this.props.params.projectId);
+			this.context.actions.requestProject(this.props.match.params.projectId);
 		}
 
 		if (!proposal) {
 			// only fetch proposal if it's not already in the store.
-			this.props.actions.requestProposal(this.props.params.projectId, this.props.params.proposalId);
+			this.context.actions.requestProposal(this.props.match.params.projectId, this.props.match.params.proposalId);
 		}
 
-		let { viewer } = this.props.store.getState();
+		let { viewer } = this.context.store.getState();
 		if (typeof(viewer.isSignedIn === 'undefined') && !viewer.loading) {
 			// get viewer info if not already available
-			this.props.actions.getViewer();
+			this.context.actions.getViewer();
 		}
 
 	}
@@ -112,11 +113,11 @@ class ProposalPage extends React.Component {
 			let reader = new FileReader();
 			reader.addEventListener('load', event => {
 				let fileBase64 = reader.result.split(',')[1];
-				this.props.actions.createProposalRevision(
+				this.context.actions.createProposalRevision(
 					values.desc,
 					fileBase64,
-					this.props.params.projectId,
-					this.props.params.proposalId,
+					this.props.match.params.projectId,
+					this.props.match.params.proposalId,
 					get(viewer, 'login'),
 					proposal
 				);
@@ -142,7 +143,7 @@ class ProposalPage extends React.Component {
 		let comments = get(proposal, 'comments') || [];
 
 		this.previousNumComments = comments.length;
-		this.props.actions.createProposalComment(this.refs.commentInput.value, this.props.params.projectId, this.props.params.proposalId);
+		this.context.actions.createProposalComment(this.refs.commentInput.value, this.props.match.params.projectId, this.props.match.params.proposalId);
 
 	};
 
@@ -170,10 +171,10 @@ class ProposalPage extends React.Component {
 			tickCount: 0
 		};
 
-		this.props.actions.createProposalReaction(
+		this.context.actions.createProposalReaction(
 			val,
-			this.props.params.projectId,
-			this.props.params.proposalId,
+			this.props.match.params.projectId,
+			this.props.match.params.proposalId,
 			viewerId,
 			commentId === PROPOSAL_VOTE_KEY ? null : commentId
 		);
@@ -198,8 +199,8 @@ class ProposalPage extends React.Component {
 		if (!proposalIsLoading) {
 			currentRevisionSha = this.state.currentRevisionSha || proposal.head.sha;
 			diffPaths = [
-				`https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ proposal.base.sha }/${ mapFilename }`,
-				`https://raw.githubusercontent.com/${ this.props.params.owner }/${ this.props.params.projectId }/${ currentRevisionSha }/${ mapFilename }`
+				`https://raw.githubusercontent.com/${ this.props.match.params.owner }/${ this.props.match.params.projectId }/${ proposal.base.sha }/${ mapFilename }`,
+				`https://raw.githubusercontent.com/${ this.props.match.params.owner }/${ this.props.match.params.projectId }/${ currentRevisionSha }/${ mapFilename }`
 			];
 		}
 
@@ -221,7 +222,7 @@ class ProposalPage extends React.Component {
 							<figure className='current'>
 								<GeoJsonMap
 									path={ diffPaths[0] }
-									fetchJSON={ this.props.actions.fetchJSON }
+									fetchJSON={ this.context.actions.fetchJSON }
 									mapOptions={ {
 										dragging: true,
 										touchZoom: true,
@@ -236,7 +237,7 @@ class ProposalPage extends React.Component {
 							<figure className='proposed'>
 								<GeoJsonMap
 									path={ diffPaths[1] }
-									fetchJSON={ this.props.actions.fetchJSON }
+									fetchJSON={ this.context.actions.fetchJSON }
 									mapOptions={ {
 										dragging: true,
 										touchZoom: true,
@@ -255,13 +256,13 @@ class ProposalPage extends React.Component {
 						<DiffMap
 							path1={ diffPaths[0] }
 							path2={ diffPaths[1] }
-							fetchJSON={ this.props.actions.fetchJSON }
+							fetchJSON={ this.context.actions.fetchJSON }
 						/>
 						: null
 					}
 					<div className='info'>
 						<h2 className='title'>{ proposalIsLoading ? '' : proposal.title }</h2>
-						<Link to={ `/${ this.props.params.owner }/${ this.props.params.projectId }` }>{ get(projectMetadata, 'name') || '' }</Link>
+						<Link to={ `/${ this.props.match.params.owner }/${ this.props.match.params.projectId }` }>{ get(projectMetadata, 'name') || '' }</Link>
 						<p className='body' dangerouslySetInnerHTML={{ __html: body }} />
 						{ proposalIsLoading ? null : <div className='created-date'>{ moment(proposal.created_at).format('MMM D YYYY') }</div> }
 						<div className='footer'>
@@ -370,10 +371,10 @@ class ProposalPage extends React.Component {
 
     getStoreState () {
 
-		const storeState = this.props.store.getState(),
-			project = storeState.projects[deriveProjectId(this.props.params.owner, this.props.params.projectId)],
+		const storeState = this.context.store.getState(),
+			project = storeState.projects[deriveProjectId(this.props.match.params.owner, this.props.match.params.projectId)],
 			projectMetadata = get(project, 'metadata'),
-			proposal = storeState.proposals[deriveProposalId(this.props.params.owner, this.props.params.projectId, this.props.params.proposalId)],
+			proposal = storeState.proposals[deriveProposalId(this.props.match.params.owner, this.props.match.params.projectId, this.props.match.params.proposalId)],
 			{ viewer } = storeState;
 
 		return {
@@ -386,4 +387,4 @@ class ProposalPage extends React.Component {
 	}
 }
 
-export default withRouter(ProposalPage);
+export default ProposalPage;

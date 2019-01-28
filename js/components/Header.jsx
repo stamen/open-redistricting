@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Link, withRouter } from 'react-router'
+import { Link } from 'react-router-dom';
 
 import auth from '../models/auth';
 
@@ -26,7 +26,7 @@ class Header extends React.Component {
 
     render () {
 
-		let out = (
+		return (
 			<div id='header'>
 				<h1><Link to='/'>Open Redistricting</Link></h1>
 				<div className='login-options'>
@@ -38,9 +38,7 @@ class Header extends React.Component {
 			</div>
 		);
 
-		return out;
-
 	}
 }
 
-export default withRouter(Header);
+export default Header;
