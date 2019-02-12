@@ -1,4 +1,5 @@
-import '@babel/polyfill';
+import '../scss/main.scss';
+
 import React from 'react';	// needed to parse JSX below
 import { render } from 'react-dom';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
