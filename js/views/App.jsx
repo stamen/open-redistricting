@@ -23,11 +23,11 @@ class App extends React.Component {
         	hasError: null
         };
 
+        // Redux store unsubscribe fn
+        this.unsubscribe = null;
+
         // bind event handlers
         this.onWindowResize = debounce(this.onWindowResize.bind(this), 250);
-
-        // subscribe for future state changes
-        // this.context.store.subscribe(this.onAppStateChange);
 
         this.checkForInboundAuth();
     }
@@ -45,14 +45,13 @@ class App extends React.Component {
 
     componentDidMount () {
 
-        // subscribe for future state changes
-        // TODO: is this necessary now that we're using Context API?
-        // Will a change in context.store trigger a component tree rerender?
-        this.context.store.subscribe(this.onAppStateChange);
+        this.unsubscribe = this.context.store.subscribe(this.onAppStateChange);
     	
 	}
 
     componentWillUnmount () {
+
+    	this.unsubscribe && this.unsubscribe();
 
 		window.removeEventListener('resize', this.onWindowResize);
 
@@ -124,19 +123,8 @@ class App extends React.Component {
     // ============================================================ //
 
     render () {
-    	// TODO: remove this block once migration to new setup
-    	// (react 16, react-router 4) is complete
-
-		/*
-		const storeState = this.context.store.getState();
-
-		// Clone child to ensure it gets rendered,
-		// even with identical props/state (since we're 
-		// managing state in Redux store, not in React component)
-		let childrenWithProps = React.Children.map(this.props.children, child => React.cloneElement(child, {}));
-		*/
-
 		const { match: { path } } = this.props;
+		console.log('match:', this.props.match);
 
 		return (
 			<div className='app-container'>
@@ -147,10 +135,8 @@ class App extends React.Component {
 							<Switch>
 								<Route path={ path } exact component={ HomePage } />
 								<Route path={ `${path}:owner/:projectId` } component={ ProjectPage } />
-								<Route path={ `${path}:owner/:projectId/:proposalId` } component={ ProposalPage } />
 								<Route path={ `${path}auth` } component={ Auth } />
 							</Switch>
-							{ /*childrenWithProps*/ }
 						</>)
 				}
 			</div>

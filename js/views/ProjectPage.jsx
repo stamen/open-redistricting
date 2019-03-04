@@ -1,11 +1,13 @@
 // import node modules
 import React from 'react';
+import { Route } from 'react-router-dom';
 import get from 'lodash.get';
 import moment from 'moment';
 
 import AppContext from '../context';
 import { mapFilename } from '../../static/appConfig.json';
 import { deriveProjectId } from '../models/reducers';
+import ProposalPage from './ProposalPage.jsx';
 import ProposalThumb from '../components/ProposalThumb.jsx';
 import AddItemModal from '../components/AddItemModal.jsx';
 
@@ -140,6 +142,15 @@ class ProjectPage extends React.Component {
 
 			}
 		}
+
+		// TODO NEXT:
+		// trying to get nested routes working.
+		// appears that ProposalPage should be rendered from here,
+		// but having trouble with the Route config / path-matching.
+		const { match: { path } } = this.props;
+		console.log('PROJECT match:', this.props.match);
+		const nestedProposalPage = <Route path={ `${path}/:proposalId` } component={ ProposalPage } />;
+		console.log("nestedProposalPage:", nestedProposalPage);
 
 		return (
 			<div className='project-page page'>
