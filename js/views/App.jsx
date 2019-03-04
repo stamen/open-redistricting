@@ -19,6 +19,10 @@ class App extends React.Component {
     constructor (props) {
         super(props);
 
+        this.state = {
+        	hasError: null
+        };
+
         // bind event handlers
         this.onWindowResize = debounce(this.onWindowResize.bind(this), 250);
 
@@ -54,6 +58,7 @@ class App extends React.Component {
 
 	}
 
+	static getDerivedStateFromError = (error) => ({ hasError: error })
 
 
     // ============================================================ //
@@ -119,6 +124,9 @@ class App extends React.Component {
     // ============================================================ //
 
     render () {
+    	// TODO: remove this block once migration to new setup
+    	// (react 16, react-router 4) is complete
+
 		/*
 		const storeState = this.context.store.getState();
 
@@ -129,18 +137,22 @@ class App extends React.Component {
 		*/
 
 		const { match: { path } } = this.props;
-		console.log(this.props.match);
 
 		return (
 			<div className='app-container'>
-				<Header { ...this.props } />
-				<Switch>
-					<Route path={ path } exact component={ HomePage } />
-					<Route path={ `${path}:owner/:projectId` } component={ ProjectPage } />
-					<Route path={ `${path}:owner/:projectId/:proposalId` } component={ ProposalPage } />
-					<Route path={ `${path}auth` } component={ Auth } />
-				</Switch>
-				{ /*childrenWithProps*/ }
+				{ this.state.hasError
+					?	<div className='error-display'>{this.state.hasError.message}</div>
+					:	(<>
+							<Header { ...this.props } />
+							<Switch>
+								<Route path={ path } exact component={ HomePage } />
+								<Route path={ `${path}:owner/:projectId` } component={ ProjectPage } />
+								<Route path={ `${path}:owner/:projectId/:proposalId` } component={ ProposalPage } />
+								<Route path={ `${path}auth` } component={ Auth } />
+							</Switch>
+							{ /*childrenWithProps*/ }
+						</>)
+				}
 			</div>
 		);
 

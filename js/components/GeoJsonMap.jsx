@@ -63,7 +63,7 @@ class GeoJsonMap extends React.Component {
 
 		const layerClassName = 'geojson-layer';
 
-		let map = this.refs.leafletMap && this.refs.leafletMap.leafletElement;
+		let map = this.leafletMap && this.leafletMap.leafletElement;
 		if (map && !this.geojsonLoadState) {
 
 			this.geojsonLoadState = 'loading';
@@ -123,7 +123,11 @@ class GeoJsonMap extends React.Component {
 			};
 
 			body = (
-				<Map { ...mapConfig } ref='leafletMap' className='map-container'>
+				<Map
+					{ ...mapConfig }
+					ref={ref => this.leafletMap = ref}
+					className='map-container'
+				>
 					{ this.renderTileLayers() }
 				</Map>
 			);
