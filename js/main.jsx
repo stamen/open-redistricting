@@ -3,12 +3,11 @@ import '../scss/main.scss';
 import React from 'react';	// needed to parse JSX below
 import { render } from 'react-dom';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { BrowserRouter, Route } from 'react-router-dom';
 import { createHashHistory } from 'history';
 
 import AppContext from './context';
 import App from './views/App.jsx';
-import RouteNotFound from './views/404.jsx';
 
 import reducers, { initialState } from './models/reducers';
 import actionCreator from './models/actions';
@@ -40,10 +39,7 @@ const contextValues = { store, actions };
 render((
 	<AppContext.Provider value={ contextValues }>
 		<BrowserRouter>
-			<Switch>
-				<Route path='/' component={ App } />
-				<Route component={ RouteNotFound } />
-			</Switch>
+			<Route path='/' component={ App } />
 		</BrowserRouter>
 	</AppContext.Provider>
 ), document.getElementById('app'));	

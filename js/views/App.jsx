@@ -11,6 +11,7 @@ import Auth from './Auth.jsx';
 import HomePage from './HomePage.jsx';
 import ProjectPage from './ProjectPage.jsx';
 import ProposalPage from './ProposalPage.jsx';
+import RouteNotFound from './404.jsx';
 
 // main app container
 class App extends React.Component {
@@ -123,9 +124,7 @@ class App extends React.Component {
     // ============================================================ //
 
     render () {
-		const { match: { path } } = this.props;
-		console.log('match:', this.props.match);
-
+    	
 		return (
 			<div className='app-container'>
 				{ this.state.hasError
@@ -133,9 +132,11 @@ class App extends React.Component {
 					:	(<>
 							<Header { ...this.props } />
 							<Switch>
-								<Route path={ path } exact component={ HomePage } />
-								<Route path={ `${path}:owner/:projectId` } component={ ProjectPage } />
-								<Route path={ `${path}auth` } component={ Auth } />
+								<Route path={ '/' } exact component={ HomePage } />
+								<Route path={ '/:owner/:projectId/:proposalId' } component={ ProposalPage } />
+								<Route path={ '/:owner/:projectId' } component={ ProjectPage } />
+								<Route path={ '/auth' } component={ Auth } />
+								<Route component={ RouteNotFound } />
 							</Switch>
 						</>)
 				}
