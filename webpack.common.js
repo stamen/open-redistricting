@@ -10,7 +10,8 @@ module.exports = {
 	entry: './js/main.jsx',
 	output: {
 		filename: 'bundle.js',
-		path: path.resolve(__dirname, OUTPUT)
+		path: path.resolve(__dirname, OUTPUT),
+    publicPath: '/'
 	},
   module: {
     rules: [
