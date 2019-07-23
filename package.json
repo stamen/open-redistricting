@@ -8,9 +8,6 @@
     "type": "git",
     "url": "git@github.com:stamen/open-redistricting.git"
   },
-  "engines": {
-    "yarn": "^1.13.0"
-  },
   "scripts": {
     "start": "webpack-dev-server --open --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",
