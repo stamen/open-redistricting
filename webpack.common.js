@@ -55,7 +55,8 @@ module.exports = {
 	plugins: [
 		new CleanWebpackPlugin([OUTPUT]),
     new HtmlWebpackPlugin({
-      template: 'static/index.html'
+      template: 'static/index.html',
+      inject: false
     }),
     new MiniCssExtractPlugin({
       filename: devMode ? '[name].css' : '[name].[hash].css',

@@ -1,4 +1,3 @@
-// import node modules
 import { debounce } from 'lodash';
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
@@ -124,7 +123,7 @@ class App extends React.Component {
     // ============================================================ //
 
     render () {
-    	
+
 		return (
 			<div className='app-container'>
 				{ this.state.hasError

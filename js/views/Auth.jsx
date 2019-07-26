@@ -1,5 +1,5 @@
-// import node modules
 import React from 'react';
+import queryString from 'query-string';
 
 import AppContext from '../context';
 import auth from '../models/auth';
@@ -16,8 +16,9 @@ class Auth extends React.Component {
 
 	UNSAFE_componentWillMount () {
 
-		let { code, state } = this.props.location.query,
+		let { code, state } = queryString.parse(this.props.location.search),
 			pathname = '/';
+		console.log(">>>>> ", { code, state });
 
 		if (state) {
 			// technically, this is an incorrect use of OAuth2 state,

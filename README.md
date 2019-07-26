@@ -25,13 +25,15 @@ Open Redistricting repurposes core GitHub/Git features for the context of drawin
 
 To run locally, you'll want to:
 - install [NVM](http://nvm.sh) to manage your Node.js version
+- install [YVM](http://yvm.js.org) to manage your Yarn version
 - `git clone` this repository
 - and then:
 
 ```
 nvm use
-npm install
-npm start
+yarn use
+yarn
+yarn start
 ```
 
 Deploying is as simple as `npm run gh-deploy`.
