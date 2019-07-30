@@ -9,15 +9,17 @@ import AddItemModal from '../components/AddItemModal.jsx';
 
 class HomePage extends React.Component {
 	static contextType = AppContext;
+	loginModalTimeout = null;
+	state = {
+		loginModalIsOpen: false,
+		rateLimitModalIsOpen: false,
+		addProjectModalIsOpen: false
+	};
 
     constructor (props) {
+
         super(props);
 
-        this.state = {
-			loginModalIsOpen: false,
-			rateLimitModalIsOpen: false,
-			addProjectModalIsOpen: false
-		};
     }
 
     UNSAFE_componentWillMount () {
@@ -41,11 +43,17 @@ class HomePage extends React.Component {
 		// and not logged in, display intro + login CTA
 		// let sessionStorage = window.sessionStorage;
 		if (!auth.loggedIn() && (!sessionStorage || !sessionStorage['has-viewed-intro'])) {
-			if (sessionStorage) window.sessionStorage['has-viewed-intro'] = true;
-			window.setTimeout(() => {
+			this.loginModalTimeout = window.setTimeout(() => {
+				if (sessionStorage) window.sessionStorage['has-viewed-intro'] = true;
 				this.setState({ loginModalIsOpen: true });
 			}, 1000);
 		}
+
+	}
+
+	componentWillUnmount () {
+
+		window.clearTimeout(this.loginModalTimeout);
 
 	}
 
