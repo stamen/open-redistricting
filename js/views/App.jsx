@@ -90,24 +90,9 @@ class App extends React.Component {
 			// to avoid polluting the URL with both a before- and after-hash query string.
 			window.history.replaceState(null, '', window.location.pathname);
 
-			//
-			// TODO NEXT:
-			// what changed in my greenkeeping that now makes this.props.history
-			// undefined instead of a history object, with navigation?
-			// https://github.com/ReactTraining/history/blob/master/README.md#navigation
-			//
-			// only thing i can guess is redux 3.6 -> 4.0.
-			// https://github.com/stamen/open-redistricting/compare/c307d1c99b2b2e6c471a6d0b85fb8a3e1843ca2f...master
-			//
-			// could maybe switch to using `routerMiddleware` to work around?
-			// https://www.npmjs.com/package/react-router-redux#pushlocation--replacelocation--gonumber--goback--goforward
-			//
-			// try checking out older commit, and inspecting with React devtools
-			// to see if/when history is available on props.
-			//
 			this.props.history.replace({
 				pathname: '/auth',
-				query: {
+				state: {
 					code,
 					state
 				}

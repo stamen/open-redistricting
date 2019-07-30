@@ -1,5 +1,4 @@
 import React from 'react';
-import queryString from 'query-string';
 
 import AppContext from '../context';
 import auth from '../models/auth';
@@ -16,12 +15,13 @@ class Auth extends React.Component {
 
 	UNSAFE_componentWillMount () {
 
-		let { code, state } = queryString.parse(this.props.location.search),
+		// Extracted from query string in checkForInboundAuth
+		let { code, state } = this.props.location.state,
 			pathname = '/';
-		console.log(">>>>> ", { code, state });
 
 		if (state) {
-			// technically, this is an incorrect use of OAuth2 state,
+			// Check for state passed from auth.js via App.jsx.
+			// Technically, this is an incorrect use of OAuth2 state,
 			// which is supposed to be used for additional security.
 			// But it's also handy for maintaining state across redirects;
 			// we use it here to redirect the user to the
@@ -44,18 +44,6 @@ class Auth extends React.Component {
 				});
 			}
 		);
-
-	}
-
-	componentDidMount () {
-
-		//
-
-	}
-
-	componentWillUnmount () {
-
-		//
 
 	}
 

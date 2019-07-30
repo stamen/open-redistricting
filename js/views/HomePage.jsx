@@ -107,8 +107,6 @@ class HomePage extends React.Component {
 
     render () {
 
-    	console.log(">>>>> HomePage loginModalIsOpen:", this.state.loginModalIsOpen);
-
 		const storeState = this.context.store.getState(),
 			projectList = storeState.projectList && storeState.projectList.data || [];
 
