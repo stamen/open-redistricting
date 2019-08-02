@@ -55,8 +55,13 @@ export default {
 		fetch(this.config.gatekeeperAccessTokenURL + code)
 		.then(rsp => {
 			return rsp.json().then(j => {
-				this.setToken(j.token);
-				onSuccess && onSuccess(this.getToken());
+				if (j.token) {
+					this.setToken(j.token);
+					onSuccess && onSuccess(this.getToken());
+				} else if (j.error) {
+					onError && onError(j.error);
+				}
+
 			});
 		});
 

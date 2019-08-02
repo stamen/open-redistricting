@@ -33,6 +33,8 @@ const actions = actionCreator(store, transport({
 	expiration: 60000
 }));
 
+console.log('* * * * * MAIN.JSX * * * * *');
+
 // TODO: use react-redux / connect instead of this custom solution
 // of passing the store via context and subscribing to it.
 const contextValues = { store, actions };

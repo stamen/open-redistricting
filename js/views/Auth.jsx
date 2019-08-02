@@ -7,13 +7,12 @@ import auth from '../models/auth';
 class Auth extends React.Component {
 	static contextType = AppContext;
 
-	constructor (props) {
-
-		super(props);
-
-	}
+	// HACK to avoid setState on unmounted component
+	isMounted = false;
 
 	componentDidMount () {
+
+		this.isMounted = true;
 
 		// Extracted from query string in checkForInboundAuth
 		const oAuthState = this.props.location && this.props.location.state;
@@ -30,21 +29,33 @@ class Auth extends React.Component {
 			pathname = decodeURIComponent(state);
 		}
 
+		// TODO: move effectful fetchAccessToken logic to reducers
+		// to avoid Promise resolution on unmounted component
 		auth.fetchAccessToken(code,
 			() => {
-				// on success
-				this.props.history.push({
-					pathname
-				});
+				if (this.isMounted) {
+					// on success
+					this.props.history.push({
+						pathname
+					});
+				}
 			},
 			() => {
-				// on error
-				this.props.history.push({
-					pathname: '/',
-					state: { errorResponse: window.location.href }
-				});
+				if (this.isMounted) {
+					// on error
+					this.props.history.push({
+						pathname: '/',
+						state: { errorResponse: window.location.href }
+					});
+				}
 			}
 		);
+
+	}
+
+	componentWillUnmount () {
+
+		this.isMounted = false;
 
 	}
 
