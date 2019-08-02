@@ -13,13 +13,11 @@ import AddItemModal from '../components/AddItemModal.jsx';
 class ProjectPage extends React.Component {
 	static contextType = AppContext;
 
-    constructor (props) {
-        super(props);
+	state = {
+		modalIsOpen: false
+	};
 
-        this.state = {};
-    }
-
-    UNSAFE_componentWillMount () {
+	componentDidMount () {
 
 		this.context.actions.requestProject(this.props.match.params.projectId);
 
@@ -28,10 +26,6 @@ class ProjectPage extends React.Component {
 			this.context.actions.getViewer();
 		}
 
-	}
-
-	componentDidMount () {
-		console.log('ProjectPage componentDidMount');
 	}
 
     UNSAFE_componentWillReceiveProps (nextProps) {

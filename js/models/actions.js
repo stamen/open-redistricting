@@ -311,7 +311,7 @@ export default function (store, transport) {
 				response => {
 					// Check 'x-oauth-scopes' header for 'public_repo' scope.
 					let authedScopes = response.headers.get('x-oauth-scopes');
-					if (!~authedScopes.indexOf('public_repo')) {
+					if (!authedScopes.includes('public_repo')) {
 						// Authed user is part of the org, but does not yet have write access.
 						// Send through OAuth flow one more time, requesting the proper scope.
 						auth.authorize(true, ['public_repo']);
@@ -867,7 +867,7 @@ export default function (store, transport) {
 
 					if (!openRedistApp) throw new Error('User is not currently authed.');
 
-					if (~openRedistApp.scopes.indexOf('public_repo')) {
+					if (openRedistApp.scopes.includes('public_repo')) {
 						return { userHasWriteAccess: true };
 					} else {
 						url = `https://api.github.com/authorizations/${ openRedistApp.id }`;
@@ -920,7 +920,7 @@ export default function (store, transport) {
 
 			if (!error || !error.message) return;
 
-			if (~error.message.indexOf('401')) {
+			if (error.message.includes('401')) {
 
 				// If 401 Unauthorized, assume the stored OAuth access token is stale.
 				// Dump the token and refresh.
@@ -929,7 +929,7 @@ export default function (store, transport) {
 
 			} else if (~error.message.indexOf('403')) {
 
-				if (~error.message.indexOf('rate limit')) {
+				if (error.message.includes('rate limit')) {
 					// If we've hit a rate limit, throw up the info modal and login CTA.
 					// (As long as we're not already handling this case!)
 					if (!window.location.search || window.location.search.indexOf('rateLimit') === -1) {

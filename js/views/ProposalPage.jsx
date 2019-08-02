@@ -22,13 +22,12 @@ const PROPOSAL_VOTE_KEY = 'proposal';
 class ProposalPage extends React.Component {
 	static contextType = AppContext;
 
-    constructor (props) {
-        super(props);
+	state = {
+		currentRevisionSha: null,
+		modalIsOpen: false
+	};
 
-        this.state = {};
-    }
-
-    UNSAFE_componentWillMount () {
+    componentDidMount () {
 
 		const {
 			proposal,

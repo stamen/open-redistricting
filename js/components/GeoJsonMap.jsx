@@ -7,12 +7,15 @@ import appConfig from '../../static/appConfig.json';
 
 class GeoJsonMap extends React.Component {
 
-	constructor (props) {
+	state = {
+		geoJson: null,
+		loadError: null
+	};
 
-		super(props);
-		this.state = {};
+	geojsonLoadState = null;
 
-	}
+	// HACK to avoid setState on unmounted component
+	isMounted = false;
 
 	static propTypes = {
 		path: PropTypes.string.isRequired,
@@ -20,9 +23,10 @@ class GeoJsonMap extends React.Component {
 		mapOptions: PropTypes.object
 	}
 
-	UNSAFE_componentWillMount () {
+	componentDidMount () {
 
 		this.fetchGeoJson(this.props.path);
+		this.isMounted = true;
 
 	}
 
@@ -37,22 +41,33 @@ class GeoJsonMap extends React.Component {
 
 	}
 
+	componentWillUnmount () {
+
+		this.isMounted = false;
+	}
+
 	fetchGeoJson (path) {
 
+		// TODO: move effectful fetchGeoJson logic to reducers
+		// to avoid Promise resolution on unmounted component
 		this.props.fetchJSON(path)
 		.then(
 
 			response => {
-				this.geojsonLoadState = null;				
-				this.setState({
-					geoJson: response
-				});
+				if (this.isMounted) {
+					this.geojsonLoadState = null;				
+					this.setState({
+						geoJson: response
+					});
+				}
 			},
 
 			error => {
-				this.setState({
-					loadError: `Could not fetch/read GeoJSON from ${ path }`
-				});
+				if (this.isMounted) {
+					this.setState({
+						loadError: `Could not fetch/read GeoJSON from ${ path }`
+					});
+				}
 			}
 
 		);
@@ -64,7 +79,7 @@ class GeoJsonMap extends React.Component {
 		const layerClassName = 'geojson-layer';
 
 		let map = this.leafletMap && this.leafletMap.leafletElement;
-		if (map && !this.geojsonLoadState) {
+		if (map && this.state.geoJson && !this.geojsonLoadState) {
 
 			this.geojsonLoadState = 'loading';
 

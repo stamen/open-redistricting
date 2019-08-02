@@ -13,7 +13,7 @@ class Auth extends React.Component {
 
 	}
 
-	UNSAFE_componentWillMount () {
+	componentDidMount () {
 
 		// Extracted from query string in checkForInboundAuth
 		const oAuthState = this.props.location && this.props.location.state;

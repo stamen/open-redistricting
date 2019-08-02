@@ -9,22 +9,16 @@ import AddItemModal from '../components/AddItemModal.jsx';
 
 class HomePage extends React.Component {
 	static contextType = AppContext;
-	loginModalTimeout = null;
+	
 	state = {
 		loginModalIsOpen: false,
 		rateLimitModalIsOpen: false,
 		addProjectModalIsOpen: false
 	};
 
-    constructor (props) {
+    componentDidMount () {
 
-        super(props);
-
-    }
-
-    UNSAFE_componentWillMount () {
-
-		if (~window.location.search.indexOf('rateLimit')) {
+		if (window.location.search.includes('rateLimit')) {
 			this.setState({ rateLimitModalIsOpen: true });
 			return;
 		}
@@ -43,17 +37,9 @@ class HomePage extends React.Component {
 		// and not logged in, display intro + login CTA
 		// let sessionStorage = window.sessionStorage;
 		if (!auth.loggedIn() && (!sessionStorage || !sessionStorage['has-viewed-intro'])) {
-			this.loginModalTimeout = window.setTimeout(() => {
-				if (sessionStorage) window.sessionStorage['has-viewed-intro'] = true;
-				this.setState({ loginModalIsOpen: true });
-			}, 1000);
+			if (sessionStorage) window.sessionStorage['has-viewed-intro'] = true;
+			this.setState({ loginModalIsOpen: true });
 		}
-
-	}
-
-	componentWillUnmount () {
-
-		window.clearTimeout(this.loginModalTimeout);
 
 	}
 
