@@ -65,7 +65,7 @@
     "react-modal": "^3.9.1",
     "react-router-dom": "^5.0.1",
     "redux": "^4.0.4",
-    "sanitize-html": "^1.20.0",
+    "sanitize-html": "^2.3.2",
     "slug": "^0.9.3"
   }
 }
