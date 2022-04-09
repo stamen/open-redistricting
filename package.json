@@ -58,7 +58,7 @@
     "jsts": "^2.0.6",
     "leaflet": "^1.5.1",
     "lodash.get": "^4.4.2",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-leaflet": "^2.4.0",
